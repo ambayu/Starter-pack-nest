@@ -79,3 +79,80 @@ model RolePermission {
   role          Role       @relation(fields: [id_role], references: [id], onDelete: Cascade)
   permission    Permission @relation(fields: [id_permission], references: [id], onDelete: Cascade)
 }
+
+//Aspek Perhitungan Harga Satuan Barang (ASB)
+model Peraturan_Tahunan {
+  id             Int               @id @default(autoincrement())
+  tahun          Int               @unique
+  peraturan      String
+  kegiatan_asb       Kegiatan_ASB[]
+  harga_referensi Harga_Referensi[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime? // for soft delete
+}
+
+model Kategori_Komponen {
+  id        Int            @id @default(autoincrement())
+  nama      String         @unique
+  komponen_asb  Komponen_ASB[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime?
+}
+
+model Satuan {
+  id              Int               @id @default(autoincrement())
+  nama            String            @unique
+  komponen_asb    Komponen_ASB[]
+  harga_referensi Harga_Referensi[]
+  kegiatan_asb    Kegiatan_ASB[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+}
+
+model Harga_Referensi {
+  id                   Int               @id @default(autoincrement())
+  nama                 String
+  id_satuan            Int
+  satuan               Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
+  harga                Int
+  id_peraturan_tahunan Int
+  peraturan_tahunan    Peraturan_Tahunan @relation(fields: [id_peraturan_tahunan], references: [id], onDelete: Cascade)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  deletedAt            DateTime?
+}
+
+model Kegiatan_ASB {
+  id                   Int               @id @default(autoincrement())
+  kode                 String
+  uraian               String
+  id_satuan            Int
+  satuan               Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
+  id_peraturan_tahunan Int
+  peraturan_tahunan    Peraturan_Tahunan @relation(fields: [id_peraturan_tahunan], references: [id], onDelete: Cascade)
+  komponen_asb         Komponen_ASB[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  deletedAt            DateTime?
+}
+
+model Komponen_ASB {
+  id                   Int               @id @default(autoincrement())
+  id_kegiatan_asb      Int
+  kegiatan_asb         Kegiatan_ASB      @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
+  id_kategori_komponen Int
+  kategori_komponen    Kategori_Komponen @relation(fields: [id_kategori_komponen], references: [id], onDelete: Cascade)
+  uraian               String
+  id_satuan            Int
+  satuan               Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
+  koefisien            Float
+  hargaSatuan          Int
+  jumlahHarga          Int
+  urutan               Int
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  deletedAt            DateTime?
+}
