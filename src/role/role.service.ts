@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from 'generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { errorResponse, successResponse } from 'src/utils/response.util';
 import { createroleDto } from './dto/create-role.dto';

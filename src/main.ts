@@ -12,6 +12,10 @@ async function bootstrap() {
 
     }
   ));
+  app.enableCors({
+    origin: 'http://localhost:5173', // alamat frontend kamu (React)
+    credentials: true, // kalau kamu pakai cookie atau token
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 

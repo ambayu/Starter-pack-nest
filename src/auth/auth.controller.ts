@@ -1,4 +1,4 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -9,7 +9,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly prisma: PrismaService,) { }
 
-  @Get('login')
+  @Post('login')
   login(@Body() body: { username: string, password: string }) {
 
     return this.authService.login(body.username, body.password)

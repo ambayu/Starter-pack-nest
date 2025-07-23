@@ -3,6 +3,9 @@ import { IsEmail, IsNotEmpty, MinLength, IsDate } from 'class-validator';
 export class createbiodataDto {
 
     photo: string;
+    kota: string;
+    kode_pos: string;
+    no_telp: string;
 
     @IsNotEmpty({ message: "name tidak boleh kosong" })
     name: string;

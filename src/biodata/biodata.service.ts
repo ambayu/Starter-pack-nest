@@ -25,7 +25,12 @@ export class BiodataService {
                 tanggal_lahir: data.tanggal_lahir,
                 jenis_kelamin: data.jenis_kelamin,
                 id_user: data.id_user,
-                photo: data.photo
+                photo: data.photo,
+                no_telp: data.no_telp,
+                kota: data.kota,
+                kode_pos: data.kode_pos,
+
+
             },
         })
 
@@ -40,6 +45,10 @@ export class BiodataService {
                     tanggal_lahir: data.tanggal_lahir,
                     jenis_kelamin: data.jenis_kelamin,
                     id_user: data.id_user,
+                    photo: data.photo,
+                    no_telp: data.no_telp,
+                    kota: data.kota,
+                    kode_pos: data.kode_pos,
                 },
             }
         }
