@@ -6,7 +6,7 @@ import { successResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class PeraturanTahunanService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(data: CreatePeraturanTahunanDto) {
     const q = await this.prisma.peraturan_Tahunan.create({
@@ -19,14 +19,43 @@ export class PeraturanTahunanService {
     return successResponse('Peraturan tahunan berhasil dibuat', q);
   }
 
-  async findAll() {
-    const q = await this.prisma.peraturan_Tahunan.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  async findAll(page = 1, perPage = 10, tahun?: string, peraturan?: string) {
+    const skip = (page - 1) * perPage;
 
-    return successResponse('Berhasil mendapatkan semua peraturan tahunan', q);
+    // Buat filter dinamis berdasarkan input tahun & peraturan
+    const where: any = {};
+
+    if (tahun) {
+      where.tahun = {
+        contains: tahun,
+        mode: 'insensitive', // ignore huruf besar-kecil
+      };
+    }
+
+    if (peraturan) {
+      where.nama = {
+        contains: peraturan,
+        mode: 'insensitive',
+      };
+    }
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.peraturan_Tahunan.findMany({
+        skip,
+        take: perPage,
+        where,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.peraturan_Tahunan.count({ where }),
+    ]);
+
+    return successResponse('Berhasil mendapatkan peraturan tahunan', {
+      data,
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
+    });
   }
 
   findOne(id: number) {

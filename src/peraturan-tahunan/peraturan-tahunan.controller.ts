@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { PeraturanTahunanService } from './peraturan-tahunan.service';
 import { CreatePeraturanTahunanDto } from './dto/create-peraturan-tahunan.dto';
 import { UpdatePeraturanTahunanDto } from './dto/update-peraturan-tahunan.dto';
 
 @Controller('peraturan-tahunan')
 export class PeraturanTahunanController {
-  constructor(private readonly peraturanTahunanService: PeraturanTahunanService) {}
+  constructor(private readonly peraturanTahunanService: PeraturanTahunanService) { }
 
   @Post()
   create(@Body() createPeraturanTahunanDto: CreatePeraturanTahunanDto) {
@@ -13,8 +13,18 @@ export class PeraturanTahunanController {
   }
 
   @Get()
-  findAll() {
-    return this.peraturanTahunanService.findAll();
+  findAll(
+    @Query('page') page?: number,
+    @Query('perPage') perPage?: number,
+    @Query('tahun') tahun?: string,
+    @Query('peraturan') peraturan?: string,
+  ) {
+    return this.peraturanTahunanService.findAll(
+      Number(page) || 1,
+      Number(perPage) || 10,
+      tahun,
+      peraturan,
+    );
   }
 
   @Get(':id')
