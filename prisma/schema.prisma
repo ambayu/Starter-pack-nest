@@ -82,23 +82,23 @@ model RolePermission {
 
 //Aspek Perhitungan Harga Satuan Barang (ASB)
 model Peraturan_Tahunan {
-  id             Int               @id @default(autoincrement())
-  tahun          Int               @unique
-  peraturan      String
-  kegiatan_asb       Kegiatan_ASB[]
+  id              Int               @id @default(autoincrement())
+  tahun           Int               @unique
+  peraturan       String
+  kegiatan_asb    Kegiatan_ASB[]
   harga_referensi Harga_Referensi[]
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  deletedAt      DateTime? // for soft delete
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime? // for soft delete
 }
 
 model Kategori_Komponen {
-  id        Int            @id @default(autoincrement())
-  nama      String         @unique
-  komponen_asb  Komponen_ASB[]
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  deletedAt DateTime?
+  id           Int            @id @default(autoincrement())
+  nama         String         @unique
+  komponen_asb Komponen_ASB[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
 }
 
 model Satuan {

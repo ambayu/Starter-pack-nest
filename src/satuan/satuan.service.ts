@@ -58,7 +58,7 @@ export class SatuanService {
     return successResponse(`Berhasil memperbarui satuan dengan ID ${id}`, q);
   }
 
- async remove(id: number) {
+  async remove(id: number) {
     const findId = await this.prisma.satuan.findUnique({
       where: { id },
     });

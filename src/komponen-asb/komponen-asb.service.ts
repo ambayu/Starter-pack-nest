@@ -92,7 +92,6 @@ export class KomponenAsbService {
   }
 
   async remove(id: number) {
-
     const findId = await this.prisma.komponen_ASB.findUnique({
       where: { id },
     });

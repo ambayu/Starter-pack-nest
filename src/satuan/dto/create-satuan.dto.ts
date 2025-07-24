@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateSatuanDto {
   @IsNotEmpty({ message: 'Nama tidak boleh kosong' })
