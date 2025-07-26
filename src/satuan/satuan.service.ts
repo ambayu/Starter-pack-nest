@@ -17,14 +17,32 @@ export class SatuanService {
     return successResponse('Satuan berhasil dibuat', q);
   }
 
-  async findAll() {
-    const q = await this.prisma.satuan.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+  async findAll(page = 1, perPage = 10, search?: string) {
+    const skip = (page - 1) * perPage;
+    const where: any = {};
+    where.deletedAt = null; // Pastikan hanya mengambil data yang tidak dihapus
+    if (search) {
+      where.nama = {
+        contains: search,
+        
+      };
+    }
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.satuan.findMany({
+        skip,
+        take: perPage,
+        where,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.satuan.count({ where }),
+    ]);
+    return successResponse('Berhasil mendapatkan satuan', {
+      data,
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
     });
-
-    return successResponse('Berhasil mendapatkan semua satuan', q);
   }
 
   async findOne(id: number) {
@@ -34,22 +52,23 @@ export class SatuanService {
     if (!findId) {
       throw new BadRequestException(`Satuan dengan ID ${id} tidak ditemukan`);
     }
+
     const q = this.prisma.satuan.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     return successResponse(`Berhasil mendapatkan satuan dengan ID ${id}`, q);
   }
 
   async update(id: number, data: UpdateSatuanDto) {
     const findId = await this.prisma.satuan.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!findId) {
       throw new BadRequestException(`Satuan dengan ID ${id} tidak ditemukan`);
     }
 
     const q = await this.prisma.satuan.update({
-      where: { id },
+      where: { id, deletedAt: null },
       data: {
         nama: data.nama,
       },
@@ -60,13 +79,16 @@ export class SatuanService {
 
   async remove(id: number) {
     const findId = await this.prisma.satuan.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!findId) {
       throw new BadRequestException(`Satuan dengan ID ${id} tidak ditemukan`);
     }
-    const q = this.prisma.satuan.delete({
-      where: { id },
+    const q = await this.prisma.satuan.update({
+      where: { id, deletedAt: null },
+      data: {
+        deletedAt: new Date(),
+      },
     });
     return successResponse(`Berhasil menghapus satuan dengan ID ${id}`, q);
   }

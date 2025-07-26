@@ -6,7 +6,7 @@ import { successResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class PeraturanTahunanService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(data: CreatePeraturanTahunanDto) {
     const q = await this.prisma.peraturan_Tahunan.create({
@@ -25,25 +25,28 @@ export class PeraturanTahunanService {
     // Buat filter dinamis berdasarkan input tahun & peraturan
     const where: any = {};
 
-    if (tahun) {
+    // Filter untuk tahun (tipe Int)
+    if (tahun && !isNaN(Number(tahun))) {
       where.tahun = {
-        contains: tahun,
-        mode: 'insensitive', // ignore huruf besar-kecil
+        equals: Number(tahun), // Gunakan equals untuk tipe Int
       };
     }
 
+    // Filter untuk peraturan (tipe String)
     if (peraturan) {
-      where.nama = {
+      where.peraturan = {
+        // Ganti 'nama' dengan 'peraturan'
         contains: peraturan,
-        mode: 'insensitive',
       };
     }
+    where.deletedAt = null;
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.peraturan_Tahunan.findMany({
         skip,
         take: perPage,
         where,
+
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.peraturan_Tahunan.count({ where }),
@@ -60,7 +63,7 @@ export class PeraturanTahunanService {
 
   findOne(id: number) {
     const q = this.prisma.peraturan_Tahunan.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!q) {
       throw new BadRequestException(
@@ -106,10 +109,14 @@ export class PeraturanTahunanService {
         `Peraturan tahunan dengan ID ${id} tidak ditemukan`,
       );
     }
-
-    const q = await this.prisma.peraturan_Tahunan.delete({
+    const q = await this.prisma.peraturan_Tahunan.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
+
+    
 
     return successResponse(
       `Berhasil menghapus peraturan tahunan dengan ID ${id}`,

@@ -9,37 +9,65 @@ export class KategoriKomponenService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: CreateKategoriKomponenDto) {
+    const findNama = await this.prisma.kategori_Komponen.findUnique({
+      where: { nama: data.nama },
+    });
+    if (findNama) {
+      throw new BadRequestException(
+        `Kategori komponen dengan nama ${data.nama} sudah ada`,
+      );
+    }
+
     const q = await this.prisma.kategori_Komponen.create({
       data: {
         nama: data.nama,
       },
-
     });
 
     return successResponse('Kategori komponen berhasil dibuat', q);
   }
 
-  async findAll() {
-    const q = await this.prisma.kategori_Komponen.findMany({
-      
-      orderBy: {
-        createdAt: 'desc',
-      },
+  async findAll(page = 1, perPage = 10, nama?: string) {
+    const skip = (page - 1) * perPage;
+
+    const where: any = {};
+
+    where.deletedAt = null; // Pastikan hanya mengambil data yang tidak dihapus
+    if (nama) {
+      where.nama = {
+        contains: nama,
+      };
+    }
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.kategori_Komponen.findMany({
+        skip,
+        take: perPage,
+        where,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.kategori_Komponen.count({ where }),
+    ]);
+    return successResponse('Berhasil mendapatkan kategori komponen', {
+      data,
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
     });
-    return successResponse('Berhasil mendapatkan semua kategori komponen', q);
   }
 
-  findOne(id: number) {
-    const findId = this.prisma.kategori_Komponen.findUnique({
-      where: { id },
+  async findOne(id: number) {
+    const findId = await this.prisma.kategori_Komponen.findUnique({
+      where: { id,deletedAt: null },
     });
     if (!findId) {
       throw new BadRequestException(
         `Kategori komponen dengan ID ${id} tidak ditemukan`,
       );
     }
-    const q = this.prisma.kategori_Komponen.findUnique({
-      where: { id },
+
+    const q = await this.prisma.kategori_Komponen.findUnique({
+      where: { id, deletedAt: null },
     });
 
     return successResponse(
@@ -48,8 +76,8 @@ export class KategoriKomponenService {
     );
   }
 
-  update(id: number, data: UpdateKategoriKomponenDto) {
-    const findId = this.prisma.kategori_Komponen.findUnique({
+  async update(id: number, data: UpdateKategoriKomponenDto) {
+    const findId = await this.prisma.kategori_Komponen.findUnique({
       where: { id },
     });
     if (!findId) {
@@ -57,14 +85,14 @@ export class KategoriKomponenService {
         `Kategori komponen dengan ID ${id} tidak ditemukan`,
       );
     }
-    const q = this.prisma.kategori_Komponen.update({
+    const q = await this.prisma.kategori_Komponen.update({
       where: { id },
       data: {
         nama: data.nama,
       },
     });
     return successResponse(
-      `Berhasil memperbarui kategori komponen dengan ID ${id}`,
+      `Berhasil memperbarui kategori komponen dengan Nama ${id}`,
       q,
     );
   }
@@ -79,10 +107,12 @@ export class KategoriKomponenService {
       );
     }
 
-    const q = await this.prisma.kategori_Komponen.delete({
+    const q = await this.prisma.kategori_Komponen.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
-
     return successResponse(
       `Berhasil menghapus kategori komponen dengan ID ${id}`,
       q,
