@@ -21,23 +21,59 @@ export class HargaReferensiService {
     return successResponse('Harga referensi berhasil dibuat', q);
   }
 
-  async findAll() {
-    const q = await this.prisma.harga_Referensi.findMany({
-      include: {
-        satuan: true,
-        peraturan_tahunan: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  async findAll(page = 1, perPage = 10, search?: string) {
+    const skip = (page - 1) * perPage;
+    const where: any = {};
+    where.deletedAt = null; // Ensure we only get non-deleted records
 
-    return successResponse('Berhasil mendapatkan semua harga referensi', q);
+    if (search) {
+      where.OR = [
+        {
+          nama: {
+            contains: search,
+          },
+        },
+        {
+          satuan: {
+            nama: {
+              contains: search,
+            },
+          },
+        },
+        {
+          peraturan_tahunan: {
+            peraturan: {
+              contains: search,
+            },
+          },
+        },
+      ];
+    }
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.harga_Referensi.findMany({
+        where,
+        skip,
+        take: perPage,
+        include: {
+          satuan: true,
+          peraturan_tahunan: true,
+        },
+      }),
+      this.prisma.harga_Referensi.count({ where }),
+    ]);
+
+    return successResponse('Berhasil mendapatkan semua harga referensi', {
+      data,
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
+    });
   }
 
   async findOne(id: number) {
     const findId = await this.prisma.harga_Referensi.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!findId) {
       throw new BadRequestException(
@@ -60,7 +96,7 @@ export class HargaReferensiService {
 
   async update(id: number, data: UpdateHargaReferensiDto) {
     const findId = await this.prisma.harga_Referensi.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!findId) {
       throw new BadRequestException(
@@ -82,7 +118,25 @@ export class HargaReferensiService {
     );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} hargaReferensi`;
+  async remove(id: number) {
+    const findId = await this.prisma.harga_Referensi.findUnique({
+      where: { id, deletedAt: null },
+    });
+    if (!findId) {
+      throw new BadRequestException(
+        `Harga refrensi dengan ID ${id} tidak ditemukan`,
+      );
+    }
+
+    const q = await this.prisma.harga_Referensi.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+    return successResponse(
+      `Berhasil menghapus harga refrensi dengan ID ${id}`,
+      q,
+    );
   }
 }

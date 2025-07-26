@@ -1,11 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { KategoriKomponenService } from './kategori-komponen.service';
 import { CreateKategoriKomponenDto } from './dto/create-kategori-komponen.dto';
 import { UpdateKategoriKomponenDto } from './dto/update-kategori-komponen.dto';
 
 @Controller('kategori-komponen')
 export class KategoriKomponenController {
-  constructor(private readonly kategoriKomponenService: KategoriKomponenService) {}
+  constructor(
+    private readonly kategoriKomponenService: KategoriKomponenService,
+  ) {}
 
   @Post()
   create(@Body() createKategoriKomponenDto: CreateKategoriKomponenDto) {
@@ -13,8 +24,16 @@ export class KategoriKomponenController {
   }
 
   @Get()
-  findAll() {
-    return this.kategoriKomponenService.findAll();
+  findAll(
+    @Query('page') page?: number,
+    @Query('perPage') perPage?: number,
+    @Query('nama') nama?: string,
+  ) {
+    return this.kategoriKomponenService.findAll(
+      Number(page) || 1,
+      Number(perPage) || 10,
+      nama,
+    );
   }
 
   @Get(':id')
@@ -23,7 +42,10 @@ export class KategoriKomponenController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateKategoriKomponenDto: UpdateKategoriKomponenDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateKategoriKomponenDto: UpdateKategoriKomponenDto,
+  ) {
     return this.kategoriKomponenService.update(+id, updateKategoriKomponenDto);
   }
 

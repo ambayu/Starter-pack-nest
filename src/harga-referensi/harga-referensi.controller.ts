@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { HargaReferensiService } from './harga-referensi.service';
 import { CreateHargaReferensiDto } from './dto/create-harga-referensi.dto';
 import { UpdateHargaReferensiDto } from './dto/update-harga-referensi.dto';
@@ -13,9 +13,17 @@ export class HargaReferensiController {
   }
 
   @Get()
-  findAll() {
-    return this.hargaReferensiService.findAll();
-  }
+  findAll(
+     @Query('page') page?: number,
+    @Query('perPage') perPage?: number,
+    @Query('search') search?: string,
+    
+  ) {
+return this.hargaReferensiService.findAll(
+      Number(page) || 1,
+      Number(perPage) || 10,
+      search,
+    );  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

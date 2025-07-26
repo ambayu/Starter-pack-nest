@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { SatuanService } from './satuan.service';
 import { CreateSatuanDto } from './dto/create-satuan.dto';
 import { UpdateSatuanDto } from './dto/update-satuan.dto';
@@ -13,8 +22,16 @@ export class SatuanController {
   }
 
   @Get()
-  findAll() {
-    return this.satuanService.findAll();
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('perPage') perPage: number = 10,
+    @Query('search') search?: string,
+  ) {
+    return this.satuanService.findAll(
+      Number(page) || 1,
+      Number(perPage) || 10,
+      search,
+    );
   }
 
   @Get(':id')
