@@ -6,11 +6,13 @@ import { successResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class PeraturanTahunanService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(data: CreatePeraturanTahunanDto) {
     const q = await this.prisma.peraturan_Tahunan.create({
       data: {
+        nama: data.nama, // Assuming 'nama' is the same as 'peraturan'
+
         tahun: data.tahun,
         peraturan: data.peraturan,
       },
@@ -116,7 +118,7 @@ export class PeraturanTahunanService {
       },
     });
 
-    
+
 
     return successResponse(
       `Berhasil menghapus peraturan tahunan dengan ID ${id}`,
