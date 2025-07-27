@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { KegiatanAsbService } from './kegiatan-asb.service';
 import { CreateKegiatanAsbDto } from './dto/create-kegiatan-asb.dto';
 import { UpdateKegiatanAsbDto } from './dto/update-kegiatan-asb.dto';
@@ -13,8 +22,16 @@ export class KegiatanAsbController {
   }
 
   @Get()
-  findAll() {
-    return this.kegiatanAsbService.findAll();
+  findAll(
+    @Query('page') page?: number,
+    @Query('perPage') perPage?: number,
+    @Query('search') search?: string,
+  ) {
+    return this.kegiatanAsbService.findAll(
+      Number(page) || 1,
+      Number(perPage) || 10,
+      search,
+    );
   }
 
   @Get(':id')
@@ -23,7 +40,10 @@ export class KegiatanAsbController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateKegiatanAsbDto: UpdateKegiatanAsbDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateKegiatanAsbDto: UpdateKegiatanAsbDto,
+  ) {
     return this.kegiatanAsbService.update(+id, updateKegiatanAsbDto);
   }
 

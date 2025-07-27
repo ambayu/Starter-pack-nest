@@ -78,7 +78,7 @@ export class KategoriKomponenService {
 
   async update(id: number, data: UpdateKategoriKomponenDto) {
     const findId = await this.prisma.kategori_Komponen.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!findId) {
       throw new BadRequestException(
