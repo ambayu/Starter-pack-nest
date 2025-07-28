@@ -150,8 +150,8 @@ model Komponen_ASB {
   id_satuan            Int
   satuan               Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
   koefisien            Float
-  harga_satuan         Int
-  jumlah_harga         Int
+  harga_satuan         Decimal
+  jumlah_harga         Decimal
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
   deletedAt            DateTime?

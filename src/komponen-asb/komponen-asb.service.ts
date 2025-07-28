@@ -7,7 +7,7 @@ import { contains } from 'class-validator';
 
 @Injectable()
 export class KomponenAsbService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(data: CreateKomponenAsbDto) {
     const q = await this.prisma.komponen_ASB.create({
       data: {
@@ -33,14 +33,12 @@ export class KomponenAsbService {
         {
           uraian: {
             contains: search,
-            mode: 'insensitive', // Case-insensitive search
           },
         },
         {
           satuan: {
             nama: {
               contains: search,
-              mode: 'insensitive',
             },
           },
         },
@@ -48,7 +46,6 @@ export class KomponenAsbService {
           kategori_komponen: {
             nama: {
               contains: search,
-              mode: 'insensitive',
             },
           },
         },
@@ -60,7 +57,7 @@ export class KomponenAsbService {
         skip,
         take: perPage,
         include: {
-          kegiatan_asb:true,
+          kegiatan_asb: true,
           satuan: true,
           kategori_komponen: true,
         },
@@ -79,7 +76,7 @@ export class KomponenAsbService {
 
   async findOne(id: number) {
     const findId = await this.prisma.komponen_ASB.findUnique({
-      where: { id,deletedAt:null },
+      where: { id, deletedAt: null },
     });
     if (!findId) {
       throw new BadRequestException(
@@ -102,7 +99,7 @@ export class KomponenAsbService {
 
   async update(id: number, data: UpdateKomponenAsbDto) {
     const findId = await this.prisma.komponen_ASB.findUnique({
-      where: { id,deletedAt:null },
+      where: { id, deletedAt: null },
     });
     if (!findId) {
       throw new BadRequestException(
