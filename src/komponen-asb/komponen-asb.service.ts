@@ -3,10 +3,11 @@ import { CreateKomponenAsbDto } from './dto/create-komponen-asb.dto';
 import { UpdateKomponenAsbDto } from './dto/update-komponen-asb.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { successResponse } from 'src/utils/response.util';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class KomponenAsbService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(data: CreateKomponenAsbDto) {
     const q = await this.prisma.komponen_ASB.create({
       data: {
@@ -15,33 +16,70 @@ export class KomponenAsbService {
         id_kategori_komponen: data.id_kategori_komponen,
         id_satuan: data.id_satuan,
         koefisien: data.koefisien,
-        hargaSatuan: data.hargaSatuan,
-        jumlahHarga: data.jumlahHarga,
-        urutan: data.urutan,
+        harga_satuan: data.harga_satuan,
+        jumlah_harga: data.jumlah_harga,
       },
     });
 
     return successResponse('Komponen ASB berhasil dibuat', q);
   }
 
-  async findAll() {
-    const q = await this.prisma.komponen_ASB.findMany({
-      include: {
-        kegiatan_asb: true,
-        kategori_komponen: true,
-        satuan: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+  async findAll(page = 1, perPage = 10, search?: string) {
+    const skip = (page - 1) * perPage;
+    const where: any = {};
+    where.deletedAt = null; // Pastikan hanya mengambil data yang tidak dihapus
+    if (search) {
+      where.OR = [
+        {
+          uraian: {
+            contains: search,
+            mode: 'insensitive', // Case-insensitive search
+          },
+        },
+        {
+          satuan: {
+            nama: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          kategori_komponen: {
+            nama: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.komponen_ASB.findMany({
+        where,
+        skip,
+        take: perPage,
+        include: {
+          kegiatan_asb:true,
+          satuan: true,
+          kategori_komponen: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.komponen_ASB.count({ where }),
+    ]);
+    return successResponse('Berhasil mendapatkan semua komponen ASB', {
+      data,
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
     });
-
-    return successResponse('Berhasil mendapatkan semua komponen ASB', q);
   }
 
   async findOne(id: number) {
     const findId = await this.prisma.komponen_ASB.findUnique({
-      where: { id },
+      where: { id,deletedAt:null },
     });
     if (!findId) {
       throw new BadRequestException(
@@ -49,7 +87,7 @@ export class KomponenAsbService {
       );
     }
     const q = await this.prisma.komponen_ASB.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       include: {
         kegiatan_asb: true,
         kategori_komponen: true,
@@ -64,7 +102,7 @@ export class KomponenAsbService {
 
   async update(id: number, data: UpdateKomponenAsbDto) {
     const findId = await this.prisma.komponen_ASB.findUnique({
-      where: { id },
+      where: { id,deletedAt:null },
     });
     if (!findId) {
       throw new BadRequestException(
@@ -79,9 +117,8 @@ export class KomponenAsbService {
         id_kategori_komponen: data.id_kategori_komponen,
         id_satuan: data.id_satuan,
         koefisien: data.koefisien,
-        hargaSatuan: data.hargaSatuan,
-        jumlahHarga: data.jumlahHarga,
-        urutan: data.urutan,
+        harga_satuan: data.harga_satuan,
+        jumlah_harga: data.jumlah_harga,
       },
     });
 

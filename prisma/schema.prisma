@@ -84,7 +84,7 @@ model RolePermission {
 model Peraturan_Tahunan {
   id              Int               @id @default(autoincrement())
   nama            String            @default("Null")
-  tahun           Int? 
+  tahun           Int?
   peraturan       String?
   kegiatan_asb    Kegiatan_ASB[]
   harga_referensi Harga_Referensi[]
@@ -150,9 +150,8 @@ model Komponen_ASB {
   id_satuan            Int
   satuan               Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
   koefisien            Float
-  hargaSatuan          Int
-  jumlahHarga          Int
-  urutan               Int
+  harga_satuan         Int
+  jumlah_harga         Int
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
   deletedAt            DateTime?

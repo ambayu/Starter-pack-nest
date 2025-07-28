@@ -20,7 +20,7 @@ export class KegiatanAsbService {
     return successResponse('Kegiatan ASB berhasil dibuat', q);
   }
 
-  async findAll(page = 1, perPage = 10, search?: string) {
+  async findAll(page = 1, perPage = 10, search?: string) {  
     const skip = (page - 1) * perPage;
     const where: any = {};
     where.deletedAt = null; // Pastikan hanya mengambil data yang tidak dihapus
