@@ -138,6 +138,7 @@ model Kegiatan_ASB {
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
   deletedAt            DateTime?
+  
 }
 
 model Komponen_ASB {
