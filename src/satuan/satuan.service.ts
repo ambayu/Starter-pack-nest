@@ -8,6 +8,13 @@ import { successResponse } from 'src/utils/response.util';
 export class SatuanService {
   constructor(private prisma: PrismaService) {}
   async create(data: CreateSatuanDto) {
+    const findId = await this.prisma.satuan.findUnique({
+      where: { nama: data.nama },
+    });
+
+    if(findId){
+      throw new BadRequestException("Satuan dengan nama [ " + data.nama+ " ] sudah ada")
+    }
     const q = await this.prisma.satuan.create({
       data: {
         nama: data.nama,
@@ -24,7 +31,6 @@ export class SatuanService {
     if (search) {
       where.nama = {
         contains: search,
-        
       };
     }
     const [data, total] = await this.prisma.$transaction([

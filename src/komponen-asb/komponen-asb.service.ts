@@ -7,7 +7,7 @@ import { contains } from 'class-validator';
 
 @Injectable()
 export class KomponenAsbService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async create(data: CreateKomponenAsbDto) {
     const q = await this.prisma.komponen_ASB.create({
       data: {
@@ -33,14 +33,12 @@ export class KomponenAsbService {
         {
           uraian: {
             contains: search,
-
           },
         },
         {
           satuan: {
             nama: {
               contains: search,
-
             },
           },
         },
@@ -48,7 +46,6 @@ export class KomponenAsbService {
           kategori_komponen: {
             nama: {
               contains: search,
-
             },
           },
         },
