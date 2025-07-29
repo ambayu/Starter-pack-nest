@@ -7,19 +7,23 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { KomponenAsbService } from './komponen-asb.service';
 import { CreateKomponenAsbDto } from './dto/create-komponen-asb.dto';
 import { UpdateKomponenAsbDto } from './dto/update-komponen-asb.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('komponen-asb')
 export class KomponenAsbController {
-  constructor(private readonly komponenAsbService: KomponenAsbService) {}
+  constructor(private readonly komponenAsbService: KomponenAsbService) { }
 
   @Post()
   create(@Body() createKomponenAsbDto: CreateKomponenAsbDto) {
     return this.komponenAsbService.create(createKomponenAsbDto);
   }
+
 
   @Get()
   findAll(
@@ -51,4 +55,15 @@ export class KomponenAsbController {
   remove(@Param('id') id: string) {
     return this.komponenAsbService.remove(+id);
   }
+
+
+  //import excel
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  importExcel(@UploadedFile() file: Express.Multer.File) {
+    return this.komponenAsbService.importExcel(file);
+  }
+
+
 }
+
