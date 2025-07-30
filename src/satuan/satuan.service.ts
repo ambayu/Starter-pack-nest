@@ -7,13 +7,16 @@ import { successResponse } from 'src/utils/response.util';
 @Injectable()
 export class SatuanService {
   constructor(private prisma: PrismaService) {}
+
   async create(data: CreateSatuanDto) {
-    const findId = await this.prisma.satuan.findUnique({
-      where: { nama: data.nama },
+    const findId = await this.prisma.satuan.findFirst({
+      where: { nama: data.nama,deletedAt:null },
     });
 
-    if(findId){
-      throw new BadRequestException("Satuan dengan nama [ " + data.nama+ " ] sudah ada")
+    if (findId) {
+      throw new BadRequestException(
+        'Satuan dengan nama [ ' + data.nama + ' ] sudah ada',
+      );
     }
     const q = await this.prisma.satuan.create({
       data: {

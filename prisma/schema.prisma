@@ -81,79 +81,54 @@ model RolePermission {
 }
 
 //Aspek Perhitungan Harga Satuan Barang (ASB)
-model Peraturan_Tahunan {
-  id              Int               @id @default(autoincrement())
-  nama            String            @default("Null")
-  tahun           Int?
-  peraturan       String?
-  kegiatan_asb    Kegiatan_ASB[]
-  harga_referensi Harga_Referensi[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  deletedAt       DateTime? // for soft delete
-}
 
-model Kategori_Komponen {
+model Satuan {
   id           Int            @id @default(autoincrement())
-  nama         String         @unique
+  nama         String
   komponen_asb Komponen_ASB[]
+  kegiatan_asb Kegiatan_ASB[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   deletedAt    DateTime?
 }
 
-model Satuan {
-  id              Int               @id @default(autoincrement())
-  nama            String            @unique
-  komponen_asb    Komponen_ASB[]
-  harga_referensi Harga_Referensi[]
-  kegiatan_asb    Kegiatan_ASB[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  deletedAt       DateTime?
-}
-
-model Harga_Referensi {
-  id                   Int               @id @default(autoincrement())
-  nama                 String
-  id_satuan            Int
-  satuan               Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
-  harga                Int
-  id_peraturan_tahunan Int
-  peraturan_tahunan    Peraturan_Tahunan @relation(fields: [id_peraturan_tahunan], references: [id], onDelete: Cascade)
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  deletedAt            DateTime?
-}
-
 model Kegiatan_ASB {
-  id                   Int               @id @default(autoincrement())
-  kode                 String
-  uraian               String
-  id_satuan            Int
-  satuan               Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
-  id_peraturan_tahunan Int
-  peraturan_tahunan    Peraturan_Tahunan @relation(fields: [id_peraturan_tahunan], references: [id], onDelete: Cascade)
-  komponen_asb         Komponen_ASB[]
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  deletedAt            DateTime?
-  
+  id               Int               @id @default(autoincrement())
+  kode             String?
+  uraian           String?
+  id_satuan        Int
+  satuan           Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
+  sub_kegiatan_asb SubKegiatan_ASB[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  Komponen_ASB     Komponen_ASB[]
+}
+
+model SubKegiatan_ASB {
+  id              Int     @id @default(autoincrement())
+  kode            String?
+  uraian          String?
+  id_kegiatan_asb Int
+  komponen_asb Komponen_ASB[]
+  kegiatan_asb Kegiatan_ASB   @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  deletedAt    DateTime?
 }
 
 model Komponen_ASB {
-  id                   Int               @id @default(autoincrement())
-  id_kegiatan_asb      Int
-  kegiatan_asb         Kegiatan_ASB      @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
-  id_kategori_komponen Int
-  kategori_komponen    Kategori_Komponen @relation(fields: [id_kategori_komponen], references: [id], onDelete: Cascade)
-  uraian               String
-  id_satuan            Int
-  satuan               Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
-  koefisien            Float
-  harga_satuan         Decimal
-  jumlah_harga         Decimal
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  deletedAt            DateTime?
+  id                  Int             @id @default(autoincrement())
+  id_kegiatan_asb     Int
+  id_sub_kegiatan_asb Int
+  sub_kegiatan_asb    SubKegiatan_ASB @relation(fields: [id_sub_kegiatan_asb], references: [id], onDelete: Cascade)
+  kegiatan_asb           Kegiatan_ASB    @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
+  uraian              String?
+  id_satuan           Int
+  satuan              Satuan          @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
+  koefisien           Float?
+  harga_satuan        Decimal?
+  jumlah_harga        Decimal?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  deletedAt           DateTime?
 }

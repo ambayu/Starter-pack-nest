@@ -13,40 +13,26 @@ export class KegiatanAsbService {
         kode: data.kode,
         uraian: data.uraian,
         id_satuan: data.id_satuan,
-        id_peraturan_tahunan: data.id_peraturan_tahunan,
       },
     });
 
     return successResponse('Kegiatan ASB berhasil dibuat', q);
   }
 
-  async findAll(page = 1, perPage = 10, search?: string) {  
+
+  async findAll(page = 1, perPage = 10, search?: string) {
     const skip = (page - 1) * perPage;
     const where: any = {};
-    where.deletedAt = null; // Pastikan hanya mengambil data yang tidak dihapus
     if (search) {
       where.OR = [
-        {
-          kode: {
-            contains: search,
-          },
-        },
-        {
-          uraian: {
-            contains: search,
-          },
-        },
+        { kode: { contains: search } },
+        { uraian: { contains: search } },
         {
           satuan: {
-            nama: {
-              contains: search,
-            },
-          },
-        },
-        {
-          peraturan_tahunan: {
-            peraturan: {
-              contains: search,
+            is: {
+              nama: {
+                contains: search,
+              },
             },
           },
         },
@@ -59,7 +45,6 @@ export class KegiatanAsbService {
         take: perPage,
         include: {
           satuan: true,
-          peraturan_tahunan: true,
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -72,12 +57,11 @@ export class KegiatanAsbService {
       perPage,
       totalPages: Math.ceil(total / perPage),
     });
-    
   }
 
   async findOne(id: number) {
     const findId = await this.prisma.kegiatan_ASB.findUnique({
-      where: { id, deletedAt: null },
+      where: { id },
     });
     if (!findId) {
       throw new BadRequestException(
@@ -88,7 +72,6 @@ export class KegiatanAsbService {
       where: { id },
       include: {
         satuan: true,
-        peraturan_tahunan: true,
       },
     });
 
@@ -100,7 +83,7 @@ export class KegiatanAsbService {
 
   async update(id: number, data: UpdateKegiatanAsbDto) {
     const findId = await this.prisma.kegiatan_ASB.findUnique({
-      where: { id, deletedAt: null },
+      where: { id },
     });
     if (!findId) {
       throw new BadRequestException(
@@ -113,7 +96,6 @@ export class KegiatanAsbService {
         kode: data.kode,
         uraian: data.uraian,
         id_satuan: data.id_satuan,
-        id_peraturan_tahunan: data.id_peraturan_tahunan,
       },
     });
     return successResponse(
@@ -124,23 +106,19 @@ export class KegiatanAsbService {
 
   async remove(id: number) {
     const findId = await this.prisma.kegiatan_ASB.findUnique({
-      where: { id, deletedAt: null },
+      where: { id },
     });
     if (!findId) {
       throw new BadRequestException(
         `Kegiatan ASB dengan ID ${id} tidak ditemukan`,
       );
     }
-    const q = await this.prisma.kegiatan_ASB.update({
+    const q = await this.prisma.kegiatan_ASB.delete({
       where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
     });
     return successResponse(
       `Berhasil menghapus kegiatan ASB dengan ID ${id}`,
       q,
     );
-    
   }
 }

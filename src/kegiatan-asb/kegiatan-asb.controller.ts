@@ -26,6 +26,7 @@ export class KegiatanAsbController {
     @Query('page') page?: number,
     @Query('perPage') perPage?: number,
     @Query('search') search?: string,
+    
   ) {
     return this.kegiatanAsbService.findAll(
       Number(page) || 1,

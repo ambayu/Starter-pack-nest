@@ -8,17 +8,26 @@ import { UserRoleModule } from './user-role/user-role.module';
 import { PermissionModule } from './permission/permission.module';
 import { RolePermissionModule } from './role-permission/role-permission.module';
 import { AuthModule } from './auth/auth.module';
-import { PeraturanTahunanModule } from './peraturan-tahunan/peraturan-tahunan.module';
-import { KategoriKomponenModule } from './kategori-komponen/kategori-komponen.module';
 import { SatuanModule } from './satuan/satuan.module';
-import { HargaReferensiModule } from './harga-referensi/harga-referensi.module';
 import { KegiatanAsbModule } from './kegiatan-asb/kegiatan-asb.module';
 import { KomponenAsbModule } from './komponen-asb/komponen-asb.module';
+import { SubKegiatanAsbModule } from './sub-kegiatan-asb/sub-kegiatan-asb.module';
 
 @Module({
-  imports: [UserModule, BiodataModule, RoleModule, UserRoleModule, PermissionModule, RolePermissionModule, AuthModule, PeraturanTahunanModule, KategoriKomponenModule, SatuanModule, HargaReferensiModule, KegiatanAsbModule, KomponenAsbModule],
+  imports: [
+    UserModule,
+    BiodataModule,
+    RoleModule,
+    UserRoleModule,
+    PermissionModule,
+    RolePermissionModule,
+    AuthModule,
+    SatuanModule,
+    KegiatanAsbModule,
+    KomponenAsbModule,
+    SubKegiatanAsbModule,
+  ],
   controllers: [AppController],
-  providers: [AppService,],
+  providers: [AppService],
 })
-
-export class AppModule { }
+export class AppModule {}
