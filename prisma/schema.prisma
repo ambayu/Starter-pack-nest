@@ -86,34 +86,59 @@ model Satuan {
   id           Int            @id @default(autoincrement())
   nama         String
   komponen_asb Komponen_ASB[]
-  kegiatan_asb Kegiatan_ASB[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  deletedAt    DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Kelompok_ASB {
+  id     Int     @id @default(autoincrement())
+  kode   String?
+  uraian String?
+
+  kegiatan_asb    Kegiatan_ASB[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  SubKegiatan_ASB SubKegiatan_ASB[]
 }
 
 model Kegiatan_ASB {
   id               Int               @id @default(autoincrement())
   kode             String?
   uraian           String?
-  id_satuan        Int
-  satuan           Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
   sub_kegiatan_asb SubKegiatan_ASB[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   Komponen_ASB     Komponen_ASB[]
+
+  kelompok_asb    Kelompok_ASB? @relation(fields: [id_kelompok_asb], references: [id], onDelete: Cascade)
+  id_kelompok_asb Int?
 }
 
 model SubKegiatan_ASB {
-  id              Int     @id @default(autoincrement())
+  id              Int            @id @default(autoincrement())
   kode            String?
   uraian          String?
   id_kegiatan_asb Int
-  komponen_asb Komponen_ASB[]
-  kegiatan_asb Kegiatan_ASB   @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
-  deletedAt    DateTime?
+  komponen_asb    Komponen_ASB[]
+  kegiatan_asb    Kegiatan_ASB   @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+  deletedAt       DateTime?
+  Kelompok_ASB    Kelompok_ASB?  @relation(fields: [kelompok_ASBId], references: [id])
+  kelompok_ASBId  Int?
+}
+
+model itemKegiatanASB {
+  id     Int     @id @default(autoincrement())
+  kode   String?
+  uraian String?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+  deletedAt      DateTime?
+  kelompok_ASBId Int?
 }
 
 model Komponen_ASB {
@@ -121,7 +146,7 @@ model Komponen_ASB {
   id_kegiatan_asb     Int
   id_sub_kegiatan_asb Int
   sub_kegiatan_asb    SubKegiatan_ASB @relation(fields: [id_sub_kegiatan_asb], references: [id], onDelete: Cascade)
-  kegiatan_asb           Kegiatan_ASB    @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
+  kegiatan_asb        Kegiatan_ASB    @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
   uraian              String?
   id_satuan           Int
   satuan              Satuan          @relation(fields: [id_satuan], references: [id], onDelete: Cascade)

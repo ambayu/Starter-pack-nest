@@ -12,6 +12,7 @@ import { SatuanModule } from './satuan/satuan.module';
 import { KegiatanAsbModule } from './kegiatan-asb/kegiatan-asb.module';
 import { KomponenAsbModule } from './komponen-asb/komponen-asb.module';
 import { SubKegiatanAsbModule } from './sub-kegiatan-asb/sub-kegiatan-asb.module';
+import { KelompokAsbModule } from './kelompok-asb/kelompok-asb.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SubKegiatanAsbModule } from './sub-kegiatan-asb/sub-kegiatan-asb.module
     KegiatanAsbModule,
     KomponenAsbModule,
     SubKegiatanAsbModule,
+    KelompokAsbModule,
   ],
   controllers: [AppController],
   providers: [AppService],

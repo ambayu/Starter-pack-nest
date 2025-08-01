@@ -6,7 +6,7 @@ import { successResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class SubKegiatanAsbService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(data: CreateSubKegiatanAsbDto) {
     const q = await this.prisma.subKegiatan_ASB.create({
@@ -19,7 +19,7 @@ export class SubKegiatanAsbService {
     return successResponse('Sub Kegiatan ASB berhasil dibuat', q);
   }
 
-  async findAll(page: number = 1, perPage: number = 10, $search?: string) {
+  async findAll(page: number = 1, perPage: number = 10, $search?: string, id_kegiatan_asb?: number) {
     const skip = (page - 1) * perPage;
     const where: any = {};
     if ($search) {
@@ -27,6 +27,9 @@ export class SubKegiatanAsbService {
         { kode: { contains: $search } },
         { uraian: { contains: $search } },
       ];
+    }
+    if (id_kegiatan_asb) {
+      where.id_kegiatan_asb = id_kegiatan_asb;
     }
     const [data, total] = await this.prisma.$transaction([
       this.prisma.subKegiatan_ASB.findMany({

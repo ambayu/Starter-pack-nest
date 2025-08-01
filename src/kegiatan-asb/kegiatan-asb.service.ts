@@ -6,13 +6,13 @@ import { successResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class KegiatanAsbService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(data: CreateKegiatanAsbDto) {
     const q = await this.prisma.kegiatan_ASB.create({
       data: {
         kode: data.kode,
         uraian: data.uraian,
-        id_satuan: data.id_satuan,
+        id_kelompok_asb: data.id_kelompok_asb,
       },
     });
 
@@ -28,9 +28,9 @@ export class KegiatanAsbService {
         { kode: { contains: search } },
         { uraian: { contains: search } },
         {
-          satuan: {
+          kelompok_asb: {
             is: {
-              nama: {
+              kode: {
                 contains: search,
               },
             },
@@ -44,8 +44,9 @@ export class KegiatanAsbService {
         skip,
         take: perPage,
         include: {
-          satuan: true,
+          kelompok_asb: true,
         },
+
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.kegiatan_ASB.count({ where }),
@@ -70,9 +71,7 @@ export class KegiatanAsbService {
     }
     const q = await this.prisma.kegiatan_ASB.findUnique({
       where: { id },
-      include: {
-        satuan: true,
-      },
+
     });
 
     return successResponse(
@@ -95,7 +94,6 @@ export class KegiatanAsbService {
       data: {
         kode: data.kode,
         uraian: data.uraian,
-        id_satuan: data.id_satuan,
       },
     });
     return successResponse(

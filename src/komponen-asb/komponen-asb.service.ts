@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx';
 
 @Injectable()
 export class KomponenAsbService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(data: CreateKomponenAsbDto) {
     const q = await this.prisma.komponen_ASB.create({
       data: {
@@ -157,6 +157,7 @@ export class KomponenAsbService {
       q,
     );
   }
+
 
   private convertToDecimal(value: string | number | undefined): number {
     if (value === undefined) {
