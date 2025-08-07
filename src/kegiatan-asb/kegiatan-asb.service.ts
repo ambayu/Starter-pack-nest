@@ -8,6 +8,13 @@ import { successResponse } from 'src/utils/response.util';
 export class KegiatanAsbService {
   constructor(private prisma: PrismaService) { }
   async create(data: CreateKegiatanAsbDto) {
+    const findIdKelompok = await this.prisma.kegiatan_ASB.findFirst({ where: { id_kelompok_asb: data.id_kelompok_asb } });
+    if (findIdKelompok) {
+      const findKode = await this.prisma.kegiatan_ASB.findFirst({ where: { kode: data.kode } });
+      if (findKode) {
+        throw new BadRequestException('Kelompok ASB ini dengan kode ' + data.kode + ' sudah ada');
+      }
+    }
     const q = await this.prisma.kegiatan_ASB.create({
       data: {
         kode: data.kode,
@@ -88,6 +95,13 @@ export class KegiatanAsbService {
       throw new BadRequestException(
         `Kegiatan ASB dengan ID ${id} tidak ditemukan`,
       );
+    }
+    const findIdKelompok = await this.prisma.kegiatan_ASB.findFirst({ where: { id_kelompok_asb: data.id_kelompok_asb } });
+    if (findIdKelompok) {
+      const findKode = await this.prisma.kegiatan_ASB.findFirst({ where: { kode: data.kode } });
+      if (findKode) {
+        throw new BadRequestException('Kelompok ASB ini dengan kode ' + data.kode + ' sudah ada');
+      }
     }
     const q = await this.prisma.kegiatan_ASB.update({
       where: { id },

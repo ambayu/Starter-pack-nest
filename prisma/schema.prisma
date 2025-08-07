@@ -87,14 +87,15 @@ model Satuan {
   nama         String
   komponen_asb Komponen_ASB[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+  Komponen_HSPK Komponen_HSPK[]
 }
 
 model Kelompok_ASB {
   id     Int     @id @default(autoincrement())
-  kode   String?
+  kode   String  @unique
   uraian String?
 
   kegiatan_asb    Kegiatan_ASB[]
@@ -117,43 +118,121 @@ model Kegiatan_ASB {
 }
 
 model SubKegiatan_ASB {
-  id              Int            @id @default(autoincrement())
+  id              Int               @id @default(autoincrement())
   kode            String?
   uraian          String?
   id_kegiatan_asb Int
   komponen_asb    Komponen_ASB[]
-  kegiatan_asb    Kegiatan_ASB   @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @default(now()) @updatedAt
+  kegiatan_asb    Kegiatan_ASB      @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
   deletedAt       DateTime?
-  Kelompok_ASB    Kelompok_ASB?  @relation(fields: [kelompok_ASBId], references: [id])
+  Kelompok_ASB    Kelompok_ASB?     @relation(fields: [kelompok_ASBId], references: [id])
   kelompok_ASBId  Int?
+  itemKegiatanASB itemKegiatanASB[]
 }
 
 model itemKegiatanASB {
-  id     Int     @id @default(autoincrement())
-  kode   String?
-  uraian String?
+  id                  Int             @id @default(autoincrement())
+  id_sub_kegiatan_asb Int
+  uraian              String?
+  sub_kegiatan_asb    SubKegiatan_ASB @relation(fields: [id_sub_kegiatan_asb], references: [id], onDelete: Cascade)
 
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now()) @updatedAt
-  deletedAt      DateTime?
-  kelompok_ASBId Int?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  deletedAt    DateTime?
+  Komponen_ASB Komponen_ASB[]
 }
 
 model Komponen_ASB {
-  id                  Int             @id @default(autoincrement())
-  id_kegiatan_asb     Int
-  id_sub_kegiatan_asb Int
-  sub_kegiatan_asb    SubKegiatan_ASB @relation(fields: [id_sub_kegiatan_asb], references: [id], onDelete: Cascade)
-  kegiatan_asb        Kegiatan_ASB    @relation(fields: [id_kegiatan_asb], references: [id], onDelete: Cascade)
-  uraian              String?
-  id_satuan           Int
-  satuan              Satuan          @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
-  koefisien           Float?
-  harga_satuan        Decimal?
-  jumlah_harga        Decimal?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  deletedAt           DateTime?
+  id Int @id @default(autoincrement())
+
+  id_item_kegiatan_asb Int
+  item_kegiatan_asb    itemKegiatanASB  @relation(fields: [id_item_kegiatan_asb], references: [id], onDelete: Cascade)
+  uraian               String?
+  id_satuan            Int
+  satuan               Satuan           @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
+  koefisien            String?
+  harga_satuan         String?
+  jumlah_harga         String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  deletedAt            DateTime?
+  Kegiatan_ASB         Kegiatan_ASB?    @relation(fields: [kegiatan_ASBId], references: [id])
+  kegiatan_ASBId       Int?
+  SubKegiatan_ASB      SubKegiatan_ASB? @relation(fields: [subKegiatan_ASBId], references: [id])
+  subKegiatan_ASBId    Int?
+}
+
+//HSPK 
+
+model Kelompok_HSPK {
+  id     Int     @id @default(autoincrement())
+  kode   String  @unique
+  uraian String?
+
+  kegiatan_HSPK     Kegiatan_HSPK[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  sub_kegiatan_HSPK SubKegiatan_HSPK[]
+}
+
+model Kegiatan_HSPK {
+  id                Int                @id @default(autoincrement())
+  kode              String?
+  uraian            String?
+  sub_kegiatan_HSPK SubKegiatan_HSPK[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  Komponen_HSPK     Komponen_HSPK[]
+
+  kelompok_HSPK    Kelompok_HSPK? @relation(fields: [id_kelompok_HSPK], references: [id], onDelete: Cascade)
+  id_kelompok_HSPK Int?
+}
+
+model SubKegiatan_HSPK {
+  id                 Int                @id @default(autoincrement())
+  kode               String?
+  uraian             String?
+  id_kegiatan_HSPK   Int
+  komponen_HSPK      Komponen_HSPK[]
+  kegiatan_HSPK      Kegiatan_HSPK      @relation(fields: [id_kegiatan_HSPK], references: [id], onDelete: Cascade)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @default(now()) @updatedAt
+  deletedAt          DateTime?
+  kelompok_HSPK      Kelompok_HSPK?     @relation(fields: [id_kelompok_HSPK], references: [id])
+  id_kelompok_HSPK   Int?
+  item_kegiatan_HSPK itemKegiatanHSPK[]
+}
+
+model itemKegiatanHSPK {
+  id                   Int              @id @default(autoincrement())
+  id_sub_kegiatan_HSPK Int
+  uraian               String?
+  sub_kegiatan_HSPK    SubKegiatan_HSPK @relation(fields: [id_sub_kegiatan_HSPK], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now()) @updatedAt
+  deletedAt     DateTime?
+  komponen_HSPK Komponen_HSPK[]
+}
+
+model Komponen_HSPK {
+  id Int @id @default(autoincrement())
+
+  id_item_kegiatan_HSPK Int
+  item_kegiatan_HSPK    itemKegiatanHSPK  @relation(fields: [id_item_kegiatan_HSPK], references: [id], onDelete: Cascade)
+  uraian                String?
+  id_satuan             Int
+  satuan                Satuan            @relation(fields: [id_satuan], references: [id], onDelete: Cascade)
+  koefisien             String?
+  harga_satuan          String?
+  jumlah_harga          String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  deletedAt             DateTime?
+  kegiatan_HSPK         Kegiatan_HSPK?    @relation(fields: [id_kegiatan_HSPK], references: [id])
+  id_kegiatan_HSPK      Int?
+  sub_kegiatan_HSPK     SubKegiatan_HSPK? @relation(fields: [id_sub_kegiatan_HSPK], references: [id])
+  id_sub_kegiatan_HSPK  Int?
 }

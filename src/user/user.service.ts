@@ -85,26 +85,48 @@ export class UserService {
     }
 
 
-    async getall() {
-        const users = await this.prisma.user.findMany({
-            include: {
-                UserRole: {
-                    include: {
-                        role: {
-                            include: {
-                                RolePermission: {
-                                    include: {
-                                        permission: true
+    async findAll(
+        pages: number = 1,
+        perPage: number = 10,
+        search?: string
+    ) {
+        const skip = (pages - 1) * perPage;
+
+        const where: any = {};
+        if (search) {
+            where.OR = [
+                { name: { contains: search, mode: 'insensitive' } },
+                { email: { contains: search, mode: 'insensitive' } },
+                { username: { contains: search, mode: 'insensitive' } },
+            ];
+        }
+
+        const [users, total] = await this.prisma.$transaction([
+            this.prisma.user.findMany({
+                where,
+                skip,
+                take: perPage,
+                include: {
+                    UserRole: {
+                        include: {
+                            role: {
+                                include: {
+                                    RolePermission: {
+                                        include: {
+                                            permission: true
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
-            }
-        });
+                },
+                orderBy: { createdAt: 'desc' }
+            }),
+            this.prisma.user.count({ where }),
+        ]);
 
-        const transformed = users.map(user => {
+        const data = users.map(user => {
             const roles = user.UserRole.map(ur => ur.role.name);
             const permissions = user.UserRole
                 .flatMap(ur => ur.role.RolePermission)
@@ -115,16 +137,22 @@ export class UserService {
                 name: user.name,
                 email: user.email,
                 username: user.username,
-
-                roles: [...new Set(roles)], // hapus duplikat
-                permissions: [...new Set(permissions)], // hapus duplikat
+                roles: [...new Set(roles)],
+                permissions: [...new Set(permissions)],
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
             };
         });
 
-        return successResponse("User berhasil ditemukan", transformed);
+        return successResponse('Berhasil mendapatkan user', {
+            data,
+            total,
+            pages,
+            perPage,
+            totalPages: Math.ceil(total / perPage),
+        });
     }
+
 
 
     async update(id: number, data: updateUserDto) {

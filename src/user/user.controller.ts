@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Put, Param, Delete } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Put, Param, Delete, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -12,8 +12,17 @@ export class UserController {
         private readonly prisma: PrismaService,) { }
 
     @Get()
-    getall() {
-        return this.userService.getall()
+    findAll(
+        @Query('page') page: number = 1,
+        @Query('perPage') perPage: number = 10,
+        @Query('search') search?: string
+
+    ) {
+        return this.userService.findAll(
+            Number(page) || 1,
+            Number(perPage) || 10,
+            search
+        )
     }
 
     @Get(':id')

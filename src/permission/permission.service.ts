@@ -27,11 +27,36 @@ export class PermissionService {
 
   }
 
-  async findAll() {
-    const q = await this.prisma.permission.findMany({
-      include: { roles: true }
+  async findAll(
+    page: number,
+    perPage: number,
+    search?: string
+  ) {
+    const skip = (page - 1) * perPage;
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+      ];
+    }
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.permission.findMany({
+        where,
+        skip,
+        take: perPage,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.permission.count({ where }),
+    ]);
+
+    return successResponse("Permission ditemukan", {
+      data,
+      total,
+      page,
+      perPage,
     });
-    return successResponse('Permission ditemukan', q)
   }
 
   findOne(id: number) {

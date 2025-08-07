@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { successResponse } from 'src/utils/response.util';
 import { contains } from 'class-validator';
 import * as XLSX from 'xlsx';
+import { equal } from 'assert';
 
 @Injectable()
 export class KomponenAsbService {
@@ -13,12 +14,11 @@ export class KomponenAsbService {
     const q = await this.prisma.komponen_ASB.create({
       data: {
         uraian: data.uraian,
-        id_kegiatan_asb: data.id_kegiatan_asb,
+        id_item_kegiatan_asb: data.id_item_kegiatan_asb,
         id_satuan: data.id_satuan,
-        id_sub_kegiatan_asb: data.id_sub_kegiatan_asb,
-        koefisien: data.koefisien,
-        harga_satuan: data.harga_satuan,
-        jumlah_harga: data.jumlah_harga,
+        koefisien: data.koefisien.toString(),
+        harga_satuan: data.harga_satuan.toString(),
+        jumlah_harga: data.jumlah_harga.toString(),
       },
     });
 
@@ -27,13 +27,23 @@ export class KomponenAsbService {
 
   async findAll(page = 1, perPage = 10, search?: string) {
     const skip = (page - 1) * perPage;
-    const where: any = {};
-    where.deletedAt = null; // Pastikan hanya mengambil data yang tidak dihapus
+    const where: any = { deletedAt: null };
+
     if (search) {
       where.OR = [
         {
           uraian: {
             contains: search,
+          },
+        },
+        {
+          harga_satuan: {
+            startsWith: search,
+          },
+        },
+        {
+          jumlah_harga: {
+            startsWith: search,
           },
         },
         {
@@ -46,40 +56,49 @@ export class KomponenAsbService {
           },
         },
         {
-          sub_kegiatan_asb: {
-            is: {
-              kode: {
-                contains: search,
+          item_kegiatan_asb: {
+            sub_kegiatan_asb: {
+              kegiatan_asb: {
+                kelompok_asb: {
+                  kode: {
+                    contains: search,
+                  },
+                },
               },
             },
           },
         },
-        {
-          kegiatan_asb: {
-            is: {
-              kode: {
-                contains: search,
-              },
-            },
-          },
-        },
+
       ];
     }
+
     const [data, total] = await this.prisma.$transaction([
       this.prisma.komponen_ASB.findMany({
         where,
         skip,
         take: perPage,
         include: {
-          kegiatan_asb: true,
-          sub_kegiatan_asb: true,
+          item_kegiatan_asb: {
+            include: {
+              sub_kegiatan_asb: {
+                include: {
+                  kegiatan_asb: {
+                    include: {
+                      kelompok_asb: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           satuan: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { updatedAt: "asc" },
       }),
       this.prisma.komponen_ASB.count({ where }),
     ]);
-    return successResponse('Berhasil mendapatkan semua komponen ASB', {
+
+    return successResponse("Berhasil mendapatkan semua komponen ASB", {
       data,
       total,
       page,
@@ -87,6 +106,7 @@ export class KomponenAsbService {
       totalPages: Math.ceil(total / perPage),
     });
   }
+
 
   async findOne(id: number) {
     const findId = await this.prisma.komponen_ASB.findUnique({
@@ -100,8 +120,6 @@ export class KomponenAsbService {
     const q = await this.prisma.komponen_ASB.findUnique({
       where: { id, deletedAt: null },
       include: {
-        kegiatan_asb: true,
-        sub_kegiatan_asb: true,
         satuan: true,
       },
     });
@@ -123,13 +141,12 @@ export class KomponenAsbService {
     const q = await this.prisma.komponen_ASB.update({
       where: { id },
       data: {
-        id_kegiatan_asb: data.id_kegiatan_asb,
-        id_sub_kegiatan_asb: data.id_sub_kegiatan_asb,
+        id_item_kegiatan_asb: data.id_item_kegiatan_asb,
         uraian: data.uraian,
         id_satuan: data.id_satuan,
-        koefisien: data.koefisien,
-        harga_satuan: data.harga_satuan,
-        jumlah_harga: data.jumlah_harga,
+        koefisien: data.koefisien?.toString(),
+        harga_satuan: data.harga_satuan?.toString(),
+        jumlah_harga: data.jumlah_harga?.toString(),
       },
     });
 
@@ -158,18 +175,192 @@ export class KomponenAsbService {
     );
   }
 
+  async importExcel(buffer: Buffer) {
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json<any>(sheet, { header: 1 });
 
-  private convertToDecimal(value: string | number | undefined): number {
-    if (value === undefined) {
-      return 0;
+    let currentKelompokId: number | null = null;
+    let currentKegiatanId: number | null = null;
+    let currentSubKegiatanId: number | null = null;
+    let currentItemKegiatanId: number | null = null;
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const kodeAsb = (row[0] || '').toString().trim();
+      const uraian = (row[1] || '').toString().trim();
+      const satuan = (row[2] || '').toString().trim();
+      const koefisien = row[3];
+      const hargaSatuan = row[4];
+      const jumlahHarga = row[5];
+
+      const hasDot = kodeAsb.includes('.');
+
+      // 1. Kelompok_ASB
+      if (kodeAsb && !hasDot) {
+        const kelompok = await this.prisma.kelompok_ASB.findFirst({
+          where: { kode: kodeAsb },
+        });
+
+        if (!kelompok) {
+          const created = await this.prisma.kelompok_ASB.create({
+            data: {
+              kode: kodeAsb,
+              uraian,
+            },
+          });
+          currentKelompokId = created.id;
+        } else {
+
+          currentKelompokId = kelompok.id;
+        }
+
+        continue;
+      }
+
+      // 2. Kegiatan_ASB (punya titik, tidak punya satuan)
+      if (kodeAsb && hasDot && !satuan) {
+        const kodeKegiatan = kodeAsb.split('.').slice(1).join('.'); // bagian setelah titik pertama
+
+        const kegiatan = await this.prisma.kegiatan_ASB.findFirst({
+          where: {
+            kode: kodeKegiatan,
+            id_kelompok_asb: currentKelompokId ?? undefined,
+          },
+        });
+
+        if (!kegiatan) {
+          const created = await this.prisma.kegiatan_ASB.create({
+            data: {
+              kode: kodeKegiatan,
+              uraian,
+              id_kelompok_asb: currentKelompokId ?? undefined,
+            },
+          });
+          currentKegiatanId = created.id;
+        } else {
+          currentKegiatanId = kegiatan.id;
+        }
+
+        continue;
+      }
+
+      // 3. SubKegiatan_ASB (punya titik dan punya satuan)
+      if (kodeAsb && hasDot && satuan) {
+        const kodeSubKegiatan = kodeAsb.split('.').slice(1).join('.');
+
+        const sub = await this.prisma.subKegiatan_ASB.findFirst({
+          where: {
+            kode: kodeSubKegiatan,
+            id_kegiatan_asb: currentKegiatanId ?? undefined,
+          },
+        });
+
+        if (!sub) {
+          const created = await this.prisma.subKegiatan_ASB.create({
+            data: {
+              kode: kodeSubKegiatan,
+              uraian,
+              id_kegiatan_asb: currentKegiatanId!,
+              kelompok_ASBId: currentKelompokId ?? undefined,
+            },
+          });
+          currentSubKegiatanId = created.id;
+        } else {
+          currentSubKegiatanId = sub.id;
+        }
+
+        // Buat 1 itemKegiatan jika belum ada
+        const item = await this.prisma.itemKegiatanASB.findFirst({
+          where: {
+            id_sub_kegiatan_asb: currentSubKegiatanId,
+            deletedAt: null,
+          },
+        });
+
+        if (!item) {
+          const created = await this.prisma.itemKegiatanASB.create({
+            data: {
+              uraian: 'Auto Generated Item Kegiatan',
+              id_sub_kegiatan_asb: currentSubKegiatanId,
+            },
+          });
+          currentItemKegiatanId = created.id;
+        } else {
+          currentItemKegiatanId = item.id;
+        }
+
+        continue;
+      }
+
+      // 4. Item Kegiatan (tidak ada kode dan satuan)
+      if (!kodeAsb && !satuan && uraian) {
+        // Cek apakah uraian item sudah ada dalam sub kegiatan tersebut
+        const existingItem = await this.prisma.itemKegiatanASB.findFirst({
+          where: {
+            uraian: uraian,
+            id_sub_kegiatan_asb: currentSubKegiatanId!,
+            deletedAt: null,
+          },
+        });
+
+        if (!existingItem) {
+          const item = await this.prisma.itemKegiatanASB.create({
+            data: {
+              uraian,
+              id_sub_kegiatan_asb: currentSubKegiatanId!,
+            },
+          });
+          currentItemKegiatanId = item.id;
+        } else {
+          currentItemKegiatanId = existingItem.id;
+        }
+
+        continue;
+      }
+
+
+      // 5. Komponen_ASB (baris dengan satuan & nilai-nilai lainnya)
+      if (uraian && satuan && hargaSatuan) {
+        // Cari atau buat satuan
+        let satuanRecord = await this.prisma.satuan.findFirst({
+          where: { nama: satuan },
+        });
+
+        if (!satuanRecord) {
+          satuanRecord = await this.prisma.satuan.create({
+            data: { nama: satuan },
+          });
+        }
+
+        // Cek apakah komponen dengan uraian yang sama sudah ada pada item kegiatan yang sama
+        const existingKomponen = await this.prisma.komponen_ASB.findFirst({
+          where: {
+            uraian,
+            id_item_kegiatan_asb: currentItemKegiatanId!,
+            deletedAt: null,
+          },
+        });
+
+        if (!existingKomponen) {
+          await this.prisma.komponen_ASB.create({
+            data: {
+              uraian,
+              id_item_kegiatan_asb: currentItemKegiatanId!,
+              id_satuan: satuanRecord.id,
+              koefisien: koefisien.toString(),
+              harga_satuan: hargaSatuan.toString(),
+              jumlah_harga: jumlahHarga.toString(),
+            },
+          });
+        }
+      }
+
     }
-    if (typeof value === 'number') {
-      return value; // Jika sudah number, gunakan langsung
-    }
-    if (typeof value === 'string') {
-      const cleanedValue = value.replace(/Rp|\,| /g, '').trim();
-      return parseFloat(cleanedValue) || 0;
-    }
-    return 0; // Default jika tipe tidak dikenali
+
+    return successResponse('Import selesai', null);
   }
+
+
+
 }

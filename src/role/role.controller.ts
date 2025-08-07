@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RoleService } from './role.service';
 import { createroleDto } from './dto/create-role.dto';
@@ -13,8 +13,17 @@ export class RoleController {
 
 
     @Get()
-    findAll() {
-        return this.roleService.findAll()
+    findAll(
+        @Query('page') page: number = 1,
+        @Query('perPage') perPage: number = 10,
+        @Query('search') search?: string
+
+    ) {
+        return this.roleService.findAll(
+            page,
+            perPage,
+            search
+        )
     }
 
     @Get(':id')
@@ -27,9 +36,13 @@ export class RoleController {
         return this.roleService.create(body);
     }
 
-    @Put(':id')
+    @Patch(':id')
     update(@Param('id') id: number, @Body() data: UpdateRoleDto) {
         return this.roleService.update(id, data);
+    }
+    @Delete(':id')
+    delete(@Param('id') id: number) {
+        return this.roleService.delete(id);
     }
 
 

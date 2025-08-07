@@ -8,6 +8,11 @@ import { successResponse } from 'src/utils/response.util';
 export class KelompokAsbService {
   constructor(private prisma: PrismaService) { }
   async create(data: CreateKelompokAsbDto) {
+    const findkode = await this.prisma.kelompok_ASB.findFirst({ where: { kode: data.kode } });
+    if (findkode) {
+      throw new BadRequestException('Kelompok ASB ini dengan kode ' + data.kode + ' sudah ada');
+    }
+
     const q = await this.prisma.kelompok_ASB.create({ data });
     return successResponse('Kelompok ASB berhasil dibuat', q);
   }
@@ -82,8 +87,8 @@ export class KelompokAsbService {
     );
   }
 
-  remove(id: number) {
-    const findId = this.prisma.kelompok_ASB.findUnique({
+  async remove(id: number) {
+    const findId = await this.prisma.kelompok_ASB.findUnique({
       where: { id },
     })
     if (!findId) {
@@ -91,7 +96,7 @@ export class KelompokAsbService {
         'Kelompok ASB dengan Id ' + id + ' tidak ditemukan',
       );
     }
-    const q = this.prisma.kelompok_ASB.delete({
+    const q = await this.prisma.kelompok_ASB.delete({
       where: { id },
     })
     return successResponse('Kelompok ASB berhasil dihapus', q);

@@ -57,8 +57,13 @@ export class KomponenAsbController {
   }
 
 
-  //import excel
 
+  //import excel
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  importExcel(@UploadedFile() file: Express.Multer.File) {
+    return this.komponenAsbService.importExcel(file.buffer);
+  }
 
 }
 

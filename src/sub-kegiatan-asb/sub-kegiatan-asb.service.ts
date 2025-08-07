@@ -9,6 +9,15 @@ export class SubKegiatanAsbService {
   constructor(private prisma: PrismaService) { }
 
   async create(data: CreateSubKegiatanAsbDto) {
+
+    const findIdKegiatan = await this.prisma.subKegiatan_ASB.findFirst({ where: { id_kegiatan_asb: data.id_kegiatan_asb } });
+    if (findIdKegiatan) {
+      const findKode = await this.prisma.subKegiatan_ASB.findFirst({ where: { kode: data.kode } });
+      if (findKode) {
+        throw new BadRequestException('Sub Kegiatan ASB ini dengan kode ' + data.kode + ' sudah ada');
+      }
+    }
+
     const q = await this.prisma.subKegiatan_ASB.create({
       data: {
         kode: data.kode,
@@ -26,6 +35,19 @@ export class SubKegiatanAsbService {
       where.OR = [
         { kode: { contains: $search } },
         { uraian: { contains: $search } },
+        {
+          kegiatan_asb: {
+            is: {
+              kelompok_asb: {
+                is: {
+                  kode: {
+                    contains: $search,
+                  },
+                },
+              },
+            },
+          },
+        }
       ];
     }
     if (id_kegiatan_asb) {
@@ -37,7 +59,11 @@ export class SubKegiatanAsbService {
         skip,
         take: perPage,
         include: {
-          kegiatan_asb: true,
+          kegiatan_asb: {
+            include: {
+              kelompok_asb: true,
+            },
+          }
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -71,8 +97,8 @@ export class SubKegiatanAsbService {
     return successResponse('Berhasil mendapatkan sub kegiatan asb', q);
   }
 
-  update(id: number, data: UpdateSubKegiatanAsbDto) {
-    const findId = this.prisma.subKegiatan_ASB.findUnique({
+  async update(id: number, data: UpdateSubKegiatanAsbDto) {
+    const findId = await this.prisma.subKegiatan_ASB.findUnique({
       where: { id },
     });
     if (!findId) {
@@ -80,7 +106,16 @@ export class SubKegiatanAsbService {
         'Sub Kegiatan ASB dengan Id ' + id + ' tidak ditemukan',
       );
     }
-    const q = this.prisma.subKegiatan_ASB.update({
+
+    const findIdKegiatan = await this.prisma.subKegiatan_ASB.findFirst({ where: { id_kegiatan_asb: data.id_kegiatan_asb } });
+    if (findIdKegiatan) {
+      const findKode = await this.prisma.subKegiatan_ASB.findFirst({ where: { kode: data.kode } });
+      if (findKode) {
+        throw new BadRequestException('Sub Kegiatan ASB ini dengan kode ' + data.kode + ' sudah ada');
+      }
+    }
+
+    const q = await this.prisma.subKegiatan_ASB.update({
       where: { id },
       data: {
         kode: data.kode,
@@ -91,8 +126,8 @@ export class SubKegiatanAsbService {
     return successResponse('Sub Kegiatan ASB berhasil diperbarui', q);
   }
 
-  remove(id: number) {
-    const findId = this.prisma.subKegiatan_ASB.findUnique({
+  async remove(id: number) {
+    const findId = await this.prisma.subKegiatan_ASB.findUnique({
       where: { id },
     });
     if (!findId) {
