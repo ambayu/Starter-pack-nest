@@ -10,12 +10,20 @@ export class BiodataService {
 
     async create(data: createbiodataDto) {
 
+        const findId = await this.prisma.user.findUnique({
+            where: { id: data.id_user }
+        });
+
+        if (!findId) {
+            throw new BadRequestException(`User dengan ID ${data.id_user} tidak ditemukan`);
+        }
+
         const finduserId = await this.prisma.biodata.findUnique({
             where: { id_user: data.id_user }
         })
 
         if (finduserId) {
-            throw new BadRequestException('Biodata User Telah ada')
+            throw new BadRequestException(`Biodata dengan User ID ${data.id_user} sudah ada`);
         }
 
         const biodata = await this.prisma.biodata.create({
@@ -110,6 +118,10 @@ export class BiodataService {
                 jenis_kelamin: data.jenis_kelamin,
                 tanggal_lahir: data.tanggal_lahir,
                 alamat: data.alamat,
+                photo: data.photo,
+                no_telp: data.no_telp,
+                kota: data.kota,
+                kode_pos: data.kode_pos
             }
         })
 

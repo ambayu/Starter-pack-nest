@@ -1,13 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 
 @Controller('permission')
 export class PermissionController {
-  constructor(private readonly permissionService: PermissionService,
+  constructor(
+    private readonly permissionService: PermissionService,
     private prisma: PermissionService,
-  ) { }
+  ) {}
 
   @Post()
   create(@Body() createPermissionDto: CreatePermissionDto) {
@@ -18,13 +28,9 @@ export class PermissionController {
   findAll(
     @Query('page') page: number = 1,
     @Query('perPage') perPage: number = 10,
-    @Query('search') search?: string
+    @Query('search') search?: string,
   ) {
-    return this.permissionService.findAll(
-      page,
-      perPage,
-      search
-    );
+    return this.permissionService.findAll(page, perPage, search);
   }
 
   @Get(':id')
@@ -33,7 +39,10 @@ export class PermissionController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePermissionDto: UpdatePermissionDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updatePermissionDto: UpdatePermissionDto,
+  ) {
     return this.permissionService.update(+id, updatePermissionDto);
   }
 

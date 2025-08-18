@@ -7,38 +7,32 @@ import { permission } from 'process';
 
 @Injectable()
 export class PermissionService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(data: CreatePermissionDto) {
-
     const findName = await this.prisma.permission.findUnique({
-      where: { name: data.name }
-    })
+      where: { name: data.name },
+    });
     if (findName) {
-      throw new BadRequestException("Permission dengan nama " + data.name + " sudah ada")
+      throw new BadRequestException(
+        'Permission dengan nama ' + data.name + ' sudah ada',
+      );
     }
 
     const q = await this.prisma.permission.create({
       data: {
-        name: data.name
-      }
-    })
-    return successResponse("Permission ditemukan", q)
-
+        name: data.name,
+      },
+    });
+    return successResponse('Permission berhasil dibuat', q);
   }
 
-  async findAll(
-    page: number,
-    perPage: number,
-    search?: string
-  ) {
+  async findAll(page: number, perPage: number, search?: string) {
     const skip = (page - 1) * perPage;
 
     const where: any = {};
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-      ];
+      where.OR = [{ name: { contains: search } }];
     }
 
     const [data, total] = await this.prisma.$transaction([
@@ -51,7 +45,7 @@ export class PermissionService {
       this.prisma.permission.count({ where }),
     ]);
 
-    return successResponse("Permission ditemukan", {
+    return successResponse('Permission ditemukan', {
       data,
       total,
       page,
@@ -59,43 +53,51 @@ export class PermissionService {
     });
   }
 
-  findOne(id: number) {
-    const q = this.prisma.permission.findUnique({
+ async  findOne(id: number) {
+    const q = await this.prisma.permission.findUnique({
       where: { id },
-      include: { roles: true }
-    })
-    return successResponse('Permission ditemukan', q)
+      include: { roles: true },
+    });
+    if (!q) {
+      throw new BadRequestException(
+        `Permission dengan Id ${id} tidak ditemukan`,
+      );
+    }
+    return successResponse('Permission ditemukan', q);
   }
 
   async update(id: number, data: UpdatePermissionDto) {
     const findId = await this.prisma.permission.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
     if (!findId) {
-      throw new BadRequestException("Permission dengan id " + id + " tidak ditemukan")
+      throw new BadRequestException(
+        'Permission dengan id ' + id + ' tidak ditemukan',
+      );
     }
     const q = await this.prisma.permission.update({
       where: { id },
       data: {
-        name: data.name
-      }
-    })
+        name: data.name,
+      },
+    });
 
-    return successResponse("Permission berhasil di perbaharui", q)
-
+    return successResponse('Permission berhasil di perbaharui', q);
   }
 
   async remove(id: number) {
     const findId = await this.prisma.permission.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
     if (!findId) {
-      throw new BadRequestException(`Permission dengan Id ${id} tidak ditemukan`)
+      throw new BadRequestException(
+        `Permission dengan Id ${id} tidak ditemukan`,
+      );
     }
     const q = await this.prisma.permission.delete({
-      where: { id }
-    })
+      where: { id },
+    });
 
-    return successResponse("Permission berhasil dihapus", q);
+    return successResponse('Permission berhasil dihapus', q);
   }
 }
