@@ -79,3 +79,198 @@ model RolePermission {
   role          Role       @relation(fields: [id_role], references: [id], onDelete: Cascade)
   permission    Permission @relation(fields: [id_permission], references: [id], onDelete: Cascade)
 }
+
+model Penugasan {
+  id                        Int               @id @default(autoincrement())
+  dasar_penugasan           String
+  sifat_penugasan           String
+  nama_penugasan            String
+  alamat_penugasan          String
+  nomor_kartu               String
+  penanggung_jawab          String
+  pembantu_penanggung_jawab String
+  pengendali_teknis         String
+  ketua_tim                 String
+  catatan                   String?
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @default(now()) @updatedAt
+  rute_perencanaan          RutePerencanaan[]
+  km1                       KM1[]
+  km2                       KM2[]
+  KM3                       KM3[]
+  km4                       km4[]
+}
+
+model RutePerencanaan {
+  id               Int       @id @default(autoincrement())
+  id_penugasan     Int
+  penugasan        Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
+  no_urutan        Int       @unique
+  uraian_pekerjaan String
+  nama_penangggung String
+  nip              String
+  tanggal_paraf    DateTime
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
+}
+
+model KM1 {
+  id                       Int             @id @default(autoincrement())
+  id_penugasan             Int
+  penugasan                Penugasan       @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
+  rencana_penugasan        String
+  tahun_penugasan_terakhir Int
+  alamat                   String
+  tingkat_risiko           String
+  tujuan_penugasan         String
+  surat_tugas_nomor        String?
+  rencana_mulai            DateTime
+  rencana_selesai          DateTime
+  anggaran_diajukan        Float?
+  anggaran_disetujui       Float?
+  catatan_penting          String?
+  createdAt                DateTime        @default(now())
+  KM1SusunanTim            KM1SusunanTim[]
+}
+
+model KM1SusunanTim {
+  id               Int      @id @default(autoincrement())
+  id_km1           Int
+  km1              KM1      @relation(fields: [id_km1], references: [id], onDelete: Cascade)
+  nip              String
+  peran            Peran?   @relation(fields: [id_peran], references: [id])
+  id_peran         Int?
+  satuan           String?
+  honorarium       Int?
+  alokasi_anggaran Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+}
+
+model Peran {
+  id                          Int                        @id @default(autoincrement())
+  nama                        String                     @unique
+  createdAt                   DateTime                   @default(now())
+  updatedAt                   DateTime                   @default(now()) @updatedAt
+  km1_susunan_tim             KM1SusunanTim[]
+  km3_rencana_realisasi_waktu KM3RencanaRealisasiWaktu[]
+}
+
+model KM2 {
+  id                    Int                   @id @default(autoincrement())
+  id_penugasan          Int
+  penugasan             Penugasan             @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
+  sasaran_penugasan     String
+  km2_rincian_pekerjaan KM2RincianPekerjaan[]
+}
+
+model KM2RincianPekerjaan {
+  id                 Int          @id @default(autoincrement())
+  id_km2             Int
+  km2                KM2          @relation(fields: [id_km2], references: [id], onDelete: Cascade)
+  id_jenis_pekerjaan Int
+  id_penugasan_km2   Int
+  penugasan_km2      PenugasanKM2 @relation(fields: [id_penugasan_km2], references: [id], onDelete: Cascade)
+}
+
+model jenisPekerjaan {
+  id            Int            @id @default(autoincrement())
+  nama          String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  penugasan_km2 PenugasanKM2[]
+  KM3           KM3[]
+}
+
+model ItemJenisPekerjaan {
+  id                                  Int                              @id @default(autoincrement())
+  nama                                String                           @unique
+  createdAt                           DateTime                         @default(now())
+  updatedAt                           DateTime                         @default(now()) @updatedAt
+  penugassan_km2_item_jenis_pekerjaan PenugasanKM2ItemJenisPekerjaan[]
+  KM3                                 KM3[]
+  penugasan_km2                       PenugasanKM2[]
+}
+
+model PenugasanKM2 {
+  id                      Int                @id @default(autoincrement())
+  id_jenis_pekerjaan      Int
+  jenis_pekerjaan         jenisPekerjaan     @relation(fields: [id_jenis_pekerjaan], references: [id], onDelete: Cascade)
+  id_item_jenis_pekerjaan Int
+  item_jenis_pekerjaan    ItemJenisPekerjaan @relation(fields: [id_item_jenis_pekerjaan], references: [id], onDelete: Cascade)
+
+  tanggal                             DateTime
+  anggaran_waktu                      Int
+  penugasaan_km2_item_jenis_pekerjaan PenugasanKM2ItemJenisPekerjaan[]
+  km2_rincian_pekerjaan               KM2RincianPekerjaan[]
+}
+
+model PenugasanKM2ItemJenisPekerjaan {
+  id                      Int                @id @default(autoincrement())
+  id_penugasan_km2        Int
+  penugasan_km2           PenugasanKM2       @relation(fields: [id_penugasan_km2], references: [id], onDelete: Cascade)
+  id_item_jenis_pekerjaan Int
+  item_jenis_pekerjaan    ItemJenisPekerjaan @relation(fields: [id_item_jenis_pekerjaan], references: [id], onDelete: Cascade)
+}
+
+model KM3 {
+  id                          Int                        @id @default(autoincrement())
+  id_penugasan                Int
+  penugasan                   Penugasan                  @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
+  id_jenis_pekerjaan          Int
+  jenis_pekerjaan             jenisPekerjaan             @relation(fields: [id_jenis_pekerjaan], references: [id], onDelete: Cascade)
+  id_item_jenis_pekerjaan     Int
+  item_jenis_pekerjaan        ItemJenisPekerjaan         @relation(fields: [id_item_jenis_pekerjaan], references: [id], onDelete: Cascade)
+  rencana_jam                 Float?
+  anggaran_jam                Float?
+  realisasi_biaya             Float?
+  anggaran_biaya              Float?
+  km3_rencana_realisasi_waktu KM3RencanaRealisasiWaktu[]
+}
+
+model KM3RencanaRealisasiWaktu {
+  id            Int    @id @default(autoincrement())
+  id_km3        Int
+  km3           KM3    @relation(fields: [id_km3], references: [id], onDelete: Cascade)
+  id_peran      Int
+  peran         Peran? @relation(fields: [id_peran], references: [id])
+  rencana_jam   Float?
+  realisasi_jam Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model km4 {
+  id              Int          @id @default(autoincrement())
+  id_penugasan    Int
+  penugasan       Penugasan    @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
+  tujuan          String?
+  prosedur        String?
+  anggaran_waktu  Int?
+  realisasi_waktu Int?
+  no_kka          String?
+  km4_auditor     km4Auditor[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now()) @updatedAt
+}
+
+model km4Auditor {
+  id         Int      @id @default(autoincrement())
+  id_km4     Int
+  km4        km4      @relation(fields: [id_km4], references: [id], onDelete: Cascade)
+  nip        String?
+  pegawai    pegawai? @relation(fields: [id_pegawai], references: [id])
+  id_pegawai Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+model pegawai {
+  id          Int          @id @default(autoincrement())
+  nama        String
+  nip         String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
+  km4_auditor km4Auditor[]
+}
