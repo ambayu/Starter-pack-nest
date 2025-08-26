@@ -82,16 +82,18 @@ model RolePermission {
 
 model Penugasan {
   id                        Int               @id @default(autoincrement())
-  dasar_penugasan           String
-  sifat_penugasan           String
-  nama_penugasan            String
-  alamat_penugasan          String
-  nomor_kartu               String
-  penanggung_jawab          String
-  pembantu_penanggung_jawab String
-  pengendali_teknis         String
-  ketua_tim                 String
+  dasar_penugasan           String?
+  sifat_penugasan           String?
+  nama_penugasan            String?
+  alamat_penugasan          String?
+  nomor_kartu               String?
+  penanggung_jawab          String?
+  pembantu_penanggung_jawab String?
+  pengendali_teknis         String?
+  ketua_tim                 String?
   catatan                   String?
+  createdBy                 String
+  updatedBy                 String?
   createdAt                 DateTime          @default(now())
   updatedAt                 DateTime          @default(now()) @updatedAt
   rute_perencanaan          RutePerencanaan[]

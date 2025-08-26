@@ -8,6 +8,7 @@ import { UserRoleModule } from './user-role/user-role.module';
 import { PermissionModule } from './permission/permission.module';
 import { RolePermissionModule } from './role-permission/role-permission.module';
 import { AuthModule } from './auth/auth.module';
+import { PenugasanModule } from './penugasan/penugasan.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
     PermissionModule,
     RolePermissionModule,
     AuthModule,
+    PenugasanModule,
   ],
   controllers: [AppController],
   providers: [AppService],

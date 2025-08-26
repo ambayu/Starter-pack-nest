@@ -2,13 +2,13 @@
 
 export const successResponse = (
     message: string,
-    data: any,
+    page_data: any,
     statusCode = 200,
 ) => ({
     statusCode,
     success: true,
     message,
-    data,
+    page_data,
 });
 
 export const errorResponse = (
