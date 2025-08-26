@@ -99,7 +99,7 @@ model Penugasan {
   rute_perencanaan          RutePerencanaan[]
   km1                       KM1[]
   km2                       KM2[]
-  KM3                       KM3[]
+  Km3                       KM3[]
   km4                       km4[]
 }
 
@@ -107,7 +107,7 @@ model RutePerencanaan {
   id               Int       @id @default(autoincrement())
   id_penugasan     Int
   penugasan        Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-  no_urutan        Int       @unique
+  no_urutan        Int
   uraian_pekerjaan String
   nama_penangggung String
   nip              String
@@ -154,6 +154,7 @@ model Peran {
   nama                        String                     @unique
   createdAt                   DateTime                   @default(now())
   updatedAt                   DateTime                   @default(now()) @updatedAt
+  deletedAt                   DateTime?
   km1_susunan_tim             KM1SusunanTim[]
   km3_rencana_realisasi_waktu KM3RencanaRealisasiWaktu[]
 }
@@ -167,21 +168,23 @@ model KM2 {
 }
 
 model KM2RincianPekerjaan {
-  id                 Int          @id @default(autoincrement())
+  id                 Int            @id @default(autoincrement())
   id_km2             Int
-  km2                KM2          @relation(fields: [id_km2], references: [id], onDelete: Cascade)
+  km2                KM2            @relation(fields: [id_km2], references: [id], onDelete: Cascade)
   id_jenis_pekerjaan Int
+  jenis_pekerjaan    jenisPekerjaan @relation(fields: [id_jenis_pekerjaan], references: [id])
   id_penugasan_km2   Int
-  penugasan_km2      PenugasanKM2 @relation(fields: [id_penugasan_km2], references: [id], onDelete: Cascade)
+  penugasan_km2      PenugasanKM2   @relation(fields: [id_penugasan_km2], references: [id], onDelete: Cascade)
 }
 
 model jenisPekerjaan {
-  id            Int            @id @default(autoincrement())
-  nama          String         @unique
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @default(now()) @updatedAt
-  penugasan_km2 PenugasanKM2[]
-  KM3           KM3[]
+  id                  Int                   @id @default(autoincrement())
+  nama                String                @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
+  penugasan_km2       PenugasanKM2[]
+  KM3                 KM3[]
+  KM2RincianPekerjaan KM2RincianPekerjaan[]
 }
 
 model ItemJenisPekerjaan {

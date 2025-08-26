@@ -1,105 +1,184 @@
 import {
-    IsNotEmpty,
-    IsString,
-    IsOptional,
-    IsNumber,
-    ValidateNested,
-    IsArray,
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsNumber,
+  ValidateNested,
+  IsArray,
+  IsDate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
+// ---------------- DTO Utama ----------------
 export class CreatePenugasanDto {
-    // --- Field utama Penugasan ---
-    @IsNotEmpty({ message: 'Nama penugasan tidak boleh kosong' })
-    @IsString({ message: 'Nama penugasan harus berupa teks' })
-    nama_penugasan: string;
+  @IsOptional() @IsString() dasar_penugasan?: string;
+  @IsOptional() @IsString() sifat_penugasan?: string;
+  @IsOptional() @IsString() nama_penugasan?: string;
+  @IsOptional() @IsString() alamat_penugasan?: string;
+  @IsOptional() @IsString() nomor_kartu?: string;
+  @IsOptional() @IsString() penanggung_jawab?: string;
+  @IsOptional() @IsString() pembantu_penanggung_jawab?: string;
+  @IsOptional() @IsString() pengendali_teknis?: string;
+  @IsOptional() @IsString() ketua_tim?: string;
+  @IsOptional() @IsString() catatan?: string;
 
-    @IsOptional()
-    @IsString({ message: 'Deskripsi harus berupa teks' })
-    deskripsi?: string;
+  @IsNotEmpty() @IsString() createdBy: string;
+  @IsOptional() @IsString() updatedBy?: string;
 
-    @IsNotEmpty({ message: 'Tanggal mulai tidak boleh kosong' })
-    @IsString({ message: 'Tanggal mulai harus berupa string tanggal' })
-    tanggal_mulai: string;
+  // ---------------- Rute Perencanaan ----------------
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RutePerencanaanDto)
+  rute_perencanaan?: RutePerencanaanDto[];
 
-    @IsOptional()
-    @IsString({ message: 'Tanggal selesai harus berupa string tanggal' })
-    tanggal_selesai?: string;
+  // ---------------- KM1 ----------------
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KM1Dto)
+  km1?: KM1Dto[];
 
-    // --- Relasi RutePerencanaan ---
-    @IsArray({ message: 'Rute perencanaan harus berupa array' })
-    @ValidateNested({ each: true })
-    @Type(() => RutePerencanaanInlineDto)
-    rute_perencanaan: RutePerencanaanInlineDto[];
+  // ---------------- KM2 ----------------
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KM2Dto)
+  km2?: KM2Dto[];
 
-    // --- Relasi KM1 ---
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => KM1InlineDto)
-    km1?: KM1InlineDto;
+  // ---------------- Penugasan KM2 ----------------
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PenugasanKM2Dto)
+  penugasan_km2?: PenugasanKM2Dto[];
 
-    // --- Relasi KM2 ---
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => KM2InlineDto)
-    km2?: KM2InlineDto;
+  // ---------------- KM3 ----------------
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KM3Dto)
+  KM3?: KM3Dto[];
+
+  // ---------------- KM4 ----------------
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KM4Dto)
+  km4?: KM4Dto[];
 }
 
-// ---------------- Inline DTO di dalam CreatePenugasanDto ----------------
-
-// Rute Perencanaan
-export class RutePerencanaanInlineDto {
-    @IsNotEmpty({ message: 'Lokasi tidak boleh kosong' })
-    @IsString({ message: 'Lokasi harus berupa teks' })
-    lokasi: string;
-
-    @IsNotEmpty({ message: 'Urutan harus diisi' })
-    @IsNumber({}, { message: 'Urutan harus berupa angka' })
-    urutan: number;
+// ---------------- Rute Perencanaan DTO ----------------
+export class RutePerencanaanDto {
+  @IsNotEmpty() @IsNumber() no_urutan: number;
+  @IsNotEmpty() @IsString() uraian_pekerjaan: string;
+  @IsNotEmpty() @IsString() nama_penangggung: string;
+  @IsNotEmpty() @IsString() nip: string;
+  @IsNotEmpty() @IsDate() @Type(() => Date) tanggal_paraf: Date;
 }
 
-// KM1
-export class KM1InlineDto {
-    @IsOptional()
-    @IsString({ message: 'Nomor dokumen harus berupa teks' })
-    nomor_dokumen?: string;
+// ---------------- KM1 DTO ----------------
+export class KM1Dto {
+  @IsNotEmpty() @IsString() rencana_penugasan: string;
+  @IsNotEmpty() @IsNumber() tahun_penugasan_terakhir: number;
+  @IsNotEmpty() @IsString() alamat: string;
+  @IsNotEmpty() @IsString() tingkat_risiko: string;
+  @IsNotEmpty() @IsString() tujuan_penugasan: string;
+  @IsOptional() @IsString() surat_tugas_nomor?: string;
+  @IsNotEmpty() @IsDate() @Type(() => Date) rencana_mulai: Date;
+  @IsNotEmpty() @IsDate() @Type(() => Date) rencana_selesai: Date;
+  @IsOptional() @IsNumber() anggaran_diajukan?: number;
+  @IsOptional() @IsNumber() anggaran_disetujui?: number;
+  @IsOptional() @IsString() catatan_penting?: string;
 
-    @IsArray({ message: 'Susunan tim harus berupa array' })
-    @ValidateNested({ each: true })
-    @Type(() => KM1SusunanTimInlineDto)
-    KM1SusunanTim: KM1SusunanTimInlineDto[];
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KM1SusunanTimDto)
+  KM1SusunanTim?: KM1SusunanTimDto[];
 }
 
-// KM1 Susunan Tim
-export class KM1SusunanTimInlineDto {
-    @IsNotEmpty({ message: 'Nama anggota tim tidak boleh kosong' })
-    @IsString({ message: 'Nama anggota tim harus berupa teks' })
-    nama: string;
-
-    @IsNotEmpty({ message: 'Peran tidak boleh kosong' })
-    @IsString({ message: 'Peran harus berupa teks' })
-    peran: string;
+// ---------------- KM1 Susunan Tim DTO ----------------
+export class KM1SusunanTimDto {
+  @IsNotEmpty() @IsString() nip: string;
+  @IsOptional() @IsNumber() id_peran?: number;
+  @IsOptional() @IsString() satuan?: string;
+  @IsOptional() @IsNumber() honorarium?: number;
+  @IsOptional() @IsNumber() alokasi_anggaran?: number;
 }
 
-// KM2
-export class KM2InlineDto {
-    @IsOptional()
-    @IsString({ message: 'Catatan KM2 harus berupa teks' })
-    catatan?: string;
+// ---------------- KM2 DTO ----------------
+export class KM2Dto {
+  @IsNotEmpty() @IsString() sasaran_penugasan: string;
 
-    @IsArray({ message: 'Rincian pekerjaan harus berupa array' })
-    @ValidateNested({ each: true })
-    @Type(() => KM2RincianPekerjaanInlineDto)
-    km2_rincian_pekerjaan: KM2RincianPekerjaanInlineDto[];
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KM2RincianPekerjaanDto)
+  km2_rincian_pekerjaan?: KM2RincianPekerjaanDto[];
 }
 
-// KM2 Rincian Pekerjaan
-export class KM2RincianPekerjaanInlineDto {
-    @IsNotEmpty({ message: 'Uraian pekerjaan tidak boleh kosong' })
-    @IsString({ message: 'Uraian pekerjaan harus berupa teks' })
-    uraian: string;
+export class KM2RincianPekerjaanDto {
+  @IsNotEmpty() @IsNumber() id_jenis_pekerjaan: number;
+  @IsNotEmpty() @IsNumber() id_penugasan_km2: number;
+}
 
-    @IsNotEmpty({ message: 'Durasi harus diisi' })
-    @IsNumber({}, { message: 'Durasi harus berupa angka' })
-    durasi: number;
+// ---------------- Penugasan KM2 DTO ----------------
+export class PenugasanKM2Dto {
+  @IsNotEmpty() @IsNumber() id_jenis_pekerjaan: number;
+  @IsNotEmpty() @IsNumber() id_item_jenis_pekerjaan: number;
+  @IsNotEmpty() @IsDate() @Type(() => Date) tanggal: Date;
+  @IsNotEmpty() @IsNumber() anggaran_waktu: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PenugasanKM2ItemDto)
+  penugasaan_km2_item_jenis_pekerjaan?: PenugasanKM2ItemDto[];
+}
+
+export class PenugasanKM2ItemDto {
+  @IsNotEmpty() @IsNumber() id_item_jenis_pekerjaan: number;
+}
+
+// ---------------- KM3 DTO ----------------
+export class KM3Dto {
+  @IsNotEmpty() @IsNumber() id_jenis_pekerjaan: number;
+  @IsNotEmpty() @IsNumber() id_item_jenis_pekerjaan: number;
+  @IsOptional() @IsNumber() rencana_jam?: number;
+  @IsOptional() @IsNumber() anggaran_jam?: number;
+  @IsOptional() @IsNumber() realisasi_biaya?: number;
+  @IsOptional() @IsNumber() anggaran_biaya?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KM3RencanaRealisasiWaktuDto)
+  km3_rencana_realisasi_waktu?: KM3RencanaRealisasiWaktuDto[];
+}
+
+export class KM3RencanaRealisasiWaktuDto {
+  @IsNotEmpty() @IsNumber() id_peran: number;
+  @IsOptional() @IsNumber() rencana_jam?: number;
+  @IsOptional() @IsNumber() realisasi_jam?: number;
+}
+
+// ---------------- KM4 DTO ----------------
+export class KM4Dto {
+  @IsOptional() @IsString() tujuan?: string;
+  @IsOptional() @IsString() prosedur?: string;
+  @IsOptional() @IsNumber() anggaran_waktu?: number;
+  @IsOptional() @IsNumber() realisasi_waktu?: number;
+  @IsOptional() @IsString() no_kka?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => KM4AuditorDto)
+  km4_auditor?: KM4AuditorDto[];
+}
+
+export class KM4AuditorDto {
+  @IsOptional() @IsString() nip?: string;
+  @IsOptional() @IsNumber() id_pegawai?: number;
 }
