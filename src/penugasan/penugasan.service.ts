@@ -13,7 +13,13 @@ export class PenugasanService {
 
 
 
-  findAll() {
+  findAll(
+    page: number,
+    perPage: number,
+    search?: string,
+    orderBy?: string,
+    order?: string,
+  ) {
     return `This action returns all penugasan`;
   }
 
