@@ -1,17 +1,19 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateLoginDto } from './dto/create-login.dto';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('login')
-  login(@Body() data: CreateLoginDto) {
-    return this.authService.login(data);
+  async login(@Body() body: { username: string; password: string }) {
+    return this.authService.login(body.username, body.password);
+  }
+
+  @UseGuards(JwtAuthGuard) // proteksi pakai guard
+  @Get('me')
+  getProfile(@Req() req) {
+    return req.user; // otomatis dari JwtStrategy.validate()
   }
 }

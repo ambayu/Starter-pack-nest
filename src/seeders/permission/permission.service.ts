@@ -3,24 +3,52 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PermissionSeederService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private prisma: PrismaClient) { }
 
   async seed() {
     try {
       const rolePermissionsMap = {
         admin: [
+          // User
+          'user:view',
           'user:create',
           'user:edit',
           'user:delete',
-          'user:view',
+
+          // Laporan
+          'laporan:view',
+          'laporan:edit',
+          'laporan:delete',
+
+          // Role
+          'role:view',
+          'role:create',
+          'role:edit',
+          'role:delete',
+
+          // Permission
+          'permission:view',
+          'permission:create',
+          'permission:edit',
+          'permission:delete',
+        ],
+
+        admin_laporan: [
           'laporan:view',
           'laporan:edit',
           'laporan:delete',
         ],
-        admin_laporan: ['laporan:view', 'laporan:edit', 'laporan:delete'],
-        user: ['user:view', 'laporan:view'],
-        guest: ['laporan:view'],
+
+        user: [
+          'user:view',
+          'laporan:view',
+        ],
+
+        guest: [
+          'laporan:view',
+        ],
       };
+
 
       // 1. Ambil semua permission unik
       const allPermissionNames = [

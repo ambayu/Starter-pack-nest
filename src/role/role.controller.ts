@@ -1,8 +1,12 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RoleService } from './role.service';
 import { createroleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { PermissionGuard } from 'src/auth/guard/permission.guard';
+
+@UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 
 @Controller('role')
 export class RoleController {
