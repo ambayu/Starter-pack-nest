@@ -4,7 +4,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from 'src/user-role/entities/user-role.entity';
 import { successResponse } from 'src/utils/response.util';
-import { CreateLoginDto } from './dto/create-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,9 +12,17 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(data: CreateLoginDto) {
-    const user = await this.prisma.user.findFirst({
-      where: { username: data.username },
+  async login(username: string, password: string) {
+    if (!username) {
+      throw new Error('Username is required');
+    }
+
+    if (!password) {
+      throw new Error('Password is required');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { username },
       include: {
         UserRole: {
           include: {
@@ -36,7 +43,7 @@ export class AuthService {
       throw new UnauthorizedException('Username tidak ditemukan');
     }
 
-    const isMatch = await bcrypt.compare(data.password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Password salah');
     }
@@ -53,21 +60,13 @@ export class AuthService {
       sub: user.id,
       username: user.username,
       roles,
+      permissions
     };
 
     const token = this.jwtService.sign(payload);
 
     return successResponse('Login berhasil', {
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        roles,
-        permissions,
-        biodata: user.Biodata,
-      },
     });
   }
 }

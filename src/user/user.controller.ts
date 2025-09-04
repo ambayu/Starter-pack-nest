@@ -9,20 +9,26 @@ import {
   Delete,
   Query,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { updateBiodataDto } from 'src/biodata/dto/update-biodata.dto';
+import { PermissionGuard } from 'src/auth/guard/permission.guard';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { Permissions } from 'src/common/decorators/permission.decorator';
 
 @Controller('user')
+@UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   @Get()
+  @Permissions('user:view')
   findAll(
     @Query('page') page: number,
     @Query('perPage') perPage: number,

@@ -7,17 +7,21 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { PermissionGuard } from 'src/auth/guard/permission.guard';
+@UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 
 @Controller('permission')
 export class PermissionController {
   constructor(
     private readonly permissionService: PermissionService,
     private prisma: PermissionService,
-  ) {}
+  ) { }
 
   @Post()
   create(@Body() createPermissionDto: CreatePermissionDto) {
