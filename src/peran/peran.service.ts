@@ -62,7 +62,12 @@ export class PeranService {
       this.prisma.peran.count({ where }),
     ]);
 
-    return successResponse('Peran ditemukan', [data, total, page, perPage]);
+    return successResponse('Peran ditemukan', {
+      data,
+      total,
+      page,
+      perPage,
+    });
   }
 
   async findOne(id: number) {

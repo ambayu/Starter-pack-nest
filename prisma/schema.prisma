@@ -7,8 +7,9 @@
 generator client {
   provider = "prisma-client-js"
 }
+
 //seeder
-// ts-node  src/seeders/seeder.ts 
+// npx ts-node  src/seeders/seeder.ts 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -82,8 +83,8 @@ model RolePermission {
 }
 
 model JenisPenugasan {
-  id               Int         @id @default(autoincrement())
-  jenis_penugasan  String      @unique
+  id               Int     @id @default(autoincrement())
+  jenis_penugasan  String
   area_penugasan   String?
   sifat_penugasan  String?
   jenis_pengawasan String?
@@ -92,9 +93,13 @@ model JenisPenugasan {
   tujuan_penugasan String?
   ruang_lingkup    String?
   tahun_penugasan  Int?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @default(now()) @updatedAt
-  Penugasan        Penugasan[]
+
+  Penugasan Penugasan[]
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  updatedBy String?
 }
 
 model Penugasan {
@@ -109,8 +114,6 @@ model Penugasan {
   pengendali_teknis         String?
   ketua_tim                 String?
   catatan                   String?
-  createdBy                 String
-  updatedBy                 String?
   createdAt                 DateTime          @default(now())
   updatedAt                 DateTime          @default(now()) @updatedAt
   id_jenis_penugasan        Int
@@ -120,25 +123,26 @@ model Penugasan {
   km2                       KM2[]
   Km3                       KM3[]
   km4                       km4[]
+  susunan_tim               SusunanTim[]
 }
 
 model RutePerencanaan {
-  id               Int       @id @default(autoincrement())
-  id_penugasan     Int
-  penugasan        Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-  no_urutan        Int
+  id           Int       @id @default(autoincrement())
+  id_penugasan Int
+  penugasan    Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
+
   uraian_pekerjaan String
-  nama_penangggung String
+  nama_penanggung  String
   nip              String
-  tanggal_paraf    DateTime
+  tanggal_paraf    DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @default(now()) @updatedAt
 }
 
 model KM1 {
-  id                       Int             @id @default(autoincrement())
+  id                       Int       @id @default(autoincrement())
   id_penugasan             Int
-  penugasan                Penugasan       @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
+  penugasan                Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
   rencana_penugasan        String
   tahun_penugasan_terakhir Int
   alamat                   String
@@ -150,22 +154,21 @@ model KM1 {
   anggaran_diajukan        Float?
   anggaran_disetujui       Float?
   catatan_penting          String?
-  createdAt                DateTime        @default(now())
-  KM1SusunanTim            KM1SusunanTim[]
+  createdAt                DateTime  @default(now())
 }
 
-model KM1SusunanTim {
-  id               Int      @id @default(autoincrement())
-  id_km1           Int
-  km1              KM1      @relation(fields: [id_km1], references: [id], onDelete: Cascade)
+model SusunanTim {
+  id               Int       @id @default(autoincrement())
+  id_penugasan     Int
+  penugasan        Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
   nip              String
-  peran            Peran?   @relation(fields: [id_peran], references: [id])
+  peran            Peran?    @relation(fields: [id_peran], references: [id])
   id_peran         Int?
   satuan           String?
   honorarium       Int?
   alokasi_anggaran Int?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @default(now()) @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
 }
 
 model Peran {
@@ -174,7 +177,7 @@ model Peran {
   createdAt                   DateTime                   @default(now())
   updatedAt                   DateTime                   @default(now()) @updatedAt
   deletedAt                   DateTime?
-  km1_susunan_tim             KM1SusunanTim[]
+  susunan_tim                 SusunanTim[]
   km3_rencana_realisasi_waktu KM3RencanaRealisasiWaktu[]
 }
 

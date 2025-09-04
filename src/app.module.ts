@@ -10,6 +10,7 @@ import { RolePermissionModule } from './role-permission/role-permission.module';
 import { AuthModule } from './auth/auth.module';
 import { PenugasanModule } from './penugasan/penugasan.module';
 import { PeranModule } from './peran/peran.module';
+import { JenisPenugasanModule } from './jenis-penugasan/jenis-penugasan.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PeranModule } from './peran/peran.module';
     AuthModule,
     PenugasanModule,
     PeranModule,
+    JenisPenugasanModule,
   ],
   controllers: [AppController],
   providers: [AppService],
