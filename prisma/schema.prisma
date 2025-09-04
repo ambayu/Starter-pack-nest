@@ -80,6 +80,22 @@ model RolePermission {
   permission    Permission @relation(fields: [id_permission], references: [id], onDelete: Cascade)
 }
 
+model JenisPenugasan {
+  id               Int         @id @default(autoincrement())
+  jenis_penugasan  String      @unique
+  area_penugasan   String?
+  sifat_penugasan  String?
+  jenis_pengawasan String?
+  alamat           String?
+  nomor_telp       String?
+  tujuan_penugasan String?
+  ruang_lingkup    String?
+  tahun_penugasan  Int?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @default(now()) @updatedAt
+  Penugasan        Penugasan[]
+}
+
 model Penugasan {
   id                        Int               @id @default(autoincrement())
   dasar_penugasan           String?
@@ -96,6 +112,8 @@ model Penugasan {
   updatedBy                 String?
   createdAt                 DateTime          @default(now())
   updatedAt                 DateTime          @default(now()) @updatedAt
+  id_jenis_penugasan        Int
+  jenis_penugasan           JenisPenugasan    @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
   rute_perencanaan          RutePerencanaan[]
   km1                       KM1[]
   km2                       KM2[]
