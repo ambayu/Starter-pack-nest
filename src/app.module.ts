@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { PenugasanModule } from './penugasan/penugasan.module';
 import { PeranModule } from './peran/peran.module';
 import { JenisPenugasanModule } from './jenis-penugasan/jenis-penugasan.module';
+import { PelaksanaModule } from './pelaksana/pelaksana.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JenisPenugasanModule } from './jenis-penugasan/jenis-penugasan.module';
     PenugasanModule,
     PeranModule,
     JenisPenugasanModule,
+    PelaksanaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -11,6 +11,7 @@ import { Type } from 'class-transformer';
 
 // ---------------- DTO Utama ----------------
 export class CreatePenugasanDto {
-    // --- Field utama Penugasan ---
-   
+  id: number;
+
+
 }

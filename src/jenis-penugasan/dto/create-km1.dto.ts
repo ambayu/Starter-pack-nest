@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateKM1Dto {
-    id: number;
+  id: number;
   @IsNotEmpty({ message: 'rencana_penugasan tidak boleh kosong' })
   rencana_penugasan: string;
 

@@ -105,15 +105,15 @@ export class PeranService {
     return successResponse('Peran berhasil di perbaharui', q);
   }
 
-  remove(id: number) {
-    const findId = this.prisma.peran.findUnique({
+  async remove(id: number) {
+    const findId = await this.prisma.peran.findUnique({
       where: { id },
     });
 
     if (!findId) {
       throw new BadRequestException(`Peran dengan Id ${id} tidak ditemukan`);
     }
-    const q = this.prisma.peran.update({
+    const q = await this.prisma.peran.update({
       where: { id },
       data: {
         deletedAt: new Date(),
