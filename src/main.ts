@@ -12,7 +12,13 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: 'http://localhost:5173', // alamat frontend kamu (React)
+    // origin: 'http://localhost:5173', // alamat frontend kamu (React)
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      "http://223.25.104.108:86",
+ 
+    ],
     credentials: true, // kalau kamu pakai cookie atau token
   });
   const port = process.env.PORT || 3000;
