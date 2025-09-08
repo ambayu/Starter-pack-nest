@@ -307,3 +307,15 @@ model pegawai {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
+
+model Rute_Pelaporan {
+  id Int @id @default(autoincrement())
+}
+
+model KM5 {
+  id           Int    @id @default(autoincrement())
+  permasalahan String
+  index_kka    String
+  penyelesaian String
+  persetujuan  String
+}
