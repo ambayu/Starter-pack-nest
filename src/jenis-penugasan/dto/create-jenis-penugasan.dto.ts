@@ -9,8 +9,8 @@ export class CreateJenisPenugasanDto {
   @IsNotEmpty({ message: 'jenis penugasan tidak boleh kosong' })
   jenis_penugasan: string;
 
-  @IsNotEmpty({ message: 'createdBy tidak boleh kosong' })
-  createdBy: string;
+
+  createdBy?: string;
 
   @IsOptional()
   area_penugasan?: string;
