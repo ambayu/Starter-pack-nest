@@ -16,9 +16,10 @@ async function bootstrap() {
     origin: [
       'http://localhost:5173',
       'http://localhost:3000',
-      "http://223.25.104.108:86",
- 
+      'http://localhost:3001',
+      'http://223.25.104.108:86',
     ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // kalau kamu pakai cookie atau token
   });
   const port = process.env.PORT || 3000;
