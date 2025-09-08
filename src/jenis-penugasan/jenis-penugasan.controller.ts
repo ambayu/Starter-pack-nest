@@ -7,18 +7,28 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { JenisPenugasanService } from './jenis-penugasan.service';
 import { CreateJenisPenugasanDto } from './dto/create-jenis-penugasan.dto';
 import { UpdateJenisPenugasanDto } from './dto/update-jenis-penugasan.dto';
-
+import { PermissionGuard } from 'src/auth/guard/permission.guard';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+@UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 @Controller('jenis-penugasan')
 export class JenisPenugasanController {
   constructor(private readonly jenisPenugasanService: JenisPenugasanService) {}
 
   @Post()
-  create(@Body() createJenisPenugasanDto: CreateJenisPenugasanDto) {
-    return this.jenisPenugasanService.create(createJenisPenugasanDto);
+  create(
+    @Body() createJenisPenugasanDto: CreateJenisPenugasanDto,
+    @Req() req: any,
+  ) {
+    return this.jenisPenugasanService.create({
+      ...createJenisPenugasanDto,
+      createdBy: req.user.id.toString(),
+    });
   }
 
   @Get()
@@ -35,7 +45,6 @@ export class JenisPenugasanController {
       search,
       orderBy,
       order,
-      
     );
   }
 
