@@ -8,7 +8,7 @@ import { successResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createUser(data: CreateUserDto) {
     const findmail = await this.prisma.user.findUnique({
@@ -18,6 +18,16 @@ export class UserService {
     if (findmail) {
       throw new BadRequestException('Email sudah digunakan');
     }
+
+    const findUsername = await this.prisma.user.findUnique({
+      where: { username: data.username },
+    });
+
+    if (findUsername) {
+      throw new BadRequestException('Username sudah digunakan');
+    }
+
+    // hash password
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
@@ -91,9 +101,9 @@ export class UserService {
     const where: any = {};
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { username: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search } },
+        { email: { contains: search } },
+        { username: { contains: search } },
       ];
     }
 
