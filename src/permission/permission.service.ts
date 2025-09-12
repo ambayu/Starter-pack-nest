@@ -22,6 +22,7 @@ export class PermissionService {
     const q = await this.prisma.permission.create({
       data: {
         name: data.name,
+        
       },
     });
     return successResponse('Permission berhasil dibuat', q);

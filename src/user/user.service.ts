@@ -1,71 +1,70 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
-import { updateBiodataDto } from 'src/biodata/dto/update-biodata.dto';
 import { updateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
 import { successResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) { }
 
+  // ================= CREATE USER =================
   async createUser(data: CreateUserDto) {
-    const findmail = await this.prisma.user.findUnique({
+    // Cek email
+    const findEmail = await this.prisma.user.findUnique({
       where: { email: data.email },
     });
+    if (findEmail) throw new BadRequestException('Email sudah digunakan');
 
-    if (findmail) {
-      throw new BadRequestException('Email sudah digunakan');
-    }
-
+    // Cek username
     const findUsername = await this.prisma.user.findUnique({
       where: { username: data.username },
     });
+    if (findUsername) throw new BadRequestException('Username sudah digunakan');
 
-    if (findUsername) {
-      throw new BadRequestException('Username sudah digunakan');
-    }
-
-    // hash password
-
+    // Hash password
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
+    // Buat user + relasi role
     const user = await this.prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
-        password: hashedPassword,
         username: data.username,
+        password: hashedPassword,
+        UserRole: {
+          create: data.roles.map((id_role) => ({ id_role })),
+        },
+      },
+      include: {
+        UserRole: {
+          include: {
+            role: true,
+          },
+        },
       },
     });
 
-    return {
-      statusCode: 201,
-      status: 'success',
-      message: 'User berhasil dibuat',
-      data: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt, // pastikan field ini ada di model
-      },
-    };
+    return successResponse('User berhasil dibuat', {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      roles: user.UserRole.map((ur) => ur.role.name),
+      createdAt: user.createdAt,
+    });
   }
 
+  // ================= GET USER BY ID =================
   async findById(id: number) {
-    const q = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
         UserRole: {
           include: {
             role: {
               include: {
-                RolePermission: {
-                  include: {
-                    permission: true,
-                  },
-                },
+                RolePermission: { include: { permission: true } },
               },
             },
           },
@@ -74,28 +73,33 @@ export class UserService {
       },
     });
 
-    if (!q) {
-      throw new BadRequestException(
-        'User dengan Id ' + id + ' tidak ditemukan',
-      );
-    }
+    if (!user) throw new BadRequestException(`User dengan Id ${id} tidak ditemukan`);
 
-    const roles = q.UserRole.map((ur) => ur.role.name);
-    const permissions = q.UserRole.flatMap((ur) => ur.role.RolePermission).map(
-      (rp) => rp.permission.name,
-    );
+    // Roles dengan id dan name
+    const roles = user.UserRole.map((ur) => ({
+      id: ur.role.id,
+      name: ur.role.name,
+    }));
+
+    const permissions = user.UserRole
+      .flatMap((ur) => ur.role.RolePermission)
+      .map((rp) => rp.permission.name);
     const uniquePermissions = [...new Set(permissions)];
 
     return successResponse('Data ditemukan', {
-      id: q.id,
-      name: q.name,
-      email: q.email,
-      roles,
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      roles, // sekarang berupa array {id, name}
       permissions: uniquePermissions,
+      biodata: user.Biodata,
     });
   }
 
-  async findAll(pages: number = 1, perPage: number = 10, search?: string) {
+
+  // ================= GET ALL USERS =================
+  async findAll(pages = 1, perPage = 10, search?: string) {
     const skip = (pages - 1) * perPage;
 
     const where: any = {};
@@ -113,19 +117,7 @@ export class UserService {
         skip,
         take: perPage,
         include: {
-          UserRole: {
-            include: {
-              role: {
-                include: {
-                  RolePermission: {
-                    include: {
-                      permission: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
+          UserRole: { include: { role: { include: { RolePermission: { include: { permission: true } } } } } },
           Biodata: true,
         },
         orderBy: { createdAt: 'desc' },
@@ -135,9 +127,7 @@ export class UserService {
 
     const data = users.map((user) => {
       const roles = user.UserRole.map((ur) => ur.role.name);
-      const permissions = user.UserRole.flatMap(
-        (ur) => ur.role.RolePermission,
-      ).map((rp) => rp.permission.name);
+      const permissions = user.UserRole.flatMap((ur) => ur.role.RolePermission).map((rp) => rp.permission.name);
 
       return {
         id: user.id,
@@ -161,59 +151,68 @@ export class UserService {
     });
   }
 
+  // ================= UPDATE USER =================
   async update(id: number, data: updateUserDto) {
-    const findId = await this.prisma.user.findUnique({
-      where: { id },
-    });
+    // Cari user
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new BadRequestException(`User dengan Id ${id} tidak ditemukan`);
 
-    if (!findId) {
-      throw new BadRequestException(
-        'User dengan Id ' + id + ' Tidak Ditemukan',
-      );
-    }
-
+    // Cek email unik
     if (data.email) {
-      const findIdEmail = await this.prisma.user.findUnique({
-        where: { email: data.email },
-      });
-
-      // cek apakah email sudah dipakai user lain
-      if (findIdEmail && findIdEmail.id !== id) {
-        throw new BadRequestException(
-          'User dengan Email ' + data.email + ' sudah ada',
-        );
+      const findEmail = await this.prisma.user.findUnique({ where: { email: data.email } });
+      if (findEmail && findEmail.id !== id) {
+        throw new BadRequestException(`Email ${data.email} sudah digunakan`);
       }
     }
 
-    const q = await this.prisma.user.update({
+    // Update user + optional hash password
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
         name: data.name,
         email: data.email,
         username: data.username,
-        password: data.password
-          ? await bcrypt.hash(data.password, 10)
-          : undefined,
+        password: data.password ? await bcrypt.hash(data.password, 10) : undefined,
       },
     });
 
-    return successResponse('User berhasil diperbaharui', q);
-  }
+    // Update roles jika ada
+    if (data.roles && data.roles.length > 0) {
+      // Hapus relasi lama
+      await this.prisma.userRole.deleteMany({ where: { id_user: id } });
 
-  async destroy(id: number) {
-    const findId = await this.prisma.user.findUnique({
-      where: { id },
-    });
+      // Ambil role yang valid dari database
+      const existingRoles = await this.prisma.role.findMany({
+        where: { id: { in: data.roles } },
+        select: { id: true },
+      });
 
-    if (!findId) {
-      throw new BadRequestException(
-        'User dengan Id ' + id + ' tidak ditemukan',
-      );
+      const validRoleIds = existingRoles.map(r => r.id);
+
+      // Tambahkan relasi baru hanya untuk role valid
+      if (validRoleIds.length > 0) {
+        await this.prisma.userRole.createMany({
+          data: validRoleIds.map((id_role) => ({ id_user: id, id_role })),
+        });
+      }
     }
 
-    const q = await this.prisma.user.delete({
-      where: { id },
+    // Kembalikan response sukses
+    return successResponse('User berhasil diperbaharui', {
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      username: updatedUser.username,
     });
-    return successResponse('User Berhasil Dihapus', q);
+  }
+
+
+  // ================= DELETE USER =================
+  async destroy(id: number) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new BadRequestException(`User dengan Id ${id} tidak ditemukan`);
+
+    const deleted = await this.prisma.user.delete({ where: { id } });
+    return successResponse('User berhasil dihapus', deleted);
   }
 }

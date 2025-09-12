@@ -9,6 +9,6 @@ export class createroleDto {
 
     @IsArray({ message: 'Izin harus berupa array' })
     @IsInt({ each: true, message: 'Setiap ID izin harus berupa angka' })
-    permissions?: number[] = [];
+    permissions?: number[];
 
 }

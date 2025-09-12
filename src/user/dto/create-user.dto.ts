@@ -1,3 +1,4 @@
+import { Optional } from '@nestjs/common';
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 export class CreateUserDto {
     @IsNotEmpty({ message: "nama tidak boleh kosong" })
@@ -12,4 +13,8 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'password tidak boleh kosong' })
     @MinLength(6, { message: 'password minimal 6' })
     password: string;
+
+    @Optional()
+    roles: number[];
+
 }

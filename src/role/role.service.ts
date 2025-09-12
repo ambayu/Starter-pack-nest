@@ -56,7 +56,7 @@ export class RoleService {
 
   async find(id: number) {
     const role = await this.prisma.role.findUnique({
-      where: { id },
+      where: { id, },
       include: {
         RolePermission: {
           include: { role: true, permission: true },
