@@ -82,6 +82,54 @@ model RolePermission {
   permission    Permission @relation(fields: [id_permission], references: [id], onDelete: Cascade)
 }
 
+model Jenis_pengawasan {
+  id        Int       @id @default(autoincrement())
+  name      String?
+  createdBy String
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  updatedBy String?
+  PKPT      PKPT[]
+}
+
+model Kelompok_pengawasan {
+  id              Int               @id @default(autoincrement())
+  name            String
+  createdBy       String
+  createdAt       DateTime          @default(now())
+  deletedAt       DateTime?
+  updatedAt       DateTime          @default(now()) @updatedAt
+  updatedBy       String?
+  Item_pengawasan Item_pengawasan[]
+}
+
+model Item_pengawasan {
+  id Int @id @default(autoincrement())
+
+  id_kelompok_pengawasan Int
+  kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id], onDelete: Cascade)
+  name                   String
+  deletedAt              DateTime?
+  createdBy              String
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @default(now()) @updatedAt
+  updatedBy              String?
+}
+
+model PKPT {
+  id                  Int              @id @default(autoincrement())
+  area_pengawasan     String
+  tujuan              String
+  id_jenis_pengawasan Int
+  jenis_pengawasan    Jenis_pengawasan @relation(fields: [id_jenis_pengawasan], references: [id], onDelete: Cascade)
+  ruang_lingkup       String
+  createdBy           String
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @default(now()) @updatedAt
+  updatedBy           String?
+}
+
 model JenisPenugasan {
   id               Int     @id @default(autoincrement())
   jenis_penugasan  String
@@ -226,6 +274,7 @@ model RincianPekerjaan {
   KM2RincianPekerjaan KM2RincianPekerjaan[]
 
   KM3RincianPekerjaan KM3RincianPekerjaan[]
+  item_pengawasanId   Int?
 }
 
 model KelompokRincianPekerjaan {
@@ -284,9 +333,8 @@ model KM4ProgramKerja {
   realisasi_waktu Int
   no_kka          String
   auditors        km4Auditors[]
-  id_km4          Int?
-  KM4             KM4?          @relation(fields: [kM4Id], references: [id])
-  kM4Id           Int?
+  id_km4          Int
+  km4             KM4           @relation(fields: [id_km4], references: [id], onDelete: Cascade)
 }
 
 model km4Auditors {
@@ -306,16 +354,4 @@ model pegawai {
   nip       String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-}
-
-model Rute_Pelaporan {
-  id Int @id @default(autoincrement())
-}
-
-model KM5 {
-  id           Int    @id @default(autoincrement())
-  permasalahan String
-  index_kka    String
-  penyelesaian String
-  persetujuan  String
 }

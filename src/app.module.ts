@@ -12,6 +12,10 @@ import { PenugasanModule } from './penugasan/penugasan.module';
 import { PeranModule } from './peran/peran.module';
 import { JenisPenugasanModule } from './jenis-penugasan/jenis-penugasan.module';
 import { PelaksanaModule } from './pelaksana/pelaksana.module';
+import { JenisPengawasanModule } from './jenis_pengawasan/jenis_pengawasan.module';
+import { ItemPengawasanModule } from './item_pengawasan/item_pengawasan.module';
+import { PkptModule } from './pkpt/pkpt.module';
+import { KelompokPengawasanModule } from './kelompok_pengawasan/kelompok_pengawasan.module';
 
 @Module({
   imports: [
@@ -26,8 +30,12 @@ import { PelaksanaModule } from './pelaksana/pelaksana.module';
     PeranModule,
     JenisPenugasanModule,
     PelaksanaModule,
+    JenisPengawasanModule,
+    ItemPengawasanModule,
+    PkptModule,
+    KelompokPengawasanModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
