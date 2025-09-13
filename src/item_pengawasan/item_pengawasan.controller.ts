@@ -42,6 +42,11 @@ export class ItemPengawasanController {
     return this.itemPengawasanService.findOne(+id);
   }
 
+  @Get('/kelompok-pengawasan/:id')
+  findByKelompokPengawasan(@Param('id') id: string) {
+    return this.itemPengawasanService.findByKelompokPengawasan(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateItemPengawasanDto: UpdateItemPengawasanDto, @Req() req: any) {
     return this.itemPengawasanService.update(+id, {

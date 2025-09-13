@@ -68,6 +68,21 @@ export class ItemPengawasanService {
 
   }
 
+  async findByKelompokPengawasan(id: number) {
+    const findid = await this.prisma.kelompok_pengawasan.findUnique({
+      where: { id, deletedAt: null },
+    })
+
+    if (!findid) {
+      throw new BadRequestException('Kelompok pengawasan dengan Id ' + id + ' tidak ditemukan');
+    }
+    const q = await this.prisma.item_pengawasan.findMany({
+      where: { id_kelompok_pengawasan: id, deletedAt: null },
+    });
+    return successResponse('Item pengawasan ditemukan', q);
+  }
+
+
   async update(id: number, data: UpdateItemPengawasanDto) {
     const findId = await this.prisma.item_pengawasan.findUnique({
       where: { id, deletedAt: null },

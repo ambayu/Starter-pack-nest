@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { KelompokPengawasanService } from './kelompok_pengawasan.service';
 import { CreateKelompokPengawasanDto } from './dto/create-kelompok_pengawasan.dto';
 import { UpdateKelompokPengawasanDto } from './dto/update-kelompok_pengawasan.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { PermissionGuard } from 'src/auth/guard/permission.guard';
 
+@UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 @Controller('kelompok-pengawasan')
 export class KelompokPengawasanController {
   constructor(private readonly kelompokPengawasanService: KelompokPengawasanService) { }
