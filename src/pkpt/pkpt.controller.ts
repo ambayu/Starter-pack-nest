@@ -34,7 +34,7 @@ export class PkptController {
       Number(perPage) || 10,
       search,
       orderBy,
-      order,
+      order ?? 'desc',
 
     );
   }

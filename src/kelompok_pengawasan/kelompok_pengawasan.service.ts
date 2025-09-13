@@ -7,11 +7,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class KelompokPengawasanService {
   constructor(private prisma: PrismaService) { }
-  async create(createKelompokPengawasanDto: CreateKelompokPengawasanDto) {
+  async create(data: CreateKelompokPengawasanDto) {
     const q = await this.prisma.kelompok_pengawasan.create({
       data: {
-        name: createKelompokPengawasanDto.name,
-        createdBy: createKelompokPengawasanDto.createdBy ?? '',
+        name: data.name,
+        id_jenis_pengawasan: data.id_jenis_pengawasan,
+        createdBy: data.createdBy ?? '',
       },
     });
     return successResponse('Kelompok pengawasan berhasil dibuat', q);
@@ -41,6 +42,7 @@ export class KelompokPengawasanService {
         },
         include: {
           Item_pengawasan: true,
+          jenis_pengawasan: true,
         },
       }),
       this.prisma.kelompok_pengawasan.count({ where }),
@@ -79,6 +81,7 @@ export class KelompokPengawasanService {
       where: { id },
       data: {
         name: updateKelompokPengawasanDto.name,
+        id_jenis_pengawasan: updateKelompokPengawasanDto.id_jenis_pengawasan,
         updatedBy: updateKelompokPengawasanDto.updatedBy ?? '',
         updatedAt: new Date(),
       },

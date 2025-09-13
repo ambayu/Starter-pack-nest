@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { successResponse } from 'src/utils/response.util';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -65,7 +65,7 @@ export class PkptService {
       include: { jenis_pengawasan: true },
     });
     if (!findId) {
-      throw new Error('Pkpt dengan Id ' + id + ' tidak ditemukan');
+      throw new BadRequestException('Pkpt dengan Id ' + id + ' tidak ditemukan');
     }
     return successResponse('Pkpt ditemukan', findId);
 
@@ -77,7 +77,7 @@ export class PkptService {
       where: { id },
     });
     if (!findId) {
-      throw new Error('Pkpt dengan Id ' + id + ' tidak ditemukan');
+      throw new BadRequestException('Pkpt dengan Id ' + id + ' tidak ditemukan');
     }
     const q = await this.prisma.pKPT.update({
       where: { id },
@@ -98,7 +98,7 @@ export class PkptService {
       where: { id },
     });
     if (!findId) {
-      throw new Error('Pkpt dengan Id ' + id + ' tidak ditemukan');
+      throw new BadRequestException('Pkpt dengan Id ' + id + ' tidak ditemukan');
     }
     const q = await this.prisma.pKPT.delete({
       where: { id },

@@ -83,25 +83,28 @@ model RolePermission {
 }
 
 model Jenis_pengawasan {
-  id        Int       @id @default(autoincrement())
-  name      String?
-  createdBy String
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  updatedBy String?
-  PKPT      PKPT[]
+  id                  Int                   @id @default(autoincrement())
+  name                String?
+  createdBy           String
+  deletedAt           DateTime?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
+  updatedBy           String?
+  PKPT                PKPT[]
+  Kelompok_pengawasan Kelompok_pengawasan[]
 }
 
 model Kelompok_pengawasan {
-  id              Int               @id @default(autoincrement())
-  name            String
-  createdBy       String
-  createdAt       DateTime          @default(now())
-  deletedAt       DateTime?
-  updatedAt       DateTime          @default(now()) @updatedAt
-  updatedBy       String?
-  Item_pengawasan Item_pengawasan[]
+  id                  Int               @id @default(autoincrement())
+  name                String
+  createdBy           String
+  createdAt           DateTime          @default(now())
+  deletedAt           DateTime?
+  updatedAt           DateTime          @default(now()) @updatedAt
+  updatedBy           String?
+  id_jenis_pengawasan Int 
+  jenis_pengawasan    Jenis_pengawasan  @relation(fields: [id_jenis_pengawasan], references: [id], onDelete: Cascade)
+  Item_pengawasan     Item_pengawasan[]
 }
 
 model Item_pengawasan {
