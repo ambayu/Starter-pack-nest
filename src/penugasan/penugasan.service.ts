@@ -188,79 +188,91 @@ export class PenugasanService {
               },
             }
           : undefined,
-km4: data.km4
-  ? {
-      upsert: {
-        where: { id: data.km4.id ?? 0 },
-        create: {
-          km4_program_kerja: data.km4.km4_program_kerja
-            ? {
-                create: data.km4.km4_program_kerja.map((pk) => ({
-                  prosedur: pk.prosedur,
-                  anggaran_waktu: pk.anggaran_waktu,
-                  realisasi_waktu: pk.realisasi_waktu,
-                  no_kka: pk.no_kka,
-                  auditors: pk.auditors
+        km4: data.km4
+          ? {
+              upsert: {
+                where: { id: data.km4.id ?? 0 },
+                create: {
+                  km4_program_kerja: data.km4.km4_program_kerja
                     ? {
-                        create: pk.auditors.map((a) => ({
-                          nama: a.nama,
-                          nip: a.nip,
+                        create: data.km4.km4_program_kerja.map((pk) => ({
+                          prosedur: pk.prosedur,
+                          anggaran_waktu: pk.anggaran_waktu,
+                          realisasi_waktu: pk.realisasi_waktu,
+                          no_kka: pk.no_kka,
+                          auditors: pk.auditors
+                            ? {
+                                create: pk.auditors.map((a) => ({
+                                  nama: a.nama,
+                                  nip: a.nip,
+                                })),
+                              }
+                            : undefined,
                         })),
                       }
                     : undefined,
-                })),
-              }
-            : undefined,
-        },
-        update: {
-          km4_program_kerja: data.km4.km4_program_kerja
-            ? {
-                upsert: data.km4.km4_program_kerja.map((pk) => ({
-                  where: { id: pk.id ?? 0 },
-                  create: {
-                    prosedur: pk.prosedur,
-                    anggaran_waktu: pk.anggaran_waktu,
-                    realisasi_waktu: pk.realisasi_waktu,
-                    no_kka: pk.no_kka,
-                    auditors: pk.auditors
-                      ? {
-                          create: pk.auditors.map((a) => ({
-                            nama: a.nama,
-                            nip: a.nip,
-                          })),
-                        }
-                      : undefined,
-                  },
-                  update: {
-                    prosedur: pk.prosedur,
-                    anggaran_waktu: pk.anggaran_waktu,
-                    realisasi_waktu: pk.realisasi_waktu,
-                    no_kka: pk.no_kka,
-                    auditors: pk.auditors
-                      ? {
-                          upsert: pk.auditors.map((a) => ({
-                            where: { id: a.id ?? 0 },
-                            create: { nama: a.nama, nip: a.nip },
-                            update: { nama: a.nama, nip: a.nip },
-                          })),
-                        }
-                      : undefined,
-                  },
-                })),
-              }
-            : undefined,
-        },
-      },
-    }
-  : undefined,
-
-          
+                },
+                update: {
+                  km4_program_kerja: data.km4.km4_program_kerja
+                    ? {
+                        upsert: data.km4.km4_program_kerja.map((pk) => ({
+                          where: { id: pk.id ?? 0 },
+                          create: {
+                            prosedur: pk.prosedur,
+                            anggaran_waktu: pk.anggaran_waktu,
+                            realisasi_waktu: pk.realisasi_waktu,
+                            no_kka: pk.no_kka,
+                            auditors: pk.auditors
+                              ? {
+                                  create: pk.auditors.map((a) => ({
+                                    nama: a.nama,
+                                    nip: a.nip,
+                                  })),
+                                }
+                              : undefined,
+                          },
+                          update: {
+                            prosedur: pk.prosedur,
+                            anggaran_waktu: pk.anggaran_waktu,
+                            realisasi_waktu: pk.realisasi_waktu,
+                            no_kka: pk.no_kka,
+                            auditors: pk.auditors
+                              ? {
+                                  upsert: pk.auditors.map((a) => ({
+                                    where: { id: a.id ?? 0 },
+                                    create: { nama: a.nama, nip: a.nip },
+                                    update: { nama: a.nama, nip: a.nip },
+                                  })),
+                                }
+                              : undefined,
+                          },
+                        })),
+                      }
+                    : undefined,
+                },
+              },
+            }
+          : undefined,
       },
       include: {
         km1: true,
         km2: {
           include: {
             km2_rincian_pekerjaan: { include: { km2Pelaksanaan: true } },
+          },
+        },
+        km3: {
+          include: {
+            km3_peran: true,
+          },
+        },
+        km4: {
+          include: {
+            km4_program_kerja: {
+              include: {
+                auditors: true,
+              },
+            },
           },
         },
       },

@@ -9,9 +9,9 @@ export class CreateJenisPenugasanDto {
   @IsNotEmpty({ message: 'jenis penugasan tidak boleh kosong' })
   jenis_penugasan: string;
 
-  id_pkt?: number;
+  id_pkpt?: number;
 
-  non_pkt?: string;
+  non_pkpt?: string;
 
   createdBy?: string;
 

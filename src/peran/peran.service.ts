@@ -55,6 +55,7 @@ export class PeranService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.peran.findMany({
         skip,
+        where,
         take: perPage,
         orderBy: {
           [orderBy ? orderBy : 'createdAt']: order,

@@ -11,45 +11,36 @@ export class JenisPenugasanService {
     const q = await this.prisma.jenisPenugasan.create({
       data: {
         jenis_penugasan: data.jenis_penugasan,
-        id_pkt: data.id_pkt ?? null,
-        non_pkt: data.non_pkt,
+        id_pkpt: data.id_pkpt ?? null,
+        non_pkpt: data.non_pkpt,
         createdBy: data.createdBy ?? '',
         Penugasan: {
-          create: [
-            {
-              dasar_penugasan: data.Penugasan?.dasar_penugasan,
-              sifat_penugasan: data.Penugasan?.sifat_penugasan ?? '',
-              nama_penugasan: data.Penugasan?.nama_penugasan ?? '',
-              alamat_penugasan: data.Penugasan?.alamat_penugasan ?? '',
-              nomor_kartu: data.Penugasan?.nomor_kartu ?? '',
-              penanggung_jawab: data.Penugasan?.penanggung_jawab ?? '',
-              pembantu_penanggung_jawab:
-                data.Penugasan?.pembantu_penanggung_jawab ?? '',
-              pengendali_teknis: data.Penugasan?.pengendali_teknis ?? '',
-              ketua_tim: data.Penugasan?.ketua_tim ?? '',
-              catatan: data.Penugasan?.catatan ?? '',
-              susunan_tim: data.Penugasan?.susunan_tim
-                ? {
-                  create: data.Penugasan.susunan_tim.map((r) => ({
-                    id_peran: r.id_peran,
-                    nip: r.nip,
-                    satuan: r.satuan,
-                    honorarium: r.honorarium,
-                    alokasi_anggaran: r.alokasi_anggaran,
-                  })),
-                }
-                : undefined,
-              rute_perencanaan: data.Penugasan?.rute_perencanaan
-                ? {
-                  create: data.Penugasan.rute_perencanaan.map((r) => ({
-                    uraian_pekerjaan: r.uraian_pekerjaan,
-                    nama_penanggung: r.nama_penanggung,
-                    nip: r.nip,
-                  })),
-                }
-                : undefined,
-            },
-          ],
+          create:
+          {
+            dasar_penugasan: data.Penugasan?.dasar_penugasan,
+            sifat_penugasan: data.Penugasan?.sifat_penugasan ?? '',
+            nama_penugasan: data.Penugasan?.nama_penugasan ?? '',
+            alamat_penugasan: data.Penugasan?.alamat_penugasan ?? '',
+            nomor_kartu: data.Penugasan?.nomor_kartu ?? '',
+            penanggung_jawab: data.Penugasan?.penanggung_jawab ?? '',
+            pembantu_penanggung_jawab:
+              data.Penugasan?.pembantu_penanggung_jawab ?? '',
+            pengendali_teknis: data.Penugasan?.pengendali_teknis ?? '',
+            ketua_tim: data.Penugasan?.ketua_tim ?? '',
+            catatan: data.Penugasan?.catatan ?? '',
+            susunan_tim: data.Penugasan?.susunan_tim
+              ? {
+                create: data.Penugasan.susunan_tim.map((r) => ({
+                  id_peran: r.id_peran,
+                  nip: r.nip,
+                  satuan: r.satuan,
+                  honorarium: r.honorarium,
+                  alokasi_anggaran: r.alokasi_anggaran,
+                })),
+              }
+              : undefined,
+          }
+
         },
       },
       include: {
@@ -84,10 +75,11 @@ export class JenisPenugasanService {
         include: {
           Penugasan: {
             include: {
-              rute_perencanaan: true,
+
               susunan_tim: true,
             },
           },
+          pkpt: true,
         },
         orderBy: {
           [orderBy ? orderBy : 'createdAt']: order,
@@ -138,14 +130,9 @@ export class JenisPenugasanService {
       where: { id },
       data: {
         jenis_penugasan: data.jenis_penugasan,
-        area_penugasan: data.area_penugasan,
-        sifat_penugasan: data.sifat_penugasan,
-        jenis_pengawasan: data.jenis_pengawasan,
-        alamat: data.alamat,
-        nomor_telp: data.nomor_telp,
-        tujuan_penugasan: data.tujuan_penugasan,
-        ruang_lingkup: data.ruang_lingkup,
-        tahun_penugasan: data.tahun_penugasan,
+        id_pkpt: data.id_pkpt ?? null,
+        non_pkpt: data.non_pkpt,
+
         createdBy: data.createdBy ?? '',
         Penugasan: data.Penugasan
           ? {
@@ -163,15 +150,12 @@ export class JenisPenugasanService {
                 pengendali_teknis: data.Penugasan.pengendali_teknis ?? '',
                 ketua_tim: data.Penugasan.ketua_tim ?? '',
                 catatan: data.Penugasan.catatan ?? '',
-                rute_perencanaan: data.Penugasan.rute_perencanaan
+                susunan_tim: data.Penugasan.susunan_tim
                   ? {
-                    update: data.Penugasan.rute_perencanaan.map((r) => ({
-                      where: { id: r.id },
-                      data: {
-                        uraian_pekerjaan: r.uraian_pekerjaan,
-                        nama_penanggung: r.nama_penanggung,
-                        nip: r.nip,
-                      },
+                    deleteMany: {},
+                    create: data.Penugasan.susunan_tim.map((r) => ({
+                      id_peran: r.id_peran,
+                      nip: r.nip,
                     })),
                   }
                   : undefined,

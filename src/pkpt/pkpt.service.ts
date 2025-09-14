@@ -36,7 +36,7 @@ export class PkptService {
     const where: any = {};
 
     if (search) {
-      where.OR = [{ tujuan: { contains: search } }, { area_penugasan: { contains: search } }];
+      where.OR = [{ tujuan: { contains: search } }, { area_pengawasan: { contains: search } }];
     }
     if (year) {
       where.createdAt = { gte: new Date(year, 0, 1), lte: new Date(year, 11, 31) };
