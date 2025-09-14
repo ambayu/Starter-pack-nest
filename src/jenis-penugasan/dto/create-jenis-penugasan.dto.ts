@@ -9,32 +9,14 @@ export class CreateJenisPenugasanDto {
   @IsNotEmpty({ message: 'jenis penugasan tidak boleh kosong' })
   jenis_penugasan: string;
 
+  id_pkt?: number;
+
+  non_pkt?: string;
 
   createdBy?: string;
 
-  @IsOptional()
-  area_penugasan?: string;
+  updatedBy?: string;
 
-  @IsOptional()
-  sifat_penugasan?: string;
-
-  @IsOptional()
-  jenis_pengawasan?: string;
-
-  @IsOptional()
-  alamat?: string;
-
-  @IsOptional()
-  nomor_telp?: string;
-
-  @IsOptional()
-  tujuan_penugasan?: string;
-
-  @IsOptional()
-  ruang_lingkup?: string;
-
-  @IsOptional()
-  tahun_penugasan?: number;
 
   @IsOptional()
   @ValidateNested({ each: true })

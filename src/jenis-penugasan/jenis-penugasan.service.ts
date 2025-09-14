@@ -11,14 +11,8 @@ export class JenisPenugasanService {
     const q = await this.prisma.jenisPenugasan.create({
       data: {
         jenis_penugasan: data.jenis_penugasan,
-        area_penugasan: data.area_penugasan,
-        sifat_penugasan: data.sifat_penugasan,
-        jenis_pengawasan: data.jenis_pengawasan,
-        alamat: data.alamat,
-        nomor_telp: data.nomor_telp,
-        tujuan_penugasan: data.tujuan_penugasan,
-        ruang_lingkup: data.ruang_lingkup,
-        tahun_penugasan: Number(data.tahun_penugasan),
+        id_pkt: data.id_pkt ?? null,
+        non_pkt: data.non_pkt,
         createdBy: data.createdBy ?? '',
         Penugasan: {
           create: [
@@ -110,24 +104,24 @@ export class JenisPenugasanService {
     });
   }
 
-async findOne(id: number) {
-  const findId = await this.prisma.jenisPenugasan.findUnique({
-    where: { id },
-    include: {
-      Penugasan: {
-        include: { rute_perencanaan: true, susunan_tim: true },
+  async findOne(id: number) {
+    const findId = await this.prisma.jenisPenugasan.findUnique({
+      where: { id },
+      include: {
+        Penugasan: {
+          include: { rute_perencanaan: true, susunan_tim: true },
+        },
       },
-    },
-  });
+    });
 
-  if (!findId) {
-    throw new BadRequestException(
-      `Penugasan dengan Id ${id} tidak ditemukan`,
-    );
+    if (!findId) {
+      throw new BadRequestException(
+        `Penugasan dengan Id ${id} tidak ditemukan`,
+      );
+    }
+
+    return successResponse('Penugasan ditemukan', findId);
   }
-
-  return successResponse('Penugasan ditemukan', findId);
-}
 
   async update(id: number, data: UpdateJenisPenugasanDto) {
     const findId = await this.prisma.jenisPenugasan.findUnique({

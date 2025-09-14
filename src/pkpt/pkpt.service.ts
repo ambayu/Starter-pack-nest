@@ -29,12 +29,17 @@ export class PkptService {
     search?: string,
     orderBy?: string,
     order?: string,
+    year?: number
 
   ) {
     const skip = (page - 1) * perPage;
     const where: any = {};
+
     if (search) {
       where.OR = [{ tujuan: { contains: search } }, { area_penugasan: { contains: search } }];
+    }
+    if (year) {
+      where.createdAt = { gte: new Date(year, 0, 1), lte: new Date(year, 11, 31) };
     }
     const [data, total] = await this.prisma.$transaction([
       this.prisma.pKPT.findMany({
@@ -58,6 +63,8 @@ export class PkptService {
     });
 
   }
+
+
 
   async findOne(id: number) {
     const findId = await this.prisma.pKPT.findUnique({

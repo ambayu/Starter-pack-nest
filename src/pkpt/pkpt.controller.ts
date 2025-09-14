@@ -27,6 +27,7 @@ export class PkptController {
     @Query('search') search?: string,
     @Query('orderBy') orderBy?: string,
     @Query('order') order?: string,
+    @Query('year') year?: number
 
   ) {
     return this.pkptService.findAll(
@@ -35,6 +36,7 @@ export class PkptController {
       search,
       orderBy,
       order ?? 'desc',
+      year
 
     );
   }
