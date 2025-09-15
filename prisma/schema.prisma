@@ -136,7 +136,7 @@ model PKPT {
 
 model JenisPenugasan {
   id              Int    @id @default(autoincrement())
-  id_pkpt         Int?   
+  id_pkpt         Int?
   pkpt            PKPT?  @relation(fields: [id_pkpt], references: [id], onDelete: Cascade)
   jenis_penugasan String
   non_pkpt        Json?
