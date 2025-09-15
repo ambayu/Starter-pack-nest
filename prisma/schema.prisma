@@ -111,13 +111,14 @@ model Item_pengawasan {
   id Int @id @default(autoincrement())
 
   id_kelompok_pengawasan Int
-  kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id], onDelete: Cascade)
+  kelompok_pengawasan    Kelompok_pengawasan   @relation(fields: [id_kelompok_pengawasan], references: [id], onDelete: Cascade)
   name                   String
   deletedAt              DateTime?
   createdBy              String
-  createdAt              DateTime            @default(now())
-  updatedAt              DateTime            @default(now()) @updatedAt
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @default(now()) @updatedAt
   updatedBy              String?
+  KM2RincianPekerjaan    KM2RincianPekerjaan[]
 }
 
 model PKPT {
@@ -190,14 +191,14 @@ model KM1 {
   id                       Int       @id @default(autoincrement())
   id_penugasan             Int
   penugasan                Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-  rencana_penugasan        String
-  tahun_penugasan_terakhir Int
-  alamat                   String
-  tingkat_risiko           String
-  tujuan_penugasan         String
+  rencana_penugasan        String?
+  tahun_penugasan_terakhir Int?
+  alamat                   String?
+  tingkat_risiko           String?
+  tujuan_penugasan         String?
   surat_tugas_nomor        String?
-  rencana_mulai            DateTime
-  rencana_selesai          DateTime
+  rencana_mulai            DateTime?
+  rencana_selesai          DateTime?
   anggaran_diajukan        Float?
   anggaran_disetujui       Float?
   catatan_penting          String?
@@ -237,16 +238,17 @@ model KM2 {
 }
 
 model KM2RincianPekerjaan {
-  id     Int @id @default(autoincrement())
-  id_km2 Int
-  km2    KM2 @relation(fields: [id_km2], references: [id], onDelete: Cascade)
+  id                 Int             @id @default(autoincrement())
+  id_km2             Int
+  km2                KM2             @relation(fields: [id_km2], references: [id], onDelete: Cascade)
+  id_item_pengawasan Int @default(1)
+  item_pengawasan    Item_pengawasan @relation(fields: [id_item_pengawasan], references: [id], onDelete: Cascade)
+  tanggal            DateTime
+  anggaran_waktu     Int
 
-  id_rincian_pekerjaan Int
-  rincian_pekerjaan    RincianPekerjaan @relation(fields: [id_rincian_pekerjaan], references: [id], onDelete: Cascade)
-  tanggal              DateTime
-  anggaran_waktu       Int
-
-  km2Pelaksanaan KM2Pelaksana[]
+  km2Pelaksanaan     KM2Pelaksana[]
+  RincianPekerjaan   RincianPekerjaan? @relation(fields: [rincianPekerjaanId], references: [id])
+  rincianPekerjaanId Int?
 }
 
 model KM2Pelaksana {

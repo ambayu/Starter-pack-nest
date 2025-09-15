@@ -102,6 +102,18 @@ export class JenisPenugasanService {
       include: {
         Penugasan: {
           include: { rute_perencanaan: true, susunan_tim: true },
+
+        },
+        pkpt: {
+          include: {
+            jenis_pengawasan: {
+              include: {
+                Kelompok_pengawasan: {
+                  include: { Item_pengawasan: true }
+                }
+              }
+            }
+          },
         },
       },
     });

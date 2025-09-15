@@ -6,7 +6,7 @@ import { CreatePenugasanDto } from 'src/jenis-penugasan/dto/create-penugasan.dto
 
 @Injectable()
 export class PenugasanService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(data: CreatePenugasanDto) {
     // Cek apakah Penugasan ada
     const findIdPenugasan = await this.prisma.penugasan.findUnique({
@@ -24,6 +24,26 @@ export class PenugasanService {
     const result = await this.prisma.penugasan.update({
       where: { id: data.id },
       data: {
+        rute_perencanaan: data.rute_perencanaan
+          ? {
+            upsert: data.rute_perencanaan.map((r) => ({
+              where: { id: r.id ?? 0 },
+              create: {
+                uraian_pekerjaan: r.uraian_pekerjaan,
+                nama_penanggung: r.nama_penanggung,
+                nip: r.nip,
+                tanggal_paraf: r.tanggal_paraf,
+              },
+              update: {
+                uraian_pekerjaan: r.uraian_pekerjaan,
+                nama_penanggung: r.nama_penanggung,
+                nip: r.nip,
+                tanggal_paraf: r.tanggal_paraf,
+              },
+            })),
+          }
+          : undefined
+          ,
         // KM1 upsert
         km1: {
           upsert: {
@@ -60,198 +80,198 @@ export class PenugasanService {
         // KM2 upsert
         km2: data.km2
           ? {
-              upsert: {
-                where: { id: data.km2.id ?? 0 },
-                create: {
-                  sasaran_penugasan: data.km2.sasaran_penugasan,
-                  km2_rincian_pekerjaan: data.km2.km2_rincian_pekerjaan
-                    ? {
-                        create: data.km2.km2_rincian_pekerjaan.map((r) => ({
-                          id_rincian_pekerjaan: r.id_rincian_pekerjaan,
-                          tanggal: r.tanggal,
-                          anggaran_waktu: r.anggaran_waktu,
-                          km2Pelaksanaan: r.km2Pelaksanaan
-                            ? {
-                                create: r.km2Pelaksanaan.map((p) => ({
-                                  id_pelaksana: p.id_pelaksanaan,
-                                })),
-                              }
-                            : undefined,
-                        })),
-                      }
-                    : undefined,
-                },
-                update: {
-                  sasaran_penugasan: data.km2.sasaran_penugasan,
-                  km2_rincian_pekerjaan: data.km2.km2_rincian_pekerjaan
-                    ? {
-                        upsert: data.km2.km2_rincian_pekerjaan.map((r) => ({
-                          where: { id: r.id ?? 0 }, // jika ada id, update, kalau 0 maka create baru
-                          create: {
-                            id_rincian_pekerjaan: r.id_rincian_pekerjaan,
-                            tanggal: r.tanggal,
-                            anggaran_waktu: r.anggaran_waktu,
-                            km2Pelaksanaan: r.km2Pelaksanaan
-                              ? {
-                                  create: r.km2Pelaksanaan.map((p) => ({
-                                    id_pelaksana: p.id_pelaksanaan,
-                                  })),
-                                }
-                              : undefined,
-                          },
-                          update: {
-                            tanggal: r.tanggal,
-                            anggaran_waktu: r.anggaran_waktu,
-                            km2Pelaksanaan: r.km2Pelaksanaan
-                              ? {
-                                  upsert: r.km2Pelaksanaan.map((p) => ({
-                                    where: { id: p.id ?? 0 },
-                                    create: { id_pelaksana: p.id_pelaksanaan },
-                                    update: { id_pelaksana: p.id_pelaksanaan },
-                                  })),
-                                }
-                              : undefined,
-                          },
-                        })),
-                      }
-                    : undefined,
-                },
+            upsert: {
+              where: { id: data.km2.id ?? 0 },
+              create: {
+                sasaran_penugasan: data.km2.sasaran_penugasan,
+                km2_rincian_pekerjaan: data.km2.km2_rincian_pekerjaan
+                  ? {
+                    create: data.km2.km2_rincian_pekerjaan.map((r) => ({
+                      id_rincian_pekerjaan: r.id_rincian_pekerjaan,
+                      tanggal: r.tanggal,
+                      anggaran_waktu: r.anggaran_waktu,
+                      km2Pelaksanaan: r.km2Pelaksanaan
+                        ? {
+                          create: r.km2Pelaksanaan.map((p) => ({
+                            id_pelaksana: p.id_pelaksanaan,
+                          })),
+                        }
+                        : undefined,
+                    })),
+                  }
+                  : undefined,
               },
-            }
+              update: {
+                sasaran_penugasan: data.km2.sasaran_penugasan,
+                km2_rincian_pekerjaan: data.km2.km2_rincian_pekerjaan
+                  ? {
+                    upsert: data.km2.km2_rincian_pekerjaan.map((r) => ({
+                      where: { id: r.id ?? 0 }, // jika ada id, update, kalau 0 maka create baru
+                      create: {
+                        id_rincian_pekerjaan: r.id_rincian_pekerjaan,
+                        tanggal: r.tanggal,
+                        anggaran_waktu: r.anggaran_waktu,
+                        km2Pelaksanaan: r.km2Pelaksanaan
+                          ? {
+                            create: r.km2Pelaksanaan.map((p) => ({
+                              id_pelaksana: p.id_pelaksanaan,
+                            })),
+                          }
+                          : undefined,
+                      },
+                      update: {
+                        tanggal: r.tanggal,
+                        anggaran_waktu: r.anggaran_waktu,
+                        km2Pelaksanaan: r.km2Pelaksanaan
+                          ? {
+                            upsert: r.km2Pelaksanaan.map((p) => ({
+                              where: { id: p.id ?? 0 },
+                              create: { id_pelaksana: p.id_pelaksanaan },
+                              update: { id_pelaksana: p.id_pelaksanaan },
+                            })),
+                          }
+                          : undefined,
+                      },
+                    })),
+                  }
+                  : undefined,
+              },
+            },
+          }
           : undefined,
 
         km3: data.km3
           ? {
-              upsert: {
-                where: { id: data.km3.id ?? 0 },
-                create: {
-                  km3_rincian_pekerjaan: data.km3.km3_rincian_pekerjaan
-                    ? {
-                        create: data.km3.km3_rincian_pekerjaan.map((r) => ({
-                          id_rincian_pekerjaan: r.id_rincian_pekerjaan,
-                          rencana_jam: r.rencana_jam,
-                          anggaran_jam: r.anggaran_jam,
-                          realisasi_biaya: r.realisasi_biaya,
-                          anggaran_biaya: r.anggaran_biaya,
-                        })),
-                      }
-                    : undefined,
-                  km3_peran: data.km3.km3_peran
-                    ? {
-                        create: data.km3.km3_peran.map((p) => ({
-                          id_peran: p.id_peran,
-                          rencana_jam: p.rencana_jam,
-                          anggaran_jam: p.anggaran_jam,
-                        })),
-                      }
-                    : undefined,
-                },
-                update: {
-                  km3_rincian_pekerjaan: data.km3.km3_rincian_pekerjaan
-                    ? {
-                        upsert: data.km3.km3_rincian_pekerjaan.map((r) => ({
-                          where: { id: r.id ?? 0 }, // kalau ada id update, kalau 0 create baru
-                          create: {
-                            id_rincian_pekerjaan: r.id_rincian_pekerjaan,
-                            rencana_jam: r.rencana_jam,
-                            anggaran_jam: r.anggaran_jam,
-                            realisasi_biaya: r.realisasi_biaya,
-                            anggaran_biaya: r.anggaran_biaya,
-                          },
-                          update: {
-                            rencana_jam: r.rencana_jam,
-                            anggaran_jam: r.anggaran_jam,
-                            realisasi_biaya: r.realisasi_biaya,
-                            anggaran_biaya: r.anggaran_biaya,
-                          },
-                        })),
-                      }
-                    : undefined,
-                  km3_peran: data.km3.km3_peran
-                    ? {
-                        upsert: data.km3.km3_peran.map((p) => ({
-                          where: { id: p.id ?? 0 }, // kalau ada id update, kalau 0 create baru
-                          create: {
-                            id_peran: p.id_peran,
-                            rencana_jam: p.rencana_jam,
-                            anggaran_jam: p.anggaran_jam,
-                          },
-                          update: {
-                            id_peran: p.id_peran,
-                            rencana_jam: p.rencana_jam,
-                            anggaran_jam: p.anggaran_jam,
-                          },
-                        })),
-                      }
-                    : undefined,
-                },
+            upsert: {
+              where: { id: data.km3.id ?? 0 },
+              create: {
+                km3_rincian_pekerjaan: data.km3.km3_rincian_pekerjaan
+                  ? {
+                    create: data.km3.km3_rincian_pekerjaan.map((r) => ({
+                      id_rincian_pekerjaan: r.id_rincian_pekerjaan,
+                      rencana_jam: r.rencana_jam,
+                      anggaran_jam: r.anggaran_jam,
+                      realisasi_biaya: r.realisasi_biaya,
+                      anggaran_biaya: r.anggaran_biaya,
+                    })),
+                  }
+                  : undefined,
+                km3_peran: data.km3.km3_peran
+                  ? {
+                    create: data.km3.km3_peran.map((p) => ({
+                      id_peran: p.id_peran,
+                      rencana_jam: p.rencana_jam,
+                      anggaran_jam: p.anggaran_jam,
+                    })),
+                  }
+                  : undefined,
               },
-            }
+              update: {
+                km3_rincian_pekerjaan: data.km3.km3_rincian_pekerjaan
+                  ? {
+                    upsert: data.km3.km3_rincian_pekerjaan.map((r) => ({
+                      where: { id: r.id ?? 0 }, // kalau ada id update, kalau 0 create baru
+                      create: {
+                        id_rincian_pekerjaan: r.id_rincian_pekerjaan,
+                        rencana_jam: r.rencana_jam,
+                        anggaran_jam: r.anggaran_jam,
+                        realisasi_biaya: r.realisasi_biaya,
+                        anggaran_biaya: r.anggaran_biaya,
+                      },
+                      update: {
+                        rencana_jam: r.rencana_jam,
+                        anggaran_jam: r.anggaran_jam,
+                        realisasi_biaya: r.realisasi_biaya,
+                        anggaran_biaya: r.anggaran_biaya,
+                      },
+                    })),
+                  }
+                  : undefined,
+                km3_peran: data.km3.km3_peran
+                  ? {
+                    upsert: data.km3.km3_peran.map((p) => ({
+                      where: { id: p.id ?? 0 }, // kalau ada id update, kalau 0 create baru
+                      create: {
+                        id_peran: p.id_peran,
+                        rencana_jam: p.rencana_jam,
+                        anggaran_jam: p.anggaran_jam,
+                      },
+                      update: {
+                        id_peran: p.id_peran,
+                        rencana_jam: p.rencana_jam,
+                        anggaran_jam: p.anggaran_jam,
+                      },
+                    })),
+                  }
+                  : undefined,
+              },
+            },
+          }
           : undefined,
         km4: data.km4
           ? {
-              upsert: {
-                where: { id: data.km4.id ?? 0 },
-                create: {
-                  km4_program_kerja: data.km4.km4_program_kerja
-                    ? {
-                        create: data.km4.km4_program_kerja.map((pk) => ({
-                          prosedur: pk.prosedur,
-                          anggaran_waktu: pk.anggaran_waktu,
-                          realisasi_waktu: pk.realisasi_waktu,
-                          no_kka: pk.no_kka,
-                          auditors: pk.auditors
-                            ? {
-                                create: pk.auditors.map((a) => ({
-                                  nama: a.nama,
-                                  nip: a.nip,
-                                })),
-                              }
-                            : undefined,
-                        })),
-                      }
-                    : undefined,
-                },
-                update: {
-                  km4_program_kerja: data.km4.km4_program_kerja
-                    ? {
-                        upsert: data.km4.km4_program_kerja.map((pk) => ({
-                          where: { id: pk.id ?? 0 },
-                          create: {
-                            prosedur: pk.prosedur,
-                            anggaran_waktu: pk.anggaran_waktu,
-                            realisasi_waktu: pk.realisasi_waktu,
-                            no_kka: pk.no_kka,
-                            auditors: pk.auditors
-                              ? {
-                                  create: pk.auditors.map((a) => ({
-                                    nama: a.nama,
-                                    nip: a.nip,
-                                  })),
-                                }
-                              : undefined,
-                          },
-                          update: {
-                            prosedur: pk.prosedur,
-                            anggaran_waktu: pk.anggaran_waktu,
-                            realisasi_waktu: pk.realisasi_waktu,
-                            no_kka: pk.no_kka,
-                            auditors: pk.auditors
-                              ? {
-                                  upsert: pk.auditors.map((a) => ({
-                                    where: { id: a.id ?? 0 },
-                                    create: { nama: a.nama, nip: a.nip },
-                                    update: { nama: a.nama, nip: a.nip },
-                                  })),
-                                }
-                              : undefined,
-                          },
-                        })),
-                      }
-                    : undefined,
-                },
+            upsert: {
+              where: { id: data.km4.id ?? 0 },
+              create: {
+                km4_program_kerja: data.km4.km4_program_kerja
+                  ? {
+                    create: data.km4.km4_program_kerja.map((pk) => ({
+                      prosedur: pk.prosedur,
+                      anggaran_waktu: pk.anggaran_waktu,
+                      realisasi_waktu: pk.realisasi_waktu,
+                      no_kka: pk.no_kka,
+                      auditors: pk.auditors
+                        ? {
+                          create: pk.auditors.map((a) => ({
+                            nama: a.nama,
+                            nip: a.nip,
+                          })),
+                        }
+                        : undefined,
+                    })),
+                  }
+                  : undefined,
               },
-            }
+              update: {
+                km4_program_kerja: data.km4.km4_program_kerja
+                  ? {
+                    upsert: data.km4.km4_program_kerja.map((pk) => ({
+                      where: { id: pk.id ?? 0 },
+                      create: {
+                        prosedur: pk.prosedur,
+                        anggaran_waktu: pk.anggaran_waktu,
+                        realisasi_waktu: pk.realisasi_waktu,
+                        no_kka: pk.no_kka,
+                        auditors: pk.auditors
+                          ? {
+                            create: pk.auditors.map((a) => ({
+                              nama: a.nama,
+                              nip: a.nip,
+                            })),
+                          }
+                          : undefined,
+                      },
+                      update: {
+                        prosedur: pk.prosedur,
+                        anggaran_waktu: pk.anggaran_waktu,
+                        realisasi_waktu: pk.realisasi_waktu,
+                        no_kka: pk.no_kka,
+                        auditors: pk.auditors
+                          ? {
+                            upsert: pk.auditors.map((a) => ({
+                              where: { id: a.id ?? 0 },
+                              create: { nama: a.nama, nip: a.nip },
+                              update: { nama: a.nama, nip: a.nip },
+                            })),
+                          }
+                          : undefined,
+                      },
+                    })),
+                  }
+                  : undefined,
+              },
+            },
+          }
           : undefined,
       },
       include: {
