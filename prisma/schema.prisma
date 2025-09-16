@@ -304,6 +304,7 @@ model KM3RincianPekerjaan {
   realisasi_biaya    Float?
   anggaran_biaya     Float?
 }
+//catatan
 
 model KM4 {
   id                Int               @id @default(autoincrement())
