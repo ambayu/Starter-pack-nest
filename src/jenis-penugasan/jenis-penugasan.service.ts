@@ -33,9 +33,7 @@ export class JenisPenugasanService {
                 create: data.Penugasan.susunan_tim.map((r) => ({
                   id_peran: r.id_peran,
                   nip: r.nip,
-                  satuan: r.satuan,
-                  honorarium: r.honorarium,
-                  alokasi_anggaran: r.alokasi_anggaran,
+                 
                 })),
               }
               : undefined,
@@ -75,8 +73,11 @@ export class JenisPenugasanService {
         include: {
           Penugasan: {
             include: {
-
-              susunan_tim: true,
+              susunan_tim: {
+                include: {
+                  peran: true
+                }
+              },
             },
           },
           pkpt: true,
@@ -101,14 +102,23 @@ export class JenisPenugasanService {
       where: { id },
       include: {
         Penugasan: {
-          include: { rute_perencanaan: true, susunan_tim: true },
+          include: {
+            rute_perencanaan: true, susunan_tim: {
+              include: {
+                peran: true
+              }
+            }
+          },
 
         },
         pkpt: {
           include: {
             jenis_pengawasan: {
+
               include: {
+
                 Kelompok_pengawasan: {
+                  where: { deletedAt: null },
                   include: { Item_pengawasan: true }
                 }
               }

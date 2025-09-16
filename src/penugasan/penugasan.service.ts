@@ -24,6 +24,28 @@ export class PenugasanService {
     const result = await this.prisma.penugasan.update({
       where: { id: data.id },
       data: {
+        susunan_tim: data.susunan_tim
+          ? {
+            upsert: data.susunan_tim.map((s) => ({
+              where: { id: s.id ?? 0 },
+              create: {
+                id_peran: s.id_peran,
+                nip: s.nip,
+                satuan: s.satuan,
+                honorarium: s.honorarium,
+                alokasi_anggaran: s.alokasi_anggaran,
+              },
+              update: {
+                id_peran: s.id_peran,
+                nip: s.nip,
+                satuan: s.satuan,
+                honorarium: s.honorarium,
+                alokasi_anggaran: s.alokasi_anggaran,
+              },
+            })),
+          }
+          : undefined,
+
         rute_perencanaan: data.rute_perencanaan
           ? {
             upsert: data.rute_perencanaan.map((r) => ({
@@ -43,7 +65,7 @@ export class PenugasanService {
             })),
           }
           : undefined
-          ,
+        ,
         // KM1 upsert
         km1: {
           upsert: {
@@ -87,13 +109,14 @@ export class PenugasanService {
                 km2_rincian_pekerjaan: data.km2.km2_rincian_pekerjaan
                   ? {
                     create: data.km2.km2_rincian_pekerjaan.map((r) => ({
-                      id_rincian_pekerjaan: r.id_rincian_pekerjaan,
+                      id_kelompok_pengawasan: r.id_kelompok_pengawasan,
+                      id_item_pengawasan: r.id_item_pengawasan,
                       tanggal: r.tanggal,
                       anggaran_waktu: r.anggaran_waktu,
                       km2Pelaksanaan: r.km2Pelaksanaan
                         ? {
                           create: r.km2Pelaksanaan.map((p) => ({
-                            id_pelaksana: p.id_pelaksanaan,
+                            id_peran: p.id_peran,
                           })),
                         }
                         : undefined,
@@ -108,13 +131,15 @@ export class PenugasanService {
                     upsert: data.km2.km2_rincian_pekerjaan.map((r) => ({
                       where: { id: r.id ?? 0 }, // jika ada id, update, kalau 0 maka create baru
                       create: {
-                        id_rincian_pekerjaan: r.id_rincian_pekerjaan,
+                        id_kelompok_pengawasan: r.id_kelompok_pengawasan,
+                        id_item_pengawasan: r.id_item_pengawasan,
                         tanggal: r.tanggal,
                         anggaran_waktu: r.anggaran_waktu,
                         km2Pelaksanaan: r.km2Pelaksanaan
                           ? {
                             create: r.km2Pelaksanaan.map((p) => ({
-                              id_pelaksana: p.id_pelaksanaan,
+
+                              id_peran: p.id_peran,
                             })),
                           }
                           : undefined,
@@ -126,8 +151,8 @@ export class PenugasanService {
                           ? {
                             upsert: r.km2Pelaksanaan.map((p) => ({
                               where: { id: p.id ?? 0 },
-                              create: { id_pelaksana: p.id_pelaksanaan },
-                              update: { id_pelaksana: p.id_pelaksanaan },
+                              create: { id_peran: p.id_peran },
+                              update: { id_peran: p.id_peran },
                             })),
                           }
                           : undefined,
@@ -148,7 +173,8 @@ export class PenugasanService {
                 km3_rincian_pekerjaan: data.km3.km3_rincian_pekerjaan
                   ? {
                     create: data.km3.km3_rincian_pekerjaan.map((r) => ({
-                      id_rincian_pekerjaan: r.id_rincian_pekerjaan,
+                      id_kelompok_pengawasan: r.id_kelompok_pengawasan,
+                      id_item_pengawasan: r.id_item_pengawasan,
                       rencana_jam: r.rencana_jam,
                       anggaran_jam: r.anggaran_jam,
                       realisasi_biaya: r.realisasi_biaya,
@@ -161,7 +187,7 @@ export class PenugasanService {
                     create: data.km3.km3_peran.map((p) => ({
                       id_peran: p.id_peran,
                       rencana_jam: p.rencana_jam,
-                      anggaran_jam: p.anggaran_jam,
+                      realisasi_jam: p.realisasi_jam,
                     })),
                   }
                   : undefined,
@@ -170,9 +196,10 @@ export class PenugasanService {
                 km3_rincian_pekerjaan: data.km3.km3_rincian_pekerjaan
                   ? {
                     upsert: data.km3.km3_rincian_pekerjaan.map((r) => ({
-                      where: { id: r.id ?? 0 }, // kalau ada id update, kalau 0 create baru
+                      where: { id: r.id ?? 0 },
                       create: {
-                        id_rincian_pekerjaan: r.id_rincian_pekerjaan,
+                        id_kelompok_pengawasan: r.id_kelompok_pengawasan,
+                        id_item_pengawasan: r.id_item_pengawasan,
                         rencana_jam: r.rencana_jam,
                         anggaran_jam: r.anggaran_jam,
                         realisasi_biaya: r.realisasi_biaya,
@@ -190,16 +217,16 @@ export class PenugasanService {
                 km3_peran: data.km3.km3_peran
                   ? {
                     upsert: data.km3.km3_peran.map((p) => ({
-                      where: { id: p.id ?? 0 }, // kalau ada id update, kalau 0 create baru
+                      where: { id: p.id ?? 0 },
                       create: {
                         id_peran: p.id_peran,
                         rencana_jam: p.rencana_jam,
-                        anggaran_jam: p.anggaran_jam,
+                        realisasi_jam: p.realisasi_jam,
                       },
                       update: {
                         id_peran: p.id_peran,
                         rencana_jam: p.rencana_jam,
-                        anggaran_jam: p.anggaran_jam,
+                        realisasi_jam: p.realisasi_jam,
                       },
                     })),
                   }
@@ -208,6 +235,7 @@ export class PenugasanService {
             },
           }
           : undefined,
+
         km4: data.km4
           ? {
             upsert: {

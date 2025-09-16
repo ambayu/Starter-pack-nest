@@ -7,8 +7,9 @@ export class CreateKM2RincianPekerjaanDto {
   tanggal: Date;
   @IsNotEmpty({ message: 'anggaran waktu tidak boleh kosong' })
   anggaran_waktu: number;
-  @IsNotEmpty({ message: 'rincian pekerjaan tidak boleh kosong' })
-  id_rincian_pekerjaan: number;
+
+  id_kelompok_pengawasan: number;
+  id_item_pengawasan: number;
 
   @IsOptional()
   @ValidateNested({ each: true })

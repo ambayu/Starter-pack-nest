@@ -95,16 +95,18 @@ model Jenis_pengawasan {
 }
 
 model Kelompok_pengawasan {
-  id                  Int               @id @default(autoincrement())
+  id                  Int                   @id @default(autoincrement())
   name                String
   createdBy           String
-  createdAt           DateTime          @default(now())
+  createdAt           DateTime              @default(now())
   deletedAt           DateTime?
-  updatedAt           DateTime          @default(now()) @updatedAt
+  updatedAt           DateTime              @default(now()) @updatedAt
   updatedBy           String?
   id_jenis_pengawasan Int
-  jenis_pengawasan    Jenis_pengawasan  @relation(fields: [id_jenis_pengawasan], references: [id], onDelete: Cascade)
+  jenis_pengawasan    Jenis_pengawasan      @relation(fields: [id_jenis_pengawasan], references: [id], onDelete: Cascade)
   Item_pengawasan     Item_pengawasan[]
+  KM2RincianPekerjaan KM2RincianPekerjaan[]
+  KM3RincianPekerjaan KM3RincianPekerjaan[]
 }
 
 model Item_pengawasan {
@@ -119,6 +121,7 @@ model Item_pengawasan {
   updatedAt              DateTime              @default(now()) @updatedAt
   updatedBy              String?
   KM2RincianPekerjaan    KM2RincianPekerjaan[]
+  KM3RincianPekerjaan    KM3RincianPekerjaan[]
 }
 
 model PKPT {
@@ -220,13 +223,14 @@ model SusunanTim {
 }
 
 model Peran {
-  id          Int          @id @default(autoincrement())
-  nama        String       @unique
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @default(now()) @updatedAt
-  deletedAt   DateTime?
-  susunan_tim SusunanTim[]
-  km3_peran   KM3Peran[]
+  id           Int            @id @default(autoincrement())
+  nama         String         @unique
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  deletedAt    DateTime?
+  susunan_tim  SusunanTim[]
+  km3_peran    KM3Peran[]
+  KM2Pelaksana KM2Pelaksana[]
 }
 
 model KM2 {
@@ -238,51 +242,31 @@ model KM2 {
 }
 
 model KM2RincianPekerjaan {
-  id                 Int             @id @default(autoincrement())
-  id_km2             Int
-  km2                KM2             @relation(fields: [id_km2], references: [id], onDelete: Cascade)
-  id_item_pengawasan Int @default(1)
-  item_pengawasan    Item_pengawasan @relation(fields: [id_item_pengawasan], references: [id], onDelete: Cascade)
-  tanggal            DateTime
-  anggaran_waktu     Int
+  id                     Int                 @id @default(autoincrement())
+  id_km2                 Int
+  km2                    KM2                 @relation(fields: [id_km2], references: [id], onDelete: Cascade)
+  id_kelompok_pengawasan Int                
+  kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id], onDelete: Cascade)
+  id_item_pengawasan     Int                
+  item_pengawasan        Item_pengawasan     @relation(fields: [id_item_pengawasan], references: [id], onDelete: Cascade)
+  tanggal                DateTime
+  anggaran_waktu         Int
 
-  km2Pelaksanaan     KM2Pelaksana[]
-  RincianPekerjaan   RincianPekerjaan? @relation(fields: [rincianPekerjaanId], references: [id])
-  rincianPekerjaanId Int?
+  km2Pelaksanaan KM2Pelaksana[]
 }
 
 model KM2Pelaksana {
   id                       Int                 @id @default(autoincrement())
-  id_pelaksana             Int
+  id_peran                 Int
+  peran                    Peran               @relation(fields: [id_peran], references: [id])
   id_km2_rincian_pekerjaan Int
   km2_rincian_pekerjaan    KM2RincianPekerjaan @relation(fields: [id_km2_rincian_pekerjaan], references: [id], onDelete: Cascade)
-  Pelaksana                Pelaksana?          @relation(fields: [id_pelaksana], references: [id])
 }
 
 model Pelaksana {
-  id           Int            @id @default(autoincrement())
-  kode         String         @unique
-  name         String?
-  KM2Pelaksana KM2Pelaksana[]
-}
-
-model RincianPekerjaan {
-  id                            Int                      @id @default(autoincrement())
-  id_kelompok_rincian_pekerjaan Int
-  kelompok_rincian_pekerjaan    KelompokRincianPekerjaan @relation(fields: [id_kelompok_rincian_pekerjaan], references: [id], onDelete: Cascade)
-  name                          String
-
-  KM2RincianPekerjaan KM2RincianPekerjaan[]
-
-  KM3RincianPekerjaan KM3RincianPekerjaan[]
-  item_pengawasanId   Int?
-}
-
-model KelompokRincianPekerjaan {
-  id   Int    @id @default(autoincrement())
-  name String
-
-  RincianPekerjaan RincianPekerjaan[]
+  id   Int     @id @default(autoincrement())
+  kode String  @unique
+  name String?
 }
 
 model KM3 {
@@ -310,13 +294,15 @@ model KM3RincianPekerjaan {
   id_km3 Int
   km3    KM3 @relation(fields: [id_km3], references: [id], onDelete: Cascade)
 
-  id_rincian_pekerjaan Int
-  rincian_pekerjaan    RincianPekerjaan @relation(fields: [id_rincian_pekerjaan], references: [id], onDelete: Cascade)
+  id_kelompok_pengawasan Int                
+  kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id])
 
-  rencana_jam     Float?
-  anggaran_jam    Float?
-  realisasi_biaya Float?
-  anggaran_biaya  Float?
+  id_item_pengawasan Int            
+  item_pengawasan    Item_pengawasan @relation(fields: [id_item_pengawasan], references: [id])
+  rencana_jam        Float?
+  anggaran_jam       Float?
+  realisasi_biaya    Float?
+  anggaran_biaya     Float?
 }
 
 model KM4 {
