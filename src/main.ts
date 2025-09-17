@@ -4,7 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+  if (process.env.USE_GLOBAL_PREFIX === 'true') {
+    app.setGlobalPrefix('api');
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({
