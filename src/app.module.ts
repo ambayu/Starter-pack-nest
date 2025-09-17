@@ -16,6 +16,7 @@ import { JenisPengawasanModule } from './jenis_pengawasan/jenis_pengawasan.modul
 import { ItemPengawasanModule } from './item_pengawasan/item_pengawasan.module';
 import { PkptModule } from './pkpt/pkpt.module';
 import { KelompokPengawasanModule } from './kelompok_pengawasan/kelompok_pengawasan.module';
+import { OpdModule } from './opd/opd.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { KelompokPengawasanModule } from './kelompok_pengawasan/kelompok_pengawa
     ItemPengawasanModule,
     PkptModule,
     KelompokPengawasanModule,
+    OpdModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -33,7 +33,7 @@ export class JenisPenugasanService {
                 create: data.Penugasan.susunan_tim.map((r) => ({
                   id_peran: r.id_peran,
                   nip: r.nip,
-                 
+
                 })),
               }
               : undefined,
@@ -73,10 +73,40 @@ export class JenisPenugasanService {
         include: {
           Penugasan: {
             include: {
-              susunan_tim: {
+              susunan_tim: { include: { peran: true } },
+              rute_perencanaan: true,
+              km1: true,
+              km2: {
                 include: {
-                  peran: true
-                }
+                  km2_rincian_pekerjaan: {
+                    include: {
+                      km2Pelaksanaan: {
+                        include: { peran: true },
+                      },
+                      item_pengawasan: true,
+                      kelompok_pengawasan: true,
+                    },
+                  },
+                },
+              },
+              km3: {
+                include: {
+                  km3_rincian_pekerjaan: true,
+                  km3_peran: { include: { peran: true } },
+                },
+              },
+              km4: {
+                include: {
+                  tujuan: {
+                    include: {
+                      program_kerja: {
+                        include: {
+                          auditors: true,
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -97,32 +127,64 @@ export class JenisPenugasanService {
     });
   }
 
+
   async findOne(id: number) {
     const findId = await this.prisma.jenisPenugasan.findUnique({
       where: { id },
       include: {
         Penugasan: {
           include: {
-            rute_perencanaan: true, susunan_tim: {
-              include: {
-                peran: true
-              }
-            }
-          },
+            rute_perencanaan: true,
+            susunan_tim: { include: { peran: true } },
 
+            // Tambahan KM
+            km1: true,
+            km2: {
+              include: {
+                km2_rincian_pekerjaan: {
+                  include: {
+                    km2Pelaksanaan: {
+                      include: { peran: true },
+                    },
+                    item_pengawasan: true,
+                    kelompok_pengawasan: true,
+                  },
+                },
+              },
+            },
+            km3: {
+              include: {
+                km3_rincian_pekerjaan: true,
+                km3_peran: {
+                  include: { peran: true },
+                },
+              },
+            },
+            km4: {
+              include: {
+                tujuan: {
+                  include: {
+                    program_kerja: {
+                      include: {
+                        auditors: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         pkpt: {
           include: {
             jenis_pengawasan: {
-
               include: {
-
                 Kelompok_pengawasan: {
                   where: { deletedAt: null },
-                  include: { Item_pengawasan: true }
-                }
-              }
-            }
+                  include: { Item_pengawasan: true },
+                },
+              },
+            },
           },
         },
       },
@@ -136,6 +198,7 @@ export class JenisPenugasanService {
 
     return successResponse('Penugasan ditemukan', findId);
   }
+
 
   async update(id: number, data: UpdateJenisPenugasanDto) {
     const findId = await this.prisma.jenisPenugasan.findUnique({

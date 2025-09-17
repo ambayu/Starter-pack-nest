@@ -19,6 +19,7 @@ model User {
   id        Int        @id @default(autoincrement())
   name      String
   email     String     @unique
+  nip       String?
   username  String     @unique
   password  String
   createdAt DateTime   @default(now())
@@ -26,6 +27,19 @@ model User {
   deletedAt DateTime? // <== Tambahkan ini
   Biodata   Biodata?
   UserRole  UserRole[]
+}
+
+model Opd {
+  id             Int      @id @default(autoincrement())
+  kode           String
+  id_skpd        Int
+  id_skpd_parent Int?
+  skpd_parent    String?
+  nama           String
+  alamat         String?
+  created_at     DateTime @default(now())
+  createdBy      String?
+  updatedBy      String?
 }
 
 model Biodata {
@@ -38,6 +52,8 @@ model Biodata {
   photo         String?
   tanggal_lahir DateTime?
   jenis_kelamin String?
+  jabatan       String?
+  pangkat       String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt //
   deletedAt     DateTime? // <== Tambahkan ini
@@ -245,9 +261,9 @@ model KM2RincianPekerjaan {
   id                     Int                 @id @default(autoincrement())
   id_km2                 Int
   km2                    KM2                 @relation(fields: [id_km2], references: [id], onDelete: Cascade)
-  id_kelompok_pengawasan Int                
+  id_kelompok_pengawasan Int
   kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id], onDelete: Cascade)
-  id_item_pengawasan     Int                
+  id_item_pengawasan     Int
   item_pengawasan        Item_pengawasan     @relation(fields: [id_item_pengawasan], references: [id], onDelete: Cascade)
   tanggal                DateTime
   anggaran_waktu         Int
@@ -294,47 +310,62 @@ model KM3RincianPekerjaan {
   id_km3 Int
   km3    KM3 @relation(fields: [id_km3], references: [id], onDelete: Cascade)
 
-  id_kelompok_pengawasan Int                
+  id_kelompok_pengawasan Int
   kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id])
 
-  id_item_pengawasan Int            
+  id_item_pengawasan Int
   item_pengawasan    Item_pengawasan @relation(fields: [id_item_pengawasan], references: [id])
   rencana_jam        Float?
   anggaran_jam       Float?
   realisasi_biaya    Float?
   anggaran_biaya     Float?
 }
+
 //catatan
 
 model KM4 {
-  id                Int               @id @default(autoincrement())
-  id_penugasan      Int
-  penugasan         Penugasan         @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-  km4_program_kerja KM4ProgramKerja[]
+  id           Int           @id @default(autoincrement())
+  id_penugasan Int
+  penugasan    Penugasan     @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
+
+  tujuan       KM4Tujuan[]
+}
+
+model KM4Tujuan {
+  id          Int              @id @default(autoincrement())
+  deskripsi   String
+
+  id_km4      Int
+  km4         KM4              @relation(fields: [id_km4], references: [id], onDelete: Cascade)
+
+  program_kerja KM4ProgramKerja[]
 }
 
 model KM4ProgramKerja {
-  id       Int    @id @default(autoincrement())
-  prosedur String
-
+  id              Int             @id @default(autoincrement())
+  prosedur        String
   anggaran_waktu  Int
   realisasi_waktu Int
-  no_kka          String
-  auditors        km4Auditors[]
-  id_km4          Int
-  km4             KM4           @relation(fields: [id_km4], references: [id], onDelete: Cascade)
+  no_kka          String?
+
+  id_tujuan       Int
+  tujuan          KM4Tujuan       @relation(fields: [id_tujuan], references: [id], onDelete: Cascade)
+
+  auditors        KM4Auditors[]
 }
 
-model km4Auditors {
-  id        Int      @id @default(autoincrement())
-  nama      String
-  nip       String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+model KM4Auditors {
+  id                     Int              @id @default(autoincrement())
+  nama                   String
+  nip                    String?
 
-  id_km4_program_kerja Int
-  km4_program_kerja    KM4ProgramKerja @relation(fields: [id_km4_program_kerja], references: [id], onDelete: Cascade)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @default(now()) @updatedAt
+
+  id_km4_program_kerja   Int
+  km4_program_kerja      KM4ProgramKerja  @relation(fields: [id_km4_program_kerja], references: [id], onDelete: Cascade)
 }
+
 
 model pegawai {
   id        Int      @id @default(autoincrement())

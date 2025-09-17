@@ -4,10 +4,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { successResponse } from 'src/utils/response.util';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private httpService: HttpService,) { }
 
   // ================= CREATE USER =================
   async createUser(data: CreateUserDto) {
@@ -97,6 +99,69 @@ export class UserService {
     });
   }
 
+  async generateUser() {
+    // Ambil role PNS
+    const rolePns = await this.prisma.role.findUnique({
+      where: { name: 'pns' },
+    });
+    if (!rolePns) {
+      throw new BadRequestException('Role PNS belum ada di database');
+    }
+
+    // Fetch data dari API
+    const { data } = await firstValueFrom(
+      this.httpService.get('https://bkpsdm.medan.go.id/api/public/api/pegawainew'),
+    );
+
+    let createdCount = 0;
+    let skippedCount = 0;
+
+    for (const pegawai of data) {
+      const nip = pegawai.nip?.replace(/\s/g, '') ?? null;
+
+      // Skip kalau nip sudah ada
+      const existing = await this.prisma.user.findFirst({ where: { nip } });
+      if (existing) {
+        skippedCount++;
+        continue;
+      }
+
+      const username = nip;
+      if (!username) {
+        throw new BadRequestException('NIP tidak ditemukan');
+      }
+      const password = await bcrypt.hash(nip, 10); // password default
+
+      // Buat user + role + biodata
+      await this.prisma.user.create({
+        data: {
+          name: pegawai.nama_pegawai,
+          email: `${username}@medan.go.id`,
+          username,
+          password,
+          nip,
+          UserRole: {
+            create: [{ id_role: rolePns.id }],
+          },
+          Biodata: {
+            create: {
+              name: pegawai.nama_pegawai,
+              jabatan: pegawai.jabatan,
+              pangkat: pegawai.pangkat_golongan,
+            },
+          },
+        },
+      });
+
+      createdCount++;
+    }
+
+    return successResponse('Generate user selesai', {
+      created: createdCount,
+      skipped: skippedCount,
+    });
+  }
+
 
   // ================= GET ALL USERS =================
   async findAll(pages = 1, perPage = 10, search?: string) {
@@ -150,6 +215,56 @@ export class UserService {
       totalPages: Math.ceil(total / perPage),
     });
   }
+
+  async findAllPns() {
+    const users = await this.prisma.user.findMany({
+      where: {
+        UserRole: {
+          some: {
+            role: {
+              name: 'pns',
+            },
+          },
+        },
+      },
+      include: {
+        UserRole: {
+          include: {
+            role: {
+              include: {
+                RolePermission: { include: { permission: true } }
+              }
+            },
+          },
+        },
+        Biodata: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const data = users.map((user) => {
+      const roles = user.UserRole.map((ur) => ur.role.name);
+      const permissions = user.UserRole
+        .flatMap((ur) => ur.role.RolePermission)
+        .map((rp) => rp.permission.name);
+
+      return {
+        id: user.id,
+        nip: user.nip,
+        nama: user.name,
+        email: user.email,
+        username: user.username,
+        biodata: user.Biodata,
+        roles: [...new Set(roles)],
+        permissions: [...new Set(permissions)],
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      };
+    });
+
+    return successResponse('Berhasil mendapatkan semua user PNS', data);
+  }
+
 
   // ================= UPDATE USER =================
   async update(id: number, data: updateUserDto) {

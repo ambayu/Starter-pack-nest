@@ -41,6 +41,19 @@ export class UserController {
     );
   }
 
+
+  @Get('generate-user')
+  GenerateUser() {
+    return this.userService.generateUser();
+  }
+
+  
+  @Get('find-pns')
+  findAllPns() {
+    return this.userService.findAllPns();
+  }
+
+
   @Get(':id')
   find(@Param('id') id: number) {
     return this.userService.findById(id);
