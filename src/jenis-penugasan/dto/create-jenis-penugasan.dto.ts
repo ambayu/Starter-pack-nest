@@ -13,9 +13,9 @@ export class CreateJenisPenugasanDto {
 
   non_pkpt?: string;
 
-  createdBy?: string;
+  createdBy?: number;
 
-  updatedBy?: string;
+  updatedBy?: number;
 
 
   @IsOptional()

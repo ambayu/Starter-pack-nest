@@ -6,7 +6,7 @@ export class CreateItemPengawasanDto {
     id_kelompok_pengawasan: number;
     @IsNotEmpty({ message: 'Name tidak boleh kosong' })
     name: string;
-    createdBy?: string;
-    updatedBy?: string;
+    createdBy?: number;
+    updatedBy?: number;
 
 }

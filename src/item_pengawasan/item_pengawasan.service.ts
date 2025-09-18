@@ -12,7 +12,7 @@ export class ItemPengawasanService {
       data: {
         id_kelompok_pengawasan: data.id_kelompok_pengawasan,
         name: data.name,
-        createdBy: data.createdBy ?? '',
+        createdBy: data.createdBy ?? 0,
       },
     });
     return successResponse('Item pengawasan berhasil dibuat', q);
@@ -83,6 +83,7 @@ export class ItemPengawasanService {
   }
 
 
+
   async update(id: number, data: UpdateItemPengawasanDto) {
     const findId = await this.prisma.item_pengawasan.findUnique({
       where: { id, deletedAt: null },
@@ -94,7 +95,7 @@ export class ItemPengawasanService {
       where: { id },
       data: {
         name: data.name,
-        updatedBy: data.updatedBy ?? '',
+        updatedBy: data.updatedBy ?? null,
       },
     });
 

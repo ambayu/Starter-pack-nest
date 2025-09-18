@@ -13,5 +13,5 @@ import { Type } from 'class-transformer';
 export class CreatePenugasanDto {
   id: number;
 
-
+  
 }

@@ -8,38 +8,78 @@ import { successResponse } from 'src/utils/response.util';
 export class JenisPenugasanService {
   constructor(private prisma: PrismaService) { }
   async create(data: CreateJenisPenugasanDto) {
-    const q = await this.prisma.jenisPenugasan.create({
-      data: {
+    console.log(data, 'data');
+    const q = await this.prisma.jenisPenugasan.upsert({
+      where: { id: data.id ?? 0 }, // kalau id ada → update, kalau tidak → create
+      update: {
         jenis_penugasan: data.jenis_penugasan,
         id_pkpt: data.id_pkpt ?? null,
         non_pkpt: data.non_pkpt,
-        createdBy: data.createdBy ?? '',
-        Penugasan: {
-          create:
-          {
-            dasar_penugasan: data.Penugasan?.dasar_penugasan,
-            sifat_penugasan: data.Penugasan?.sifat_penugasan ?? '',
-            nama_penugasan: data.Penugasan?.nama_penugasan ?? '',
-            alamat_penugasan: data.Penugasan?.alamat_penugasan ?? '',
-            nomor_kartu: data.Penugasan?.nomor_kartu ?? '',
-            penanggung_jawab: data.Penugasan?.penanggung_jawab ?? '',
-            pembantu_penanggung_jawab:
-              data.Penugasan?.pembantu_penanggung_jawab ?? '',
-            pengendali_teknis: data.Penugasan?.pengendali_teknis ?? '',
-            ketua_tim: data.Penugasan?.ketua_tim ?? '',
-            catatan: data.Penugasan?.catatan ?? '',
-            susunan_tim: data.Penugasan?.susunan_tim
-              ? {
-                create: data.Penugasan.susunan_tim.map((r) => ({
-                  id_peran: r.id_peran,
-                  nip: r.nip,
+        updatedBy: data.createdBy ?? null,
+        Penugasan: data.Penugasan
+          ? {
+            upsert: {
+              where: { id: data.Penugasan.id ?? 0 },
+              update: {
+                dasar_penugasan: data.Penugasan.dasar_penugasan ?? '',
+                sifat_penugasan: data.Penugasan.sifat_penugasan ?? '',
+                nama_penugasan: data.Penugasan.nama_penugasan ?? '',
+                alamat_penugasan: data.Penugasan.alamat_penugasan ?? '',
+                catatan: data.Penugasan.catatan ?? '',
+                susunan_tim: data.Penugasan.susunan_tim
+                  ? {
+                    deleteMany: {},
+                    create: data.Penugasan.susunan_tim.map((r) => ({
+                      id_peran: r.id_peran,
+                      nip: r.nip,
+                    })),
+                  }
+                  : undefined,
+              },
+              create: {
+                dasar_penugasan: data.Penugasan.dasar_penugasan ?? '',
+                sifat_penugasan: data.Penugasan.sifat_penugasan ?? '',
+                nama_penugasan: data.Penugasan.nama_penugasan ?? '',
+                alamat_penugasan: data.Penugasan.alamat_penugasan ?? '',
+                catatan: data.Penugasan.catatan ?? '',
 
-                })),
-              }
-              : undefined,
+                susunan_tim: data.Penugasan.susunan_tim
+                  ? {
+                    create: data.Penugasan.susunan_tim.map((r) => ({
+                      id_peran: r.id_peran,
+                      nip: r.nip,
+                    })),
+                  }
+                  : undefined,
+              },
+            },
           }
-
-        },
+          : undefined,
+      },
+      create: {
+        jenis_penugasan: data.jenis_penugasan,
+        id_pkpt: data.id_pkpt ?? null,
+        non_pkpt: data.non_pkpt,
+        createdBy: data.createdBy ?? 0,
+        Penugasan: data.Penugasan
+          ? {
+            create: {
+              dasar_penugasan: data.Penugasan.dasar_penugasan ?? '',
+              sifat_penugasan: data.Penugasan.sifat_penugasan ?? '',
+              nama_penugasan: data.Penugasan.nama_penugasan ?? '',
+              alamat_penugasan: data.Penugasan.alamat_penugasan ?? '',
+              catatan: data.Penugasan.catatan ?? '',
+              susunan_tim: data.Penugasan.susunan_tim
+                ? {
+                  create: data.Penugasan.susunan_tim.map((r) => ({
+                    id_peran: r.id_peran,
+                    nip: r.nip,
+                  })),
+                }
+                : undefined,
+            },
+          }
+          : undefined,
       },
       include: {
         Penugasan: {
@@ -48,8 +88,10 @@ export class JenisPenugasanService {
       },
     });
 
-    return successResponse('Penugasan berhasil dibuat', q);
+    return successResponse('Penugasan berhasil dibuat/diupdate', q);
   }
+
+
 
   async findAll(
     page: number,
@@ -73,7 +115,7 @@ export class JenisPenugasanService {
         include: {
           Penugasan: {
             include: {
-              susunan_tim: { include: { peran: true } },
+              susunan_tim: { include: { peran: true, user: true } },
               rute_perencanaan: true,
               km1: true,
               km2: {
@@ -201,6 +243,11 @@ export class JenisPenugasanService {
 
 
   async update(id: number, data: UpdateJenisPenugasanDto) {
+
+    return "ini update";
+  }
+
+  async remove(id: number) {
     const findId = await this.prisma.jenisPenugasan.findUnique({
       where: { id },
     });
@@ -211,67 +258,9 @@ export class JenisPenugasanService {
       );
     }
 
-    const q = await this.prisma.jenisPenugasan.update({
-      where: { id },
-      data: {
-        jenis_penugasan: data.jenis_penugasan,
-        id_pkpt: data.id_pkpt ?? null,
-        non_pkpt: data.non_pkpt,
-
-        createdBy: data.createdBy ?? '',
-        Penugasan: data.Penugasan
-          ? {
-            update: {
-              where: { id: data.Penugasan.id },
-              data: {
-                dasar_penugasan: data.Penugasan.dasar_penugasan,
-                sifat_penugasan: data.Penugasan.sifat_penugasan ?? '',
-                nama_penugasan: data.Penugasan.nama_penugasan ?? '',
-                alamat_penugasan: data.Penugasan.alamat_penugasan ?? '',
-                nomor_kartu: data.Penugasan.nomor_kartu ?? '',
-                penanggung_jawab: data.Penugasan.penanggung_jawab ?? '',
-                pembantu_penanggung_jawab:
-                  data.Penugasan.pembantu_penanggung_jawab ?? '',
-                pengendali_teknis: data.Penugasan.pengendali_teknis ?? '',
-                ketua_tim: data.Penugasan.ketua_tim ?? '',
-                catatan: data.Penugasan.catatan ?? '',
-                susunan_tim: data.Penugasan.susunan_tim
-                  ? {
-                    deleteMany: {},
-                    create: data.Penugasan.susunan_tim.map((r) => ({
-                      id_peran: r.id_peran,
-                      nip: r.nip,
-                    })),
-                  }
-                  : undefined,
-              },
-            },
-          }
-          : undefined,
-      },
-      include: {
-        Penugasan: {
-          include: { rute_perencanaan: true },
-        },
-      },
-    });
-
-    return successResponse('Penugasan berhasil diperbaharui', q);
-  }
-
-  remove(id: number) {
-    const findId = this.prisma.jenisPenugasan.findUnique({
+    const q = await this.prisma.jenisPenugasan.delete({
       where: { id },
     });
-
-    if (!findId) {
-      throw new BadRequestException(
-        `Penugasan dengan Id ${id} tidak ditemukan`,
-      );
-    }
-
-    return this.prisma.jenisPenugasan.delete({
-      where: { id },
-    });
+    return successResponse('Penugasan berhasil dihapus', q);
   }
 }

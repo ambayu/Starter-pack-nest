@@ -102,10 +102,10 @@ export class UserService {
   async generateUser() {
     // Ambil role PNS
     const rolePns = await this.prisma.role.findUnique({
-      where: { name: 'pns' },
+      where: { name: 'asn' },
     });
     if (!rolePns) {
-      throw new BadRequestException('Role PNS belum ada di database');
+      throw new BadRequestException('Role ASN belum ada di database');
     }
 
     // Fetch data dari API
@@ -135,7 +135,7 @@ export class UserService {
       // Buat user + role + biodata
       await this.prisma.user.create({
         data: {
-          name: pegawai.nama_pegawai,
+          name: pegawai.nama_lengkap,
           email: `${username}@medan.go.id`,
           username,
           password,
@@ -145,7 +145,7 @@ export class UserService {
           },
           Biodata: {
             create: {
-              name: pegawai.nama_pegawai,
+              name: pegawai.nama_lengkap,
               jabatan: pegawai.jabatan,
               pangkat: pegawai.pangkat_golongan,
             },
@@ -222,7 +222,7 @@ export class UserService {
         UserRole: {
           some: {
             role: {
-              name: 'pns',
+              name: 'asn',
             },
           },
         },

@@ -2,6 +2,6 @@ export class CreateJenisPengawasanDto {
 
     id: number;
     name: string;
-    createdBy?: string;
-    updatedBy?: string;
+    createdBy?: number;
+    updatedBy?: number;
 }

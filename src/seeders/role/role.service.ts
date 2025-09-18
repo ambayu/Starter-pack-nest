@@ -11,7 +11,7 @@ export class RoleSeederService {
       { name: 'admin_laporan' },
       { name: 'user' },
       { name: 'guest' },
-      { name: 'pns' },
+      { name: 'asn' },
     ];
 
     for (const role of roles) {

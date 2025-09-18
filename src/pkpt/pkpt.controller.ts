@@ -16,7 +16,7 @@ export class PkptController {
   create(@Body() createPkptDto: CreatePkptDto, @Req() req: any) {
     return this.pkptService.create({
       ...createPkptDto,
-      createdBy: req.user.id.toString(),
+      createdBy: Number(req.user.id), // kalau mau simpan siapa yang buat
     });
   }
 
@@ -50,7 +50,7 @@ export class PkptController {
   update(@Param('id') id: string, @Body() updatePkptDto: UpdatePkptDto, @Req() req: any) {
     return this.pkptService.update(+id, {
       ...updatePkptDto,
-      updatedBy: req.user.id.toString(),
+      updatedBy: Number(req.user.id),
     });
   }
 

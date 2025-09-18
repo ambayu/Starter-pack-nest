@@ -16,7 +16,8 @@ export class PkptService {
         id_jenis_pengawasan: data.id_jenis_pengawasan,
         ruang_lingkup: data.ruang_lingkup,
 
-        createdBy: data.createdBy ?? '',
+        createdBy: data.createdBy ?? 0,
+
       },
     });
     return successResponse('Pkpt berhasil dibuat', q);
@@ -93,7 +94,7 @@ export class PkptService {
         tujuan: data.tujuan,
         id_jenis_pengawasan: data.id_jenis_pengawasan,
         ruang_lingkup: data.ruang_lingkup,
-        updatedBy: data.updatedBy ?? '',
+        updatedBy: data.updatedBy ?? 0,
       },
     });
     return successResponse('Pkpt berhasil diupdate', q);

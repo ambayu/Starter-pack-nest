@@ -19,13 +19,13 @@ import { PermissionGuard } from 'src/auth/guard/permission.guard';
 @UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 @Controller('opd')
 export class OpdController {
-  constructor(private readonly opdService: OpdService) {}
+  constructor(private readonly opdService: OpdService) { }
 
   @Post()
   create(@Body() createOpdDto: CreateOpdDto, @Req() req: any) {
     return this.opdService.create({
       ...createOpdDto,
-      createdBy: req.user.id.toString(), // kalau mau simpan siapa yang buat
+      createdBy: Number(req.user.id), // kalau mau simpan siapa yang buat
     });
   }
 
@@ -55,7 +55,7 @@ export class OpdController {
   update(@Param('id') id: string, @Body() updateOpdDto: UpdateOpdDto, @Req() req: any) {
     return this.opdService.update(+id, {
       ...updateOpdDto,
-      updatedBy: req.user.id.toString(), // kalau mau catat siapa yg update
+     updatedBy: Number(req.user.id), // kalau mau catat siapa yg update
     });
   }
 

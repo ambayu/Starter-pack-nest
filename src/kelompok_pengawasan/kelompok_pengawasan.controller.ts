@@ -14,7 +14,7 @@ export class KelompokPengawasanController {
   create(@Body() createKelompokPengawasanDto: CreateKelompokPengawasanDto, @Req() req: any) {
     return this.kelompokPengawasanService.create({
       ...createKelompokPengawasanDto,
-      createdBy: req.user.id.toString(),
+      createdBy: Number(req.user.id),
     });
   }
 
@@ -45,7 +45,7 @@ export class KelompokPengawasanController {
   update(@Param('id') id: string, @Body() updateKelompokPengawasanDto: UpdateKelompokPengawasanDto, @Req() req: any) {
     return this.kelompokPengawasanService.update(+id, {
       ...updateKelompokPengawasanDto,
-      updatedBy: req.user.id.toString(),
+     updatedBy: Number(req.user.id),
     });
   }
 

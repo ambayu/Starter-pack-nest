@@ -25,9 +25,10 @@ export class JenisPenugasanController {
     @Body() createJenisPenugasanDto: CreateJenisPenugasanDto,
     @Req() req: any,
   ) {
+    console.log(req.user);
     return this.jenisPenugasanService.create({
       ...createJenisPenugasanDto,
-      createdBy: req.user.id.toString(),
+      createdBy: Number(req.user.id),
     });
   }
 

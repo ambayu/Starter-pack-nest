@@ -6,8 +6,8 @@ export class CreateKelompokPengawasanDto {
     name: string;
     @IsNotEmpty({ message: 'jenis pengawasan tidak boleh kosong' })
     id_jenis_pengawasan: number;
-    createdBy?: string;
-    updatedBy?: string;
+    createdBy?: number;
+    updatedBy?: number;
     createdAt?: Date;
     deletedAt?: Date;
 

@@ -9,8 +9,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { PenugasanService } from './penugasan.service';
-import { CreatePenugasanDto } from './dto/create-penugasan.dto';
 import { UpdatePenugasanDto } from './dto/update-penugasan.dto';
+import { CreatePenugasanDto } from 'src/jenis-penugasan/dto/create-penugasan.dto';
 
 @Controller('penugasan')
 export class PenugasanController {

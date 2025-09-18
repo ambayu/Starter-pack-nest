@@ -14,7 +14,7 @@ export class ItemPengawasanController {
   create(@Body() createItemPengawasanDto: CreateItemPengawasanDto, @Req() req: any) {
     return this.itemPengawasanService.create({
       ...createItemPengawasanDto,
-      createdBy: req.user.id.toString(),
+      createdBy: Number(req.user.id),
     });
   }
 
@@ -51,7 +51,7 @@ export class ItemPengawasanController {
   update(@Param('id') id: string, @Body() updateItemPengawasanDto: UpdateItemPengawasanDto, @Req() req: any) {
     return this.itemPengawasanService.update(+id, {
       ...updateItemPengawasanDto,
-      updatedBy: req.user.id.toString(),
+     updatedBy: Number(req.user.id),
     });
   }
 

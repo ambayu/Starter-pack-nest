@@ -12,7 +12,7 @@ export class KelompokPengawasanService {
       data: {
         name: data.name,
         id_jenis_pengawasan: data.id_jenis_pengawasan,
-        createdBy: data.createdBy ?? '',
+        createdBy: data.createdBy ?? 0,
       },
     });
     return successResponse('Kelompok pengawasan berhasil dibuat', q);
@@ -82,7 +82,7 @@ export class KelompokPengawasanService {
       data: {
         name: updateKelompokPengawasanDto.name,
         id_jenis_pengawasan: updateKelompokPengawasanDto.id_jenis_pengawasan,
-        updatedBy: updateKelompokPengawasanDto.updatedBy ?? '',
+        updatedBy: updateKelompokPengawasanDto.updatedBy ?? null,
         updatedAt: new Date(),
       },
     });

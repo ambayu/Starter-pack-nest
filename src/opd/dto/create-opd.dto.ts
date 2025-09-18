@@ -24,6 +24,6 @@ export class CreateOpdDto {
     @IsString()
     alamat?: string;
 
-    createdBy?: string;
-    updatedBy?: string;
+    createdBy?: number;
+    updatedBy?: number;
 }

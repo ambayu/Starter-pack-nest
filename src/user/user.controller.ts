@@ -47,7 +47,7 @@ export class UserController {
     return this.userService.generateUser();
   }
 
-  
+
   @Get('find-pns')
   findAllPns() {
     return this.userService.findAllPns();

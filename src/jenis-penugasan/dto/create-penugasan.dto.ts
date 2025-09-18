@@ -22,26 +22,14 @@ export class CreatePenugasanDto {
   @IsOptional()
   alamat_penugasan?: string;
 
-  @IsOptional()
-  nomor_kartu?: string;
 
-  @IsOptional()
-  penanggung_jawab?: string;
-
-  @IsOptional()
-  pembantu_penanggung_jawab?: string;
-
-  @IsOptional()
-  pengendali_teknis?: string;
-
-  @IsOptional()
-  ketua_tim?: string;
+  createdBy: number;
 
   @IsOptional()
   catatan?: string;
 
   @IsOptional()
-  updatedBy?: string;
+  updatedBy?: number;
 
   @IsOptional()
   @ValidateNested({ each: true })

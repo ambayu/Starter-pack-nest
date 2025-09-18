@@ -6,7 +6,7 @@ import { successResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class JenisPengawasanService {
-  constructor(private prisma: PrismaService) { } 
+  constructor(private prisma: PrismaService) { }
   async create(data: CreateJenisPengawasanDto) {
     const findName = await this.prisma.jenis_pengawasan.findFirst({
       where: { name: data.name, deletedAt: null },
@@ -17,7 +17,7 @@ export class JenisPengawasanService {
     const q = await this.prisma.jenis_pengawasan.create({
       data: {
         name: data.name,
-        createdBy: data.createdBy ?? '',
+        createdBy: data.createdBy ?? 0,
       },
     });
     return successResponse('Jenis pengawasan berhasil dibuat', q);
@@ -87,7 +87,7 @@ export class JenisPengawasanService {
       data: {
         ...data,
         updatedAt: new Date(),
-        updatedBy: data.updatedBy ?? '',
+        updatedBy: data.updatedBy ?? null,
       },
     });
   }

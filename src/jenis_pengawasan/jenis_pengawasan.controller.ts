@@ -17,7 +17,7 @@ export class JenisPengawasanController {
   ) {
     return this.jenisPengawasanService.create({
       ...createJenisPengawasanDto,
-      createdBy: req.user.id.toString(),
+      createdBy: Number(req.user.id),
     });
   }
 
@@ -48,7 +48,7 @@ export class JenisPengawasanController {
   update(@Param('id') id: string, @Req() req: any, @Body() updateJenisPengawasanDto: UpdateJenisPengawasanDto) {
     return this.jenisPengawasanService.update(+id,{
       ...updateJenisPengawasanDto,
-      updatedBy: req.user.id.toString(),
+     updatedBy: Number(req.user.id),
     
     });
   }
