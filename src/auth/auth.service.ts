@@ -60,7 +60,8 @@ export class AuthService {
       sub: user.id,
       username: user.username,
       roles,
-      permissions
+      permissions,
+      nip: user.nip,
     };
 
     const token = this.jwtService.sign(payload);

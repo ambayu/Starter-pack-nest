@@ -13,9 +13,15 @@ export class PermissionSeederService {
           'penugasan-irban:manage',
 
         ],
+        asn: [
+          'penugasan-katim:view',
+          'penugasan-katim:manage',
+        ],
         admin: [
+
           'penugasan-irban:view',
           'penugasan-irban:manage',
+
 
           // User
           'user:view',

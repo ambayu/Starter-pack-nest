@@ -22,7 +22,9 @@ export class CreatePenugasanDto {
   @IsOptional()
   alamat_penugasan?: string;
 
-
+  @IsOptional()
+  nomor_kartu?: string;
+  
   createdBy: number;
 
   @IsOptional()

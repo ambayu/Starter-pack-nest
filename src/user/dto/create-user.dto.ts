@@ -17,4 +17,7 @@ export class CreateUserDto {
     @Optional()
     roles: number[];
 
+    @Optional()
+    nip: string
+
 }

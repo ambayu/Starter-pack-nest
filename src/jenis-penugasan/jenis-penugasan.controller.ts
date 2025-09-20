@@ -35,12 +35,13 @@ export class JenisPenugasanController {
   @Post('done/:id')
   done(@Param('id') id: number) {
     return this.jenisPenugasanService.changeStatus(id);
-  } 
+  }
 
 
 
   @Get()
   findAll(
+
     @Query('page') page: number,
     @Query('perPage') perPage: number,
     @Query('search') search?: string,
@@ -53,6 +54,30 @@ export class JenisPenugasanController {
       search,
       orderBy,
       order,
+    );
+  }
+
+
+
+  @Get('user')
+  findAllByUser(
+    @Req() req: any,
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+    @Query('search') search?: string,
+    @Query('orderBy') orderBy?: string,
+    @Query('order') order?: string,
+    @Query('type') type?: string,
+  ) {
+
+    return this.jenisPenugasanService.findAllByUser(
+      req.user.nip,  // <== dikirim ke service
+      Number(page) || 1,
+      Number(perPage) || 10,
+      search,
+      orderBy,
+      order,
+      type,
     );
   }
 

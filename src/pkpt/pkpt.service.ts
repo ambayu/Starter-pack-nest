@@ -15,6 +15,7 @@ export class PkptService {
         tujuan: data.tujuan,
         id_jenis_pengawasan: data.id_jenis_pengawasan,
         ruang_lingkup: data.ruang_lingkup,
+        tingkat_resiko: data.tingkat_resiko ,
 
         createdBy: data.createdBy ?? 0,
 
@@ -94,6 +95,7 @@ export class PkptService {
         tujuan: data.tujuan,
         id_jenis_pengawasan: data.id_jenis_pengawasan,
         ruang_lingkup: data.ruang_lingkup,
+        tingkat_resiko: data.tingkat_resiko,
         updatedBy: data.updatedBy ?? 0,
       },
     });

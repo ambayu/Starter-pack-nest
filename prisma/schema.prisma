@@ -177,6 +177,7 @@ model PKPT {
   id                  Int              @id @default(autoincrement())
   area_pengawasan     String
   tujuan              String
+  tingkat_resiko      String           @default("Rendah")
   id_jenis_pengawasan Int
   jenis_pengawasan    Jenis_pengawasan @relation(fields: [id_jenis_pengawasan], references: [id], onDelete: Cascade)
   ruang_lingkup       String
@@ -208,13 +209,13 @@ model JenisPenugasan {
 }
 
 model Penugasan {
-  id               Int     @id @default(autoincrement())
-  dasar_penugasan  String?
-  sifat_penugasan  String?
-  nama_penugasan   String?
-  alamat_penugasan String?
-  catatan          String?
-
+  id                 Int            @id @default(autoincrement())
+  dasar_penugasan    String?
+  sifat_penugasan    String?
+  nama_penugasan     String?
+  alamat_penugasan   String?
+  catatan            String?
+  nomor_kartu        String?
   id_jenis_penugasan Int
   jenis_penugasan    JenisPenugasan @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
 
@@ -250,9 +251,9 @@ model RutePerencanaan {
 }
 
 model KM1 {
-  id                       Int       @id @default(autoincrement())
-  id_penugasan             Int
-  nomor_kartu              String?
+  id           Int @id @default(autoincrement())
+  id_penugasan Int
+
   penugasan                Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
   rencana_penugasan        String?
   tahun_penugasan_terakhir Int?
@@ -277,7 +278,7 @@ model SusunanTim {
   user             User      @relation(fields: [nip], references: [nip], onDelete: Cascade)
   peran            Peran?    @relation(fields: [id_peran], references: [id])
   id_peran         Int?
-  satuan           String?
+  satuan           String?   
   honorarium       Int?
   alokasi_anggaran Int?
   createdAt        DateTime  @default(now())
@@ -311,7 +312,8 @@ model KM2RincianPekerjaan {
   kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id], onDelete: Cascade)
   id_item_pengawasan     Int
   item_pengawasan        Item_pengawasan     @relation(fields: [id_item_pengawasan], references: [id], onDelete: Cascade)
-  tanggal                DateTime
+  tanggal_awal           DateTime?
+  tanggal_akhir          DateTime?
   anggaran_waktu         Int
 
   km2Pelaksanaan KM2Pelaksana[]

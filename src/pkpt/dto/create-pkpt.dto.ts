@@ -10,6 +10,8 @@ export class CreatePkptDto {
     id_jenis_pengawasan: number;
     @IsNotEmpty({ message: ' ruang lingkup tidak boleh kosong' })
     ruang_lingkup: string;
+    @IsNotEmpty({ message: ' tingkat risiko tidak boleh kosong' })
+    tingkat_resiko: string;
     createdBy?: number;
     updatedBy?: number;
     createdAt?: Date;
