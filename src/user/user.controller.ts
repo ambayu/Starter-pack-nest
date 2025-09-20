@@ -58,6 +58,11 @@ export class UserController {
   find(@Param('id') id: number) {
     return this.userService.findById(id);
   }
+  
+  @Get('username/:username')
+  findByUsername(@Param('username') username: string) {
+    return this.userService.findByUsername(username);
+  }
 
   @Patch(':id')
   updated(@Param('id') id: number, @Body() data: updateBiodataDto) {

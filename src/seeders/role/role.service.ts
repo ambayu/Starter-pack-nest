@@ -8,6 +8,7 @@ export class RoleSeederService {
   async seed() {
     const roles = [
       { name: 'admin' },
+      { name: 'irban' },
       { name: 'admin_laporan' },
       { name: 'user' },
       { name: 'guest' },

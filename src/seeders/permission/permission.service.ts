@@ -8,7 +8,15 @@ export class PermissionSeederService {
   async seed() {
     try {
       const rolePermissionsMap = {
+        irban: [
+          'penugasan-irban:view',
+          'penugasan-irban:manage',
+
+        ],
         admin: [
+          'penugasan-irban:view',
+          'penugasan-irban:manage',
+
           // User
           'user:view',
           'user:create',

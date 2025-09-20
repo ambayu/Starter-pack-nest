@@ -18,19 +18,26 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 @UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 @Controller('jenis-penugasan')
 export class JenisPenugasanController {
-  constructor(private readonly jenisPenugasanService: JenisPenugasanService) {}
+  constructor(private readonly jenisPenugasanService: JenisPenugasanService) { }
 
   @Post()
   create(
     @Body() createJenisPenugasanDto: CreateJenisPenugasanDto,
     @Req() req: any,
   ) {
-    console.log(req.user);
+
     return this.jenisPenugasanService.create({
       ...createJenisPenugasanDto,
       createdBy: Number(req.user.id),
     });
   }
+
+  @Post('done/:id')
+  done(@Param('id') id: number) {
+    return this.jenisPenugasanService.changeStatus(id);
+  } 
+
+
 
   @Get()
   findAll(

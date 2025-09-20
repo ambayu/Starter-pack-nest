@@ -99,6 +99,50 @@ export class UserService {
     });
   }
 
+  // ================= GET USER BY USERNAME =================
+  async findByUsername(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username }, // cari berdasarkan username
+      include: {
+        UserRole: {
+          include: {
+            role: {
+              include: {
+                RolePermission: { include: { permission: true } },
+              },
+            },
+          },
+        },
+        Biodata: true,
+      },
+    });
+
+    if (!user) throw new BadRequestException(`User dengan username ${username} tidak ditemukan`);
+
+    // Roles dengan id dan name
+    const roles = user.UserRole.map((ur) => ({
+      id: ur.role.id,
+      name: ur.role.name,
+    }));
+
+    // Ambil semua permission
+    const permissions = user.UserRole
+      .flatMap((ur) => ur.role.RolePermission)
+      .map((rp) => rp.permission.name);
+    const uniquePermissions = [...new Set(permissions)];
+
+    return successResponse('Data ditemukan', {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      roles, // array of {id, name}
+      permissions: uniquePermissions,
+      biodata: user.Biodata,
+    });
+  }
+
+
   async generateUser() {
     // Ambil role PNS
     const rolePns = await this.prisma.role.findUnique({

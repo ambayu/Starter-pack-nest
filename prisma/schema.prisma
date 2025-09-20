@@ -48,8 +48,9 @@ model User {
 }
 
 model Status {
-  id   Int    @id @default(autoincrement())
-  name String
+  id             Int              @id @default(autoincrement())
+  name           String?
+  JenisPenugasan JenisPenugasan[]
 }
 
 model Opd {
@@ -195,14 +196,15 @@ model JenisPenugasan {
   jenis_penugasan String
   non_pkpt        Json?
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @default(now()) @updatedAt
-  Penugasan Penugasan[]
-
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now()) @updatedAt
+  Penugasan     Penugasan[]
+  id_status     Int         @default(1)
+  status        Status?     @relation(fields: [id_status], references: [id])
   createdBy     Int
-  createdByUser User  @relation("JenisPenugasanCreatedBy", fields: [createdBy], references: [id])
+  createdByUser User        @relation("JenisPenugasanCreatedBy", fields: [createdBy], references: [id])
   updatedBy     Int?
-  updatedByUser User? @relation("JenisPenugasanUpdatedBy", fields: [updatedBy], references: [id])
+  updatedByUser User?       @relation("JenisPenugasanUpdatedBy", fields: [updatedBy], references: [id])
 }
 
 model Penugasan {
@@ -222,7 +224,7 @@ model Penugasan {
   km3              KM3[]
   km4              KM4[]
   susunan_tim      SusunanTim[]
-  status           Int               @default(0)
+  id_status        Int               @default(1)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @default(now()) @updatedAt
 
