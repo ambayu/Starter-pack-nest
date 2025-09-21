@@ -1,30 +1,42 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsInt, IsString, IsDate } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateKM1Dto {
-  id: number;
-  @IsNotEmpty({ message: 'rencana_penugasan tidak boleh kosong' })
-  rencana_penugasan: string;
-
-  @IsNotEmpty({ message: 'tahun_penugasan_terakhir tidak boleh kosong' })
-  tahun_penugasan_terakhir: number;
-
-  @IsNotEmpty({ message: 'alamat tidak boleh kosong' })
-  alamat: string;
-
-  @IsNotEmpty({ message: 'tingkat_risiko tidak boleh kosong' })
-  tingkat_risiko: string;
-
-  @IsNotEmpty({ message: 'tujuan_penugasan tidak boleh kosong' })
-  tujuan_penugasan: string;
+  @IsOptional()
+  @IsInt()
+  id?: number; // auto increment
 
   @IsOptional()
-  surat_tugas_nomor?: string;
+  @IsString()
+  rencana_penugasan?: string;
 
-  @IsNotEmpty({ message: 'rencana_mulai tidak boleh kosong' })
-  rencana_mulai: Date;
+  @IsOptional()
+  @IsInt({ message: 'tahun_penugasan_terakhir harus berupa angka' })
+  tahun_penugasan_terakhir?: number;
 
-  @IsNotEmpty({ message: 'rencana_selesai tidak boleh kosong' })
-  rencana_selesai: Date;
+  @IsOptional()
+  @IsString({ message: 'alamat harus berupa teks' })
+  alamat?: string;
+
+  @IsOptional()
+  @IsString({ message: 'tingkat_risiko harus berupa teks' })
+  tingkat_risiko?: string;
+
+  @IsOptional()
+  @IsString({ message: 'tujuan_penugasan harus berupa teks' })
+  tujuan_penugasan?: string;
+
+
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate({ message: 'rencana_mulai harus berupa tanggal' })
+  rencana_mulai?: Date;
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate({ message: 'rencana_selesai harus berupa tanggal' })
+  rencana_selesai?: Date;
 
   @IsOptional()
   anggaran_diajukan?: number;
@@ -33,5 +45,6 @@ export class CreateKM1Dto {
   anggaran_disetujui?: number;
 
   @IsOptional()
+  @IsString()
   catatan_penting?: string;
 }
