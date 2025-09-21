@@ -11,7 +11,16 @@ CREATE TABLE `User` (
     `deletedAt` DATETIME(3) NULL,
 
     UNIQUE INDEX `User_email_key`(`email`),
+    UNIQUE INDEX `User_nip_key`(`nip`),
     UNIQUE INDEX `User_username_key`(`username`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Status` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NULL,
+
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -25,8 +34,8 @@ CREATE TABLE `Opd` (
     `nama` VARCHAR(191) NOT NULL,
     `alamat` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `createdBy` VARCHAR(191) NULL,
-    `updatedBy` VARCHAR(191) NULL,
+    `createdBy` INTEGER NULL,
+    `updatedBy` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -101,11 +110,11 @@ CREATE TABLE `RolePermission` (
 CREATE TABLE `Jenis_pengawasan` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NULL,
-    `createdBy` VARCHAR(191) NOT NULL,
+    `createdBy` INTEGER NOT NULL,
     `deletedAt` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedBy` VARCHAR(191) NULL,
+    `updatedBy` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -114,11 +123,11 @@ CREATE TABLE `Jenis_pengawasan` (
 CREATE TABLE `Kelompok_pengawasan` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
-    `createdBy` VARCHAR(191) NOT NULL,
+    `createdBy` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `deletedAt` DATETIME(3) NULL,
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedBy` VARCHAR(191) NULL,
+    `updatedBy` INTEGER NULL,
     `id_jenis_pengawasan` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -130,10 +139,10 @@ CREATE TABLE `Item_pengawasan` (
     `id_kelompok_pengawasan` INTEGER NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `deletedAt` DATETIME(3) NULL,
-    `createdBy` VARCHAR(191) NOT NULL,
+    `createdBy` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedBy` VARCHAR(191) NULL,
+    `updatedBy` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -143,12 +152,13 @@ CREATE TABLE `PKPT` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `area_pengawasan` VARCHAR(191) NOT NULL,
     `tujuan` VARCHAR(191) NOT NULL,
+    `tingkat_resiko` VARCHAR(191) NOT NULL DEFAULT 'Rendah',
     `id_jenis_pengawasan` INTEGER NOT NULL,
     `ruang_lingkup` VARCHAR(191) NOT NULL,
-    `createdBy` VARCHAR(191) NOT NULL,
+    `createdBy` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedBy` VARCHAR(191) NULL,
+    `updatedBy` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -159,10 +169,11 @@ CREATE TABLE `JenisPenugasan` (
     `id_pkpt` INTEGER NULL,
     `jenis_penugasan` VARCHAR(191) NOT NULL,
     `non_pkpt` JSON NULL,
-    `createdBy` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedBy` VARCHAR(191) NULL,
+    `id_status` INTEGER NOT NULL DEFAULT 1,
+    `createdBy` INTEGER NOT NULL,
+    `updatedBy` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -174,15 +185,15 @@ CREATE TABLE `Penugasan` (
     `sifat_penugasan` VARCHAR(191) NULL,
     `nama_penugasan` VARCHAR(191) NULL,
     `alamat_penugasan` VARCHAR(191) NULL,
-    `nomor_kartu` VARCHAR(191) NULL,
-    `penanggung_jawab` VARCHAR(191) NULL,
-    `pembantu_penanggung_jawab` VARCHAR(191) NULL,
-    `pengendali_teknis` VARCHAR(191) NULL,
-    `ketua_tim` VARCHAR(191) NULL,
     `catatan` VARCHAR(191) NULL,
+    `nomor_kartu` VARCHAR(191) NULL,
+    `id_jenis_penugasan` INTEGER NOT NULL,
+    `id_status` INTEGER NOT NULL DEFAULT 1,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `id_jenis_penugasan` INTEGER NOT NULL,
+    `createdBy` INTEGER NULL,
+    `updatedBy` INTEGER NULL,
+    `userId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -210,13 +221,13 @@ CREATE TABLE `KM1` (
     `alamat` VARCHAR(191) NULL,
     `tingkat_risiko` VARCHAR(191) NULL,
     `tujuan_penugasan` VARCHAR(191) NULL,
-    `surat_tugas_nomor` VARCHAR(191) NULL,
     `rencana_mulai` DATETIME(3) NULL,
     `rencana_selesai` DATETIME(3) NULL,
     `anggaran_diajukan` DOUBLE NULL,
     `anggaran_disetujui` DOUBLE NULL,
     `catatan_penting` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -252,6 +263,7 @@ CREATE TABLE `Peran` (
 CREATE TABLE `KM2` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `id_penugasan` INTEGER NOT NULL,
+    `sasaran_penugasan_type` VARCHAR(191) NOT NULL DEFAULT 'lainnya',
     `sasaran_penugasan` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -263,7 +275,8 @@ CREATE TABLE `KM2RincianPekerjaan` (
     `id_km2` INTEGER NOT NULL,
     `id_kelompok_pengawasan` INTEGER NOT NULL,
     `id_item_pengawasan` INTEGER NOT NULL,
-    `tanggal` DATETIME(3) NOT NULL,
+    `tanggal_awal` DATETIME(3) NULL,
+    `tanggal_akhir` DATETIME(3) NULL,
     `anggaran_waktu` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -325,15 +338,7 @@ CREATE TABLE `KM3RincianPekerjaan` (
 CREATE TABLE `KM4` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `id_penugasan` INTEGER NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `KM4Tujuan` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `deskripsi` VARCHAR(191) NOT NULL,
-    `id_km4` INTEGER NOT NULL,
+    `tujuan` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -345,7 +350,7 @@ CREATE TABLE `KM4ProgramKerja` (
     `anggaran_waktu` INTEGER NOT NULL,
     `realisasi_waktu` INTEGER NOT NULL,
     `no_kka` VARCHAR(191) NULL,
-    `id_tujuan` INTEGER NOT NULL,
+    `id_km4` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -362,17 +367,11 @@ CREATE TABLE `KM4Auditors` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `pegawai` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `nama` VARCHAR(191) NOT NULL,
-    `nip` VARCHAR(191) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+-- AddForeignKey
+ALTER TABLE `Opd` ADD CONSTRAINT `Opd_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
-    UNIQUE INDEX `pegawai_nip_key`(`nip`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AddForeignKey
+ALTER TABLE `Opd` ADD CONSTRAINT `Opd_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Biodata` ADD CONSTRAINT `Biodata_id_user_fkey` FOREIGN KEY (`id_user`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -390,19 +389,61 @@ ALTER TABLE `RolePermission` ADD CONSTRAINT `RolePermission_id_role_fkey` FOREIG
 ALTER TABLE `RolePermission` ADD CONSTRAINT `RolePermission_id_permission_fkey` FOREIGN KEY (`id_permission`) REFERENCES `Permission`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `Jenis_pengawasan` ADD CONSTRAINT `Jenis_pengawasan_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Jenis_pengawasan` ADD CONSTRAINT `Jenis_pengawasan_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Kelompok_pengawasan` ADD CONSTRAINT `Kelompok_pengawasan_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Kelompok_pengawasan` ADD CONSTRAINT `Kelompok_pengawasan_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `Kelompok_pengawasan` ADD CONSTRAINT `Kelompok_pengawasan_id_jenis_pengawasan_fkey` FOREIGN KEY (`id_jenis_pengawasan`) REFERENCES `Jenis_pengawasan`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Item_pengawasan` ADD CONSTRAINT `Item_pengawasan_id_kelompok_pengawasan_fkey` FOREIGN KEY (`id_kelompok_pengawasan`) REFERENCES `Kelompok_pengawasan`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `Item_pengawasan` ADD CONSTRAINT `Item_pengawasan_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Item_pengawasan` ADD CONSTRAINT `Item_pengawasan_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `PKPT` ADD CONSTRAINT `PKPT_id_jenis_pengawasan_fkey` FOREIGN KEY (`id_jenis_pengawasan`) REFERENCES `Jenis_pengawasan`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PKPT` ADD CONSTRAINT `PKPT_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PKPT` ADD CONSTRAINT `PKPT_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `JenisPenugasan` ADD CONSTRAINT `JenisPenugasan_id_pkpt_fkey` FOREIGN KEY (`id_pkpt`) REFERENCES `PKPT`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `JenisPenugasan` ADD CONSTRAINT `JenisPenugasan_id_status_fkey` FOREIGN KEY (`id_status`) REFERENCES `Status`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `JenisPenugasan` ADD CONSTRAINT `JenisPenugasan_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `JenisPenugasan` ADD CONSTRAINT `JenisPenugasan_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `Penugasan` ADD CONSTRAINT `Penugasan_id_jenis_penugasan_fkey` FOREIGN KEY (`id_jenis_penugasan`) REFERENCES `JenisPenugasan`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Penugasan` ADD CONSTRAINT `Penugasan_createdBy_fkey` FOREIGN KEY (`createdBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Penugasan` ADD CONSTRAINT `Penugasan_updatedBy_fkey` FOREIGN KEY (`updatedBy`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Penugasan` ADD CONSTRAINT `Penugasan_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `RutePerencanaan` ADD CONSTRAINT `RutePerencanaan_id_penugasan_fkey` FOREIGN KEY (`id_penugasan`) REFERENCES `Penugasan`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -412,6 +453,9 @@ ALTER TABLE `KM1` ADD CONSTRAINT `KM1_id_penugasan_fkey` FOREIGN KEY (`id_penuga
 
 -- AddForeignKey
 ALTER TABLE `SusunanTim` ADD CONSTRAINT `SusunanTim_id_penugasan_fkey` FOREIGN KEY (`id_penugasan`) REFERENCES `Penugasan`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `SusunanTim` ADD CONSTRAINT `SusunanTim_nip_fkey` FOREIGN KEY (`nip`) REFERENCES `User`(`nip`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `SusunanTim` ADD CONSTRAINT `SusunanTim_id_peran_fkey` FOREIGN KEY (`id_peran`) REFERENCES `Peran`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
@@ -456,10 +500,7 @@ ALTER TABLE `KM3RincianPekerjaan` ADD CONSTRAINT `KM3RincianPekerjaan_id_item_pe
 ALTER TABLE `KM4` ADD CONSTRAINT `KM4_id_penugasan_fkey` FOREIGN KEY (`id_penugasan`) REFERENCES `Penugasan`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `KM4Tujuan` ADD CONSTRAINT `KM4Tujuan_id_km4_fkey` FOREIGN KEY (`id_km4`) REFERENCES `KM4`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `KM4ProgramKerja` ADD CONSTRAINT `KM4ProgramKerja_id_tujuan_fkey` FOREIGN KEY (`id_tujuan`) REFERENCES `KM4Tujuan`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `KM4ProgramKerja` ADD CONSTRAINT `KM4ProgramKerja_id_km4_fkey` FOREIGN KEY (`id_km4`) REFERENCES `KM4`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `KM4Auditors` ADD CONSTRAINT `KM4Auditors_id_km4_program_kerja_fkey` FOREIGN KEY (`id_km4_program_kerja`) REFERENCES `KM4ProgramKerja`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
