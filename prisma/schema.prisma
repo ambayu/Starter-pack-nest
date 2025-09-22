@@ -23,8 +23,8 @@ model User {
   username  String    @unique
   password  String
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt //
-  deletedAt DateTime? // <== Tambahkan ini
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
 
   Biodata    Biodata?
   UserRole   UserRole[]
@@ -45,6 +45,18 @@ model User {
   JenisPenugasanUpdatedBy     JenisPenugasan[]      @relation("JenisPenugasanUpdatedBy")
   PenugasanCreatedBy          Penugasan[]           @relation("PenugasanCreatedBy")
   PenugasanUpdatedBy          Penugasan[]           @relation("PenugasanUpdatedBy")
+
+  ttd_katim KM1[] @relation("ttd_katim")
+  ttd_ppj   KM1[] @relation("ttd_ppj")
+  ttd_ptj   KM1[] @relation("ttd_ptj") // konsisten sama KM1
+
+  // === Tambahan untuk KM2 ===
+  ttd_kasubag_umum KM2[] @relation("ttd_kasubag_umum")
+  ttd_ppj_km2      KM2[] @relation("ttd_ppj_km2")
+  ttd_sekretaris   KM2[] @relation("ttd_sekretaris")
+
+  ttd_katim_km3 KM3[] @relation("ttd_katim_km3")
+  ttd_pt_km3    KM3[] @relation("ttd_pt_km3")
 }
 
 model Status {
@@ -265,8 +277,19 @@ model KM1 {
   anggaran_diajukan        Float?
   anggaran_disetujui       Float?
   catatan_penting          String?
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @default(now()) @updatedAt
+
+  ttd_katim      Int?
+  ttd_katim_user User? @relation("ttd_katim", fields: [ttd_katim], references: [id])
+
+  ttd_ppj      Int?
+  ttd_ppj_user User? @relation("ttd_ppj", fields: [ttd_ppj], references: [id])
+
+  // pakai nama prisma `ttd_ptj`, tapi map ke kolom database `ttd__ptj`
+  ttd_ptj      Int?  @map("ttd__ptj")
+  ttd_ptj_user User? @relation("ttd_ptj", fields: [ttd_ptj], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model SusunanTim {
@@ -302,6 +325,19 @@ model KM2 {
   sasaran_penugasan_type String                @default("lainnya")
   sasaran_penugasan      String
   km2_rincian_pekerjaan  KM2RincianPekerjaan[]
+
+  // === Tambahan TTD ===
+  ttd_kasubag_umum      Int?
+  ttd_kasubag_umum_user User? @relation("ttd_kasubag_umum", fields: [ttd_kasubag_umum], references: [id])
+
+  ttd_ppj      Int?
+  ttd_ppj_user User? @relation("ttd_ppj_km2", fields: [ttd_ppj], references: [id])
+
+  ttd_sekretaris      Int?
+  ttd_sekretaris_user User? @relation("ttd_sekretaris", fields: [ttd_sekretaris], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model KM2RincianPekerjaan {
@@ -339,8 +375,17 @@ model KM3 {
   penugasan    Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
 
   km3_rincian_pekerjaan KM3RincianPekerjaan[]
+  km3_peran             KM3Peran[]
 
-  km3_peran KM3Peran[]
+  // === Tambahan TTD ===
+  ttd_katim      Int?
+  ttd_katim_user User? @relation("ttd_katim_km3", fields: [ttd_katim], references: [id])
+
+  ttd_pt      Int?
+  ttd_pt_user User? @relation("ttd_pt_km3", fields: [ttd_pt], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model KM3Peran {

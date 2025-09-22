@@ -32,9 +32,11 @@ export class JenisPenugasanController {
     });
   }
 
-  @Post('done/:id')
-  done(@Param('id') id: number) {
-    return this.jenisPenugasanService.changeStatus(id);
+  @Post('changeStatus-JenisPenugasaan/:id/:id_status')
+  changeStatus_JenisPenugasaan(@Param('id') id: number,
+    @Param('id_status') id_status: number
+  ) {
+    return this.jenisPenugasanService.changeStatus_JenisPenugasaan(id, id_status);
   }
 
 
@@ -71,7 +73,7 @@ export class JenisPenugasanController {
   ) {
 
     return this.jenisPenugasanService.findAllByUser(
-      req.user.nip,  // <== dikirim ke service
+      req.user.nip,
       Number(page) || 1,
       Number(perPage) || 10,
       search,

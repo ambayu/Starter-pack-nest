@@ -95,15 +95,22 @@ export class JenisPenugasanService {
     return successResponse('Penugasan berhasil dibuat/diupdate', q);
   }
 
-  async changeStatus(id: number,) {
+  async changeStatus_JenisPenugasaan(id: number, id_status: number) {
     const findId = await this.prisma.jenisPenugasan.findUnique({ where: { id } });
     if (!findId) {
       throw new BadRequestException(`Penugasan dengan Id ${id} tidak ditemukan`);
     }
 
+    const findStatus = await this.prisma.status.findUnique({
+      where: { id: id_status },
+    });
+    if (!findStatus) {
+      throw new BadRequestException(`Status dengan Id ${id_status} tidak ditemukan`);
+    }
+
     const q = await this.prisma.jenisPenugasan.update({
       where: { id },
-      data: { id_status: 2 },
+      data: { id_status: id_status },
     });
     return successResponse('Status berhasil diubah', q);
   }
@@ -215,7 +222,6 @@ export class JenisPenugasanService {
     });
   }
 
-  // ===================== FIND ALL BY USER =====================
   async findAllByUser(
     nip: string,
     page: number,
@@ -237,7 +243,7 @@ export class JenisPenugasanService {
             some: { nip, peran: { nama: type } },
           },
         },
-      },
+      }, id_status: { gt: 1 },
     };
 
     // search
@@ -491,25 +497,25 @@ export class JenisPenugasanService {
     return errors;
   }
 
-private validateKM4(km4: any) {
-  const errors: string[] = [];
+  private validateKM4(km4: any) {
+    const errors: string[] = [];
 
-  // tujuan wajib ada (string, bukan array)
-  if (!km4.tujuan || km4.tujuan.trim() === '') {
-    errors.push('KM4: Tujuan belum diisi');
+    // tujuan wajib ada (string, bukan array)
+    if (!km4.tujuan || km4.tujuan.trim() === '') {
+      errors.push('KM4: Tujuan belum diisi');
+    }
+
+    // Validasi program kerja
+    km4.KM4ProgramKerja?.forEach((pk) => {
+      if (!pk.prosedur) errors.push('KM4: Prosedur belum diisi');
+      if (!pk.anggaran_waktu) errors.push('KM4: Anggaran waktu belum diisi');
+      if (!pk.realisasi_waktu) errors.push('KM4: Realisasi waktu belum diisi');
+      if (!pk.no_kka) errors.push('KM4: Nomor KKA belum diisi');
+      if (!pk.auditors?.length) errors.push('KM4: Auditor belum diisi');
+    });
+
+    return errors;
   }
-
-  // Validasi program kerja
-  km4.KM4ProgramKerja?.forEach((pk) => {
-    if (!pk.prosedur) errors.push('KM4: Prosedur belum diisi');
-    if (!pk.anggaran_waktu) errors.push('KM4: Anggaran waktu belum diisi');
-    if (!pk.realisasi_waktu) errors.push('KM4: Realisasi waktu belum diisi');
-    if (!pk.no_kka) errors.push('KM4: Nomor KKA belum diisi');
-    if (!pk.auditors?.length) errors.push('KM4: Auditor belum diisi');
-  });
-
-  return errors;
-}
 
 
 }

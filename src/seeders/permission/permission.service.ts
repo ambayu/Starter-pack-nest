@@ -14,6 +14,9 @@ export class PermissionSeederService {
 
         ],
         asn: [
+          'penandatanganan:view',
+          'penandatanganan:manage', 
+
           'penugasan-katim:view',
           'penugasan-katim:manage',
         ],

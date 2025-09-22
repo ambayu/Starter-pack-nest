@@ -38,6 +38,7 @@ export class PenugasanService {
     const updateData: any = {};
     updateData.nomor_kartu = data.nomor_kartu;
     updateData.catatan = data.catatan;
+
     if (data.susunan_tim) updateData.susunan_tim = this.buildSusunanTim(data.susunan_tim);
     if (data.rute_perencanaan) updateData.rute_perencanaan = this.buildRutePerencanaan(data.rute_perencanaan);
     if (data.km1) updateData.km1 = this.buildKm1(data.km1);

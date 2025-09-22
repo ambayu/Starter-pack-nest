@@ -11,6 +11,8 @@ export class CreatePenugasanDto {
   id?: number;
 
   @IsOptional()
+  id_status?: number;
+  @IsOptional()
   dasar_penugasan?: string;
 
   @IsOptional()
