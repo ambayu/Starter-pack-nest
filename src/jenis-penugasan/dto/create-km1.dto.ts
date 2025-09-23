@@ -47,4 +47,22 @@ export class CreateKM1Dto {
   @IsOptional()
   @IsString()
   catatan_penting?: string;
+
+  @IsOptional()
+  ttd_katim?: number;
+
+  @IsOptional()
+  tgl_ttd_katim?: number;
+
+  @IsOptional()
+  ttd_ppj?: number;
+
+  @IsOptional()
+  tgl_ttd_ppj?: number;
+
+  @IsOptional()
+  ttd_pt?: number;
+
+  @IsOptional()
+  tgl_ttd_pt?: number;
 }

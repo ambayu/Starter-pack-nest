@@ -221,6 +221,167 @@ export class JenisPenugasanService {
       perPage,
     });
   }
+  async findAllUserPenandatanganan(
+    userId: number,
+    page: number,
+    perPage: number,
+    search?: string,
+    orderBy?: string,
+    order?: string,
+  ) {
+    if (!userId) throw new BadRequestException('User ID tidak ditemukan di token');
+    console.log(userId);
+    const skip = (page - 1) * perPage;
+
+    const where: any = {
+      OR: [
+        {
+          Penugasan: {
+            some: {
+              km1: {
+                some: {
+                  OR: [
+                    { ttd_katim: userId },
+                    { ttd_ppj: userId },
+                    { ttd_pt: userId },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          Penugasan: {
+            some: {
+              km2: {
+                some: {
+                  OR: [
+                    { ttd_kasubag_umum: userId },
+                    { ttd_ppj: userId },
+                    { ttd_sekretaris: userId },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          Penugasan: {
+            some: {
+              km3: {
+                some: {
+                  OR: [
+                    { ttd_katim: userId },
+                    { ttd_pt: userId },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      ],
+    };
+
+    if (search) {
+      where.OR.push({ jenis_penugasan: { contains: search } });
+    }
+
+    where.id_status = { gt: 2 };
+
+    const [rawData, total] = await this.prisma.$transaction([
+      this.prisma.jenisPenugasan.findMany({
+        skip,
+        take: perPage,
+        where,
+        include: {
+          Penugasan: {
+            take: 1,
+            orderBy: { createdAt: 'desc' },
+            include: {
+              km1: true,
+              km2: true,
+              km3: true,
+            },
+          },
+          status: true,
+          createdByUser: true,
+          updatedByUser: true,
+        },
+        orderBy: {
+          [orderBy ?? 'createdAt']: order,
+        },
+      }),
+      this.prisma.jenisPenugasan.count({ where }),
+    ]);
+
+    const data = rawData.map((item) => {
+      const penugasan = item.Penugasan?.[0];
+      const statusPenandatangan: string[] = [];
+      const statusKekurangan: string[] = [];
+
+      // KM1
+      penugasan?.km1?.forEach((km1) => {
+        if (km1.ttd_katim === userId) {
+          statusPenandatangan.push('KM1: Ketua Tim');
+          if (!km1.tgl_ttd_katim) statusKekurangan.push('KM1: Ketua Tim');
+        }
+        if (km1.ttd_ppj === userId) {
+          statusPenandatangan.push('KM1: Penanggung Jawab');
+          if (!km1.tgl_ttd_ppj) statusKekurangan.push('KM1: Penanggung Jawab');
+        }
+        if (km1.ttd_pt === userId) {
+          statusPenandatangan.push('KM1: Pengendali Teknis');
+          if (!km1.tgl_ttd_pt) statusKekurangan.push('KM1: Pengendali Teknis');
+        }
+      });
+
+      // KM2
+      penugasan?.km2?.forEach((km2) => {
+        if (km2.ttd_kasubag_umum === userId) {
+          statusPenandatangan.push('KM2: Kasubag Umum');
+          if (!km2.tgl_ttd_kasubag_umum) statusKekurangan.push('KM2: Kasubag Umum');
+        }
+        if (km2.ttd_ppj === userId) {
+          statusPenandatangan.push('KM2: Penanggung Jawab');
+          if (!km2.tgl_ttd_ppj) statusKekurangan.push('KM2: Penanggung Jawab');
+        }
+        if (km2.ttd_sekretaris === userId) {
+          statusPenandatangan.push('KM2: Sekretaris');
+          if (!km2.tgl_ttd_sekretaris) statusKekurangan.push('KM2: Sekretaris');
+        }
+      });
+
+      // KM3
+      penugasan?.km3?.forEach((km3) => {
+        if (km3.ttd_katim === userId) {
+          statusPenandatangan.push('KM3: Ketua Tim');
+          if (!km3.tgl_ttd_katim) statusKekurangan.push('KM3: Ketua Tim');
+        }
+        if (km3.ttd_pt === userId) {
+          statusPenandatangan.push('KM3: Pengendali Teknis');
+          if (!km3.tgl_ttd_pt) statusKekurangan.push('KM3: Pengendali Teknis');
+        }
+      });
+
+      return {
+        ...item,
+        status_penandatangan: statusPenandatangan.length
+          ? statusPenandatangan
+          : ['Bukan penandatangan'],
+        status_kekurangan: statusKekurangan.length
+          ? statusKekurangan
+          : ['Tidak ada kekurangan'],
+      };
+    });
+
+    return successResponse('Daftar penandatanganan ditemukan', {
+      data,
+      total,
+      page,
+      perPage,
+    });
+  }
+
 
   async findAllByUser(
     nip: string,
@@ -254,10 +415,7 @@ export class JenisPenugasanService {
       ];
     }
 
-    // orderBy aman
-    const allowedOrderBy = ['createdAt', 'updatedAt', 'jenis_penugasan'];
-    const safeOrderBy = allowedOrderBy.includes(orderBy || '') ? orderBy : 'createdAt';
-    const safeOrder = order?.toLowerCase() === 'asc' ? 'asc' : 'desc';
+
 
     const [rawData, total] = await this.prisma.$transaction([
       this.prisma.jenisPenugasan.findMany({

@@ -83,6 +83,27 @@ export class JenisPenugasanController {
     );
   }
 
+  @Get('user-penandatanganan')
+  findAllUserPenandatanganan(
+    @Req() req: any,
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+    @Query('search') search?: string,
+    @Query('orderBy') orderBy?: string,
+    @Query('order') order?: string,
+  ) {
+
+    return this.jenisPenugasanService.findAllUserPenandatanganan(
+      req.user.id,
+      Number(page) || 1,
+      Number(perPage) || 10,
+      search,
+      orderBy,
+      order,
+    );
+  }
+
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.jenisPenugasanService.findOne(+id);

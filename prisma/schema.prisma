@@ -47,8 +47,9 @@ model User {
   PenugasanUpdatedBy          Penugasan[]           @relation("PenugasanUpdatedBy")
 
   ttd_katim KM1[] @relation("ttd_katim")
-  ttd_ppj   KM1[] @relation("ttd_ppj")
-  ttd_ptj   KM1[] @relation("ttd_ptj") // konsisten sama KM1
+
+  ttd_ppj KM1[] @relation("ttd_ppj")
+  ttd_pt  KM1[] @relation("ttd_pt") // konsisten sama KM1
 
   // === Tambahan untuk KM2 ===
   ttd_kasubag_umum KM2[] @relation("ttd_kasubag_umum")
@@ -279,14 +280,17 @@ model KM1 {
   catatan_penting          String?
 
   ttd_katim      Int?
-  ttd_katim_user User? @relation("ttd_katim", fields: [ttd_katim], references: [id])
+  ttd_katim_user User?     @relation("ttd_katim", fields: [ttd_katim], references: [id])
+  tgl_ttd_katim  DateTime?
 
   ttd_ppj      Int?
-  ttd_ppj_user User? @relation("ttd_ppj", fields: [ttd_ppj], references: [id])
+  ttd_ppj_user User?     @relation("ttd_ppj", fields: [ttd_ppj], references: [id])
+  tgl_ttd_ppj  DateTime?
 
-  // pakai nama prisma `ttd_ptj`, tapi map ke kolom database `ttd__ptj`
-  ttd_ptj      Int?  @map("ttd__ptj")
-  ttd_ptj_user User? @relation("ttd_ptj", fields: [ttd_ptj], references: [id])
+  // pakai nama prisma `ttd_pt`, tapi map ke kolom database ``
+  ttd_pt      Int?      @map("ttd_pt")
+  ttd_pt_user User?     @relation("ttd_pt", fields: [ttd_pt], references: [id])
+  tgl_ttd_pt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -328,13 +332,16 @@ model KM2 {
 
   // === Tambahan TTD ===
   ttd_kasubag_umum      Int?
-  ttd_kasubag_umum_user User? @relation("ttd_kasubag_umum", fields: [ttd_kasubag_umum], references: [id])
+  ttd_kasubag_umum_user User?     @relation("ttd_kasubag_umum", fields: [ttd_kasubag_umum], references: [id])
+  tgl_ttd_kasubag_umum  DateTime?
 
   ttd_ppj      Int?
-  ttd_ppj_user User? @relation("ttd_ppj_km2", fields: [ttd_ppj], references: [id])
+  ttd_ppj_user User?     @relation("ttd_ppj_km2", fields: [ttd_ppj], references: [id])
+  tgl_ttd_ppj  DateTime?
 
   ttd_sekretaris      Int?
-  ttd_sekretaris_user User? @relation("ttd_sekretaris", fields: [ttd_sekretaris], references: [id])
+  ttd_sekretaris_user User?     @relation("ttd_sekretaris", fields: [ttd_sekretaris], references: [id])
+  tgl_ttd_sekretaris  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -379,10 +386,12 @@ model KM3 {
 
   // === Tambahan TTD ===
   ttd_katim      Int?
-  ttd_katim_user User? @relation("ttd_katim_km3", fields: [ttd_katim], references: [id])
+  ttd_katim_user User?     @relation("ttd_katim_km3", fields: [ttd_katim], references: [id])
+  tgl_ttd_katim  DateTime?
 
   ttd_pt      Int?
-  ttd_pt_user User? @relation("ttd_pt_km3", fields: [ttd_pt], references: [id])
+  ttd_pt_user User?     @relation("ttd_pt_km3", fields: [ttd_pt], references: [id])
+  tgl_ttd_pt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

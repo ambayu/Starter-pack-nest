@@ -114,6 +114,13 @@ export class PenugasanService {
           anggaran_diajukan: km1.anggaran_diajukan,
           anggaran_disetujui: km1.anggaran_disetujui,
           catatan_penting: km1.catatan_penting,
+          ttd_katim: km1.ttd_katim,
+          ttd_ppj: km1.ttd_ppj,
+          ttd_pt: km1.ttd_pt,
+          tgl_ttd_katim: km1.tgl_ttd_katim,
+          tgl_ttd_ppj: km1.tgl_ttd_ppj,
+          tgl_ttd_pt: km1.tgl_ttd_pt,
+
         },
         update: {
           rencana_penugasan: km1.rencana_penugasan,
@@ -126,6 +133,12 @@ export class PenugasanService {
           anggaran_diajukan: km1.anggaran_diajukan,
           anggaran_disetujui: km1.anggaran_disetujui,
           catatan_penting: km1.catatan_penting,
+          ttd_katim: km1.ttd_katim,
+          ttd_ppj: km1.ttd_ppj,
+          ttd_pt: km1.ttd_pt,
+          tgl_ttd_katim: km1.tgl_ttd_katim,
+          tgl_ttd_ppj: km1.tgl_ttd_ppj,
+          tgl_ttd_pt: km1.tgl_ttd_pt,
         },
       },
     };
@@ -138,6 +151,13 @@ export class PenugasanService {
         create: {
           sasaran_penugasan: km2.sasaran_penugasan,
           sasaran_penugasan_type: km2.sasaran_penugasan_type,
+          ttd_ppj: km2.ttd_ppj,
+          ttd_sekretaris: km2.ttd_sekretaris,
+          ttd_kasubag_umum: km2.ttd_kasubag_umum,
+          tgl_ttd_ppj: km2.tgl_ttd_ppj,
+          tgl_ttd_sekretaris: km2.tgl_ttd_sekretaris,
+          tgl_ttd_kasubag_umum: km2.tgl_ttd_kasubag_umum,
+
           km2_rincian_pekerjaan: km2.km2_rincian_pekerjaan
             ? {
               create: km2.km2_rincian_pekerjaan.map((r) => ({
@@ -160,6 +180,12 @@ export class PenugasanService {
         update: {
           sasaran_penugasan: km2.sasaran_penugasan,
           sasaran_penugasan_type: km2.sasaran_penugasan_type,
+          ttd_ppj: km2.ttd_ppj,
+          ttd_sekretaris: km2.ttd_sekretaris,
+          ttd_kasubag_umum: km2.ttd_kasubag_umum,
+          tgl_ttd_ppj: km2.tgl_ttd_ppj,
+          tgl_ttd_sekretaris: km2.tgl_ttd_sekretaris,
+          tgl_ttd_kasubag_umum: km2.tgl_ttd_kasubag_umum,
           km2_rincian_pekerjaan: km2.km2_rincian_pekerjaan
             ? {
               upsert: km2.km2_rincian_pekerjaan.map((r) => ({
@@ -204,6 +230,10 @@ export class PenugasanService {
       upsert: {
         where: { id: km3.id ?? -1 }, // -1 biar gak pernah cocok kalau create baru
         create: {
+          ttd_katim: km3.ttd_katim,
+          tgl_ttd_katim: km3.tgl_ttd_katim,
+          ttd_pt: km3.ttd_pt,
+          tgl_ttd_pt: km3.tgl_ttd_pt,
           km3_rincian_pekerjaan: km3.km3_rincian_pekerjaan
             ? {
               create: km3.km3_rincian_pekerjaan.map((r) => ({
@@ -227,6 +257,10 @@ export class PenugasanService {
             : undefined,
         },
         update: {
+          ttd_katim: km3.ttd_katim,
+          tgl_ttd_katim: km3.tgl_ttd_katim,
+          ttd_pt: km3.ttd_pt,
+          tgl_ttd_pt: km3.tgl_ttd_pt,
           km3_rincian_pekerjaan: km3.km3_rincian_pekerjaan
             ? {
               deleteMany: {}, // hapus semua dulu

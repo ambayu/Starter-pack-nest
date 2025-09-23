@@ -12,6 +12,18 @@ export class CreateKM3Dto {
   km3_rincian_pekerjaan?: CreateKM3RincianPekerjaanDto[];
 
   @IsOptional()
+  ttd_katim?: number
+
+  @IsOptional()
+  tgl_ttd_katim?: Date
+
+  @IsOptional()
+  ttd_pt?: number
+
+  @IsOptional()
+  tgl_ttd_pt?: Date
+
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => CreateKM3PeranDto)
   km3_peran?: CreateKM3PeranDto[];

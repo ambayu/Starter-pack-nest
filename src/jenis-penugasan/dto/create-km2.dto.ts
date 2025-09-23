@@ -8,6 +8,24 @@ export class CreateKM2Dto {
   sasaran_penugasan_type: string;
 
   @IsOptional()
+  ttd_kasubag_umum: string;
+
+  @IsOptional()
+  tgl_ttd_kasubag_umum: string;
+
+  @IsOptional()
+  ttd_ppj: string;
+
+  @IsOptional()
+  tgl_ttd_ppj: string;
+
+  @IsOptional()
+  ttd_sekretaris: string;
+
+  @IsOptional()
+  tgl_ttd_sekretaris: string;
+
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => CreateKM2RincianPekerjaanDto)
   km2_rincian_pekerjaan?: CreateKM2RincianPekerjaanDto[];
