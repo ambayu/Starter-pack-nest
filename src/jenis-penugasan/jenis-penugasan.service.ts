@@ -529,6 +529,120 @@ export class JenisPenugasanService {
     });
   }
 
+  async approve_ttd(
+    type: 'km1' | 'km2' | 'km3' | 'km4',
+    id: number,
+    ttd: string,
+    userId: number,
+  ) {
+    let updateData: any = {};
+    let model: any;
+
+    switch (type) {
+      case 'km1':
+        model = this.prisma.kM1;
+        if (ttd === 'katim') updateData = { tgl_ttd_katim: new Date() };
+        if (ttd === 'ppj') updateData = { tgl_ttd_ppj: new Date() };
+        if (ttd === 'pt') updateData = { tgl_ttd_pt: new Date() };
+        break;
+
+      case 'km2':
+        model = this.prisma.kM2;
+        if (ttd === 'kasubag_umum') updateData = { tgl_ttd_kasubag_umum: new Date() };
+        if (ttd === 'ppj') updateData = { tgl_ttd_ppj: new Date() };
+        if (ttd === 'sekretaris') updateData = { tgl_ttd_sekretaris: new Date() };
+        break;
+
+      case 'km3':
+        model = this.prisma.kM3;
+        if (ttd === 'katim') updateData = { tgl_ttd_katim: new Date() };
+        if (ttd === 'pt') updateData = { tgl_ttd_pt: new Date() };
+        break;
+
+      case 'km4':
+        model = this.prisma.kM4;
+        if (ttd === 'katim') updateData = { tgl_ttd_katim: new Date() };
+        if (ttd === 'pt') updateData = { tgl_ttd_pt: new Date() };
+        if (ttd === 'ppj') updateData = { tgl_ttd_ppj: new Date() };
+        break;
+
+      default:
+        throw new Error(`Type ${type} tidak dikenali`);
+    }
+
+    if (!Object.keys(updateData).length) {
+      throw new Error(`Role TTD ${ttd} tidak valid untuk ${type}`);
+    }
+
+    return model.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
+  async reject_ttd(
+    type: 'km1' | 'km2' | 'km3' | 'km4',
+    id: number,
+    ttd: string,
+    alasan: string,
+  ) {
+    let updateData: any = {};
+    let model: any;
+
+    switch (type) {
+      case 'km1':
+        model = this.prisma.kM1;
+        if (ttd === 'katim') updateData = { tgl_ttd_katim: null };
+        if (ttd === 'ppj') updateData = { tgl_ttd_ppj: null };
+        if (ttd === 'pt') updateData = { tgl_ttd_pt: null };
+        break;
+
+      case 'km2':
+        model = this.prisma.kM2;
+        if (ttd === 'kasubag_umum') updateData = { tgl_ttd_kasubag_umum: null };
+        if (ttd === 'ppj') updateData = { tgl_ttd_ppj: null };
+        if (ttd === 'sekretaris') updateData = { tgl_ttd_sekretaris: null };
+        break;
+
+      case 'km3':
+        model = this.prisma.kM3;
+        if (ttd === 'katim') updateData = { tgl_ttd_katim: null };
+        if (ttd === 'pt') updateData = { tgl_ttd_pt: null };
+        break;
+
+      case 'km4':
+        model = this.prisma.kM4;
+        if (ttd === 'katim') updateData = { tgl_ttd_katim: null };
+        if (ttd === 'pt') updateData = { tgl_ttd_pt: null };
+        if (ttd === 'ppj') updateData = { tgl_ttd_ppj: null };
+        break;
+
+      default:
+        throw new Error(`Type ${type} tidak dikenali`);
+    }
+
+    if (!Object.keys(updateData).length) {
+      throw new Error(`Role TTD ${ttd} tidak valid untuk ${type}`);
+    }
+
+    // update model sesuai type
+    const updated = await model.update({
+      where: { id },
+      data: updateData,
+      include: { penugasan: true },
+    });
+
+    // reset status penugasan dan simpan alasan
+    const data = await this.prisma.penugasan.update({
+      where: { id: updated.id_penugasan },
+      data: {
+        id_status_penugasan: 1,
+        alasan_penolakan: alasan,
+      },
+    });
+    console.log('data', data);
+    return updated;
+  }
 
 
   // FIND ONE
@@ -540,9 +654,20 @@ export class JenisPenugasanService {
           include: {
             rute_perencanaan: true,
             susunan_tim: { include: { peran: true, user: true } },
-            km1: true,
+            km1: {
+              include: {
+                ttd_katim_user: true,
+                ttd_ppj_user: true,
+                ttd_pt_user: true,
+              }
+            },
             km2: {
               include: {
+                ttd_kasubag_umum_user: true,
+                ttd_ppj_user: true,
+                ttd_sekretaris_user: true,
+
+
                 km2_rincian_pekerjaan: {
                   include: {
                     km2Pelaksanaan: { include: { peran: true } },
@@ -554,7 +679,15 @@ export class JenisPenugasanService {
             },
             km3: {
               include: {
-                km3_rincian_pekerjaan: true,
+                ttd_katim_user: true,
+                ttd_pt_user: true,
+
+                km3_rincian_pekerjaan: {
+                  include: {
+                    item_pengawasan: true,
+                    kelompok_pengawasan: true,
+                  }
+                },
                 km3_peran: { include: { peran: true } },
               },
             },
@@ -674,6 +807,8 @@ export class JenisPenugasanService {
 
     return errors;
   }
+
+
 
 
 }

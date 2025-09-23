@@ -232,15 +232,16 @@ model Penugasan {
   id_jenis_penugasan Int
   jenis_penugasan    JenisPenugasan @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
 
-  rute_perencanaan RutePerencanaan[]
-  km1              KM1[]
-  km2              KM2[]
-  km3              KM3[]
-  km4              KM4[]
-  susunan_tim      SusunanTim[]
-  id_status        Int               @default(1)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @default(now()) @updatedAt
+  rute_perencanaan    RutePerencanaan[]
+  km1                 KM1[]
+  km2                 KM2[]
+  km3                 KM3[]
+  km4                 KM4[]
+  susunan_tim         SusunanTim[]
+  id_status_penugasan Int?
+  alasan_penolakan    String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @default(now()) @updatedAt
 
   createdBy     Int?
   createdByUser User? @relation("PenugasanCreatedBy", fields: [createdBy], references: [id])

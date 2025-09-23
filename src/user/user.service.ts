@@ -135,6 +135,7 @@ export class UserService {
       id: user.id,
       name: user.name,
       username: user.username,
+      nip: user.nip,
       email: user.email,
       roles, // array of {id, name}
       permissions: uniquePermissions,
