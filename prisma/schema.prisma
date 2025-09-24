@@ -284,7 +284,7 @@ model RutePerencanaan {
 
   @@map("rute_perencanaan")
 }
-
+//jumlah hari
 model KM1 {
   id           Int @id @default(autoincrement())
   id_penugasan Int
