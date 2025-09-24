@@ -13,6 +13,8 @@ export class StatusSeederService {
       { id: 4, name: 'Proses Penandatanganan Rute Perencanaan' },
       { id: 5, name: 'Penugasan menuju Bagian Umum' },
       { id: 6, name: 'Penandatanganan ditolak' },
+      { id: 7, name: 'Penomoran oleh Kasubag Umum' },
+      { id: 8, name: 'Upload ST oleh Katim' },
     ];
 
     for (const s of statuses) {
