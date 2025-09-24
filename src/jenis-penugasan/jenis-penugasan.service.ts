@@ -137,7 +137,10 @@ export class JenisPenugasanService {
           Penugasan: {
             include: {
               susunan_tim: { include: { peran: true, user: true } },
-              rute_perencanaan: true, // tetap diambil, tapi tidak divalidasi
+              rute_perencanaan: true,
+              km1: true,
+              km2: true,
+              km3: true,
             },
           },
           status: true,
@@ -146,7 +149,7 @@ export class JenisPenugasanService {
           pkpt: true,
         },
         orderBy: {
-          [orderBy ? orderBy : 'createdAt']: order,
+          [orderBy ? orderBy : "createdAt"]: order,
         },
       }),
       this.prisma.jenisPenugasan.count({ where }),
@@ -163,6 +166,7 @@ export class JenisPenugasanService {
 
     const data = rawData.map((item) => {
       const statusList: string[] = [];
+      let statusTTD: string[] = [];
 
       // ====== Validasi JenisPenugasan ======
       if (!item.jenis_penugasan || item.jenis_penugasan.trim() === "") {
@@ -192,7 +196,7 @@ export class JenisPenugasanService {
           statusList.push("Alamat penugasan belum diisi");
         }
 
-        // Susunan tim wajib ada
+        // === Susunan tim wajib ada ===
         if (!penugasan.susunan_tim || penugasan.susunan_tim.length === 0) {
           statusList.push("Susunan tim belum diisi");
         } else {
@@ -206,11 +210,47 @@ export class JenisPenugasanService {
           });
         }
 
+        // === Validasi Penandatanganan (TTD) hanya kalau id_status = 4 ===
+        if (item.id_status === 4) {
+          if (penugasan.km1?.length) {
+            const km1 = penugasan.km1[0];
+            if (!km1.tgl_ttd_katim)
+              statusTTD.push("KM1 Ketua Tim belum tanda tangan");
+            if (!km1.tgl_ttd_pt)
+              statusTTD.push("KM1 Pengendali Teknis belum tanda tangan");
+            if (!km1.tgl_ttd_ppj)
+              statusTTD.push("KM1 PPJ belum tanda tangan");
+          }
+
+          if (penugasan.km2?.length) {
+            const km2 = penugasan.km2[0];
+            if (!km2.tgl_ttd_kasubag_umum)
+              statusTTD.push("KM2 Kasubag Umum belum tanda tangan");
+            if (!km2.tgl_ttd_ppj)
+              statusTTD.push("KM2 PPJ belum tanda tangan");
+            if (!km2.tgl_ttd_sekretaris)
+              statusTTD.push("KM2 Sekretaris belum tanda tangan");
+          }
+
+          if (penugasan.km3?.length) {
+            const km3 = penugasan.km3[0];
+            if (!km3.tgl_ttd_katim)
+              statusTTD.push("KM3 Ketua Tim belum tanda tangan");
+            if (!km3.tgl_ttd_pt)
+              statusTTD.push("KM3 Pengendali Teknis belum tanda tangan");
+          }
+        }
       }
 
       return {
         ...item,
         status_kekurangan: statusList.length > 0 ? statusList : ["Lengkap"],
+        status_penandatanganan:
+          item.id_status === 4
+            ? statusTTD.length > 0
+              ? statusTTD
+              : ["Semua sudah ditandatangani"]
+            : [],
       };
     });
 
@@ -221,6 +261,7 @@ export class JenisPenugasanService {
       perPage,
     });
   }
+
   async findAllUserPenandatanganan(
     userId: number,
     page: number,

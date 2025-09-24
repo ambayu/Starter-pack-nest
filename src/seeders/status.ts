@@ -12,6 +12,7 @@ export class StatusSeederService {
       { id: 3, name: 'Sedang Dalam Pengerjaan Katim' },
       { id: 4, name: 'Proses Penandatanganan Rute Perencanaan' },
       { id: 5, name: 'Proses Pelaporan' },
+      { id: 6, name: 'Penandatanganan ditolak' },
     ];
 
     for (const s of statuses) {

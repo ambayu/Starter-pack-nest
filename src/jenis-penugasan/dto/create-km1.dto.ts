@@ -14,6 +14,12 @@ export class CreateKM1Dto {
   @IsInt({ message: 'tahun_penugasan_terakhir harus berupa angka' })
   tahun_penugasan_terakhir?: number;
 
+
+  @IsOptional()
+  @IsInt({ message: 'jumlah hari harus berupa angka' })
+  jumlah_hari?: number;
+
+
   @IsOptional()
   @IsString({ message: 'alamat harus berupa teks' })
   alamat?: string;

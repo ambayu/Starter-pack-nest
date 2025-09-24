@@ -297,6 +297,7 @@ model KM1 {
   tujuan_penugasan         String?
   rencana_mulai            DateTime?
   rencana_selesai          DateTime?
+  jumlah_hari              Int?
   anggaran_diajukan        Float?
   anggaran_disetujui       Float?
   catatan_penting          String?
