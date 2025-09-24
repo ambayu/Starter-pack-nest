@@ -350,7 +350,6 @@ model Peran {
 }
 
 model KM2 {
-
   id                     Int                   @id @default(autoincrement())
   id_penugasan           Int
   penugasan              Penugasan             @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
@@ -378,7 +377,6 @@ model KM2 {
 }
 
 model KM2RincianPekerjaan {
-
   id                     Int                 @id @default(autoincrement())
   id_km2                 Int
   km2                    KM2                 @relation(fields: [id_km2], references: [id], onDelete: Cascade)
@@ -396,7 +394,6 @@ model KM2RincianPekerjaan {
 }
 
 model KM2Pelaksana {
-
   id                       Int                 @id @default(autoincrement())
   id_peran                 Int
   peran                    Peran               @relation(fields: [id_peran], references: [id])
@@ -407,7 +404,6 @@ model KM2Pelaksana {
 }
 
 model Pelaksana {
-
   id   Int     @id @default(autoincrement())
   kode String  @unique
   name String?
@@ -416,7 +412,6 @@ model Pelaksana {
 }
 
 model KM3 {
-
   id           Int       @id @default(autoincrement())
   id_penugasan Int
   penugasan    Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
@@ -440,7 +435,6 @@ model KM3 {
 }
 
 model KM3Peran {
-
   id            Int    @id @default(autoincrement())
   id_km3        Int
   km3           KM3    @relation(fields: [id_km3], references: [id], onDelete: Cascade)
@@ -453,7 +447,6 @@ model KM3Peran {
 }
 
 model KM3RincianPekerjaan {
-
   id     Int @id @default(autoincrement())
   id_km3 Int
   km3    KM3 @relation(fields: [id_km3], references: [id], onDelete: Cascade)
@@ -472,7 +465,6 @@ model KM3RincianPekerjaan {
 }
 
 model KM4 {
-
   id           Int       @id @default(autoincrement())
   id_penugasan Int
   penugasan    Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
@@ -485,7 +477,6 @@ model KM4 {
 }
 
 model KM4ProgramKerja {
-
   id              Int     @id @default(autoincrement())
   prosedur        String
   anggaran_waktu  Int
@@ -501,7 +492,6 @@ model KM4ProgramKerja {
 }
 
 model KM4Auditors {
-
   id   Int     @id @default(autoincrement())
   nama String
   nip  String?
