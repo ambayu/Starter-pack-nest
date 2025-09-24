@@ -9,13 +9,14 @@ import {
   Query,
   UseGuards,
   Req,
+  Res,
 } from '@nestjs/common';
 import { JenisPenugasanService } from './jenis-penugasan.service';
 import { CreateJenisPenugasanDto } from './dto/create-jenis-penugasan.dto';
 import { UpdateJenisPenugasanDto } from './dto/update-jenis-penugasan.dto';
 import { PermissionGuard } from 'src/auth/guard/permission.guard';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-
+import { Response } from 'express';
 @UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 @Controller('jenis-penugasan')
 export class JenisPenugasanController {
@@ -30,6 +31,15 @@ export class JenisPenugasanController {
       ...createJenisPenugasanDto,
       createdBy: Number(req.user.id),
     });
+  }
+
+
+
+
+  @Post('penomoran/:id')
+  Penomoran(@Param('id') id: number,
+    @Body('nomor_penugasan') nomor_penugasan: string) {
+    return this.jenisPenugasanService.penomoran(id, nomor_penugasan);
   }
 
   @Post('changeStatus-JenisPenugasaan/:id/:id_status')
@@ -117,7 +127,19 @@ export class JenisPenugasanController {
   remove(@Param('id') id: string) {
     return this.jenisPenugasanService.remove(+id);
   }
+  @Post('reject-penugasan/:id')
+  rejectPenugasan(@Param('id') id: number,
+    @Body('alasan') alasan: string) {
+    return this.jenisPenugasanService.reject_penugasan(id, alasan);
 
+  }
+
+  @Post('approve-penugasan/:id')
+  approvePenugasan(@Param('id') id: number,
+    @Body('id_status') id_status: number
+  ) {
+    return this.jenisPenugasanService.approve_penugasan(id, id_status || 5);
+  }
   // ====== Tambahan Endpoint Approve / Reject TTD ======
   @Post('approve-ttd/:type/:id')
   approveTTD(
@@ -135,6 +157,7 @@ export class JenisPenugasanController {
   }
 
   @Post('reject-ttd/:type/:id')
+
   rejectTTD(
     @Param('type') type: 'km1' | 'km2' | 'km3' | 'km4',
     @Param('id') id: number,
@@ -148,4 +171,16 @@ export class JenisPenugasanController {
       alasan,
     );
   }
+
+  @Get('download-penomoran/:id')
+  async downloadPDF(@Param('id') id: number, @Res() res: Response) {
+    const buffer = await this.jenisPenugasanService.generatePdf(Number(id));
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=penugasan-${id}.pdf`);
+    res.setHeader('Content-Length', buffer.length);
+
+    res.end(buffer);
+  }
+
 }

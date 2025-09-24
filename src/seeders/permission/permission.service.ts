@@ -14,6 +14,9 @@ export class PermissionSeederService {
 
         ],
         asn: [
+          'kasubag-umum:view',
+          'kasubag-umum-penomoran:view',
+          'kasubag-umum-penomoran:manage',
           'penandatanganan:view',
           'penandatanganan:manage', 
 

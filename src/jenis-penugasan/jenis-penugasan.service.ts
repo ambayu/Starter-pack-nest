@@ -3,7 +3,7 @@ import { CreateJenisPenugasanDto } from './dto/create-jenis-penugasan.dto';
 import { UpdateJenisPenugasanDto } from './dto/update-jenis-penugasan.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { successResponse } from 'src/utils/response.util';
-import { find } from 'rxjs';
+import PDFDocument = require('pdfkit');
 
 @Injectable()
 export class JenisPenugasanService {
@@ -108,11 +108,28 @@ export class JenisPenugasanService {
       throw new BadRequestException(`Status dengan Id ${id_status} tidak ditemukan`);
     }
 
+
     const q = await this.prisma.jenisPenugasan.update({
       where: { id },
       data: { id_status: id_status },
     });
+
+    const q2 = await this.prisma.penugasan.updateMany({ where: { id_jenis_penugasan: id }, data: { alasan_penolakan: "" } })
+
     return successResponse('Status berhasil diubah', q);
+  }
+
+  async penomoran(id: number, nomor_penugasan: string) {
+    const findId = await this.prisma.penugasan.findUnique({ where: { id } });
+    if (!findId) {
+      throw new BadRequestException(`Penugasan dengan Id ${id} tidak ditemukan`);
+    }
+
+    const q = await this.prisma.penugasan.update({
+      where: { id },
+      data: { nomor_penugasan: nomor_penugasan },
+    });
+    return successResponse('Penomoran berhasil ditambahkan', q);
   }
   // FIND ALL
   async findAll(
@@ -211,7 +228,7 @@ export class JenisPenugasanService {
         }
 
         // === Validasi Penandatanganan (TTD) hanya kalau id_status = 4 ===
-        if (item.id_status === 4) {
+        if (item.id_status >= 4) {
           if (penugasan.km1?.length) {
             const km1 = penugasan.km1[0];
             if (!km1.tgl_ttd_katim)
@@ -246,7 +263,7 @@ export class JenisPenugasanService {
         ...item,
         status_kekurangan: statusList.length > 0 ? statusList : ["Lengkap"],
         status_penandatanganan:
-          item.id_status === 4
+          item.id_status >= 4
             ? statusTTD.length > 0
               ? statusTTD
               : ["Semua sudah ditandatangani"]
@@ -271,7 +288,6 @@ export class JenisPenugasanService {
     order?: string,
   ) {
     if (!userId) throw new BadRequestException('User ID tidak ditemukan di token');
-    console.log(userId);
     const skip = (page - 1) * perPage;
 
     const where: any = {
@@ -578,7 +594,6 @@ export class JenisPenugasanService {
   ) {
     let updateData: any = {};
     let model: any;
-
     switch (type) {
       case 'km1':
         model = this.prisma.kM1;
@@ -681,7 +696,6 @@ export class JenisPenugasanService {
         alasan_penolakan: alasan,
       },
     });
-    console.log('data', data);
     return updated;
   }
 
@@ -781,6 +795,40 @@ export class JenisPenugasanService {
     return successResponse('Penugasan berhasil dihapus', q);
   }
 
+  async reject_penugasan(id: number, alasan) {
+    const findId = await this.prisma.penugasan.findUnique({ where: { id } });
+    if (!findId) {
+      throw new BadRequestException(`Penugasan dengan Id ${id} tidak ditemukan`);
+    }
+    const q = await this.prisma.penugasan.update({
+      where: { id },
+      data: { id_status_penugasan: 1, alasan_penolakan: alasan },
+    });
+
+    await this.prisma.jenisPenugasan.update({
+      where: { id: findId.id_jenis_penugasan },
+      data: { id_status: 6 },
+    })
+
+
+    return successResponse('Penugasan berhasil diubah', q);
+
+  }
+
+  async approve_penugasan(id: number, id_status: number) {
+    const findId = await this.prisma.penugasan.findUnique({ where: { id } });
+    if (!findId) {
+      throw new BadRequestException(`Penugasan dengan Id ${id} tidak ditemukan`);
+    }
+
+    const q = await this.prisma.jenisPenugasan.update({
+      where: { id: findId.id_jenis_penugasan },
+      data: { id_status: id_status },
+    })
+
+    return successResponse('Penugasan berhasil diapprove', q);
+
+  }
 
 
   private validateKM1(km1: any) {
@@ -828,6 +876,38 @@ export class JenisPenugasanService {
 
     return errors;
   }
+
+async generatePdf(id: number): Promise<Buffer> {
+  const penugasan = await this.prisma.penugasan.findUnique({
+    where: { id },
+    include: { jenis_penugasan: true, createdByUser: true },
+  });
+
+  if (!penugasan) {
+    throw new BadRequestException(`Penugasan ${id} tidak ditemukan`);
+  }
+
+  const PDFDocument = require('pdfkit');
+  const doc = new PDFDocument();
+  const chunks: Buffer[] = [];
+
+  return new Promise<Buffer>((resolve, reject) => {
+    doc.on('data', (chunk) => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    // isi PDF
+    doc.fontSize(18).text('Surat Penugasan', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Nomor Penugasan: ${penugasan.nomor_penugasan || '-'}`);
+    doc.text(`Jenis Penugasan: ${penugasan.jenis_penugasan?.jenis_penugasan || '-'}`);
+    doc.text(`Nama Penugasan: ${penugasan.nama_penugasan || '-'}`);
+    doc.text(`Dibuat Oleh: ${penugasan.createdByUser?.name || '-'}`);
+    doc.text(`Tanggal: ${new Date(penugasan.createdAt).toLocaleDateString('id-ID')}`);
+
+    doc.end(); // end stream
+  });
+}
 
   private validateKM4(km4: any) {
     const errors: string[] = [];

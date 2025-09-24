@@ -11,7 +11,7 @@ export class StatusSeederService {
       { id: 2, name: 'Menunggu Respon Katim' },
       { id: 3, name: 'Sedang Dalam Pengerjaan Katim' },
       { id: 4, name: 'Proses Penandatanganan Rute Perencanaan' },
-      { id: 5, name: 'Proses Pelaporan' },
+      { id: 5, name: 'Penugasan menuju Bagian Umum' },
       { id: 6, name: 'Penandatanganan ditolak' },
     ];
 

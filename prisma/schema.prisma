@@ -248,7 +248,7 @@ model Penugasan {
   nomor_kartu        String?
   id_jenis_penugasan Int
   jenis_penugasan    JenisPenugasan @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
-
+  nomor_penugasan    String?
   rute_perencanaan    RutePerencanaan[]
   km1                 KM1[]
   km2                 KM2[]
@@ -256,7 +256,7 @@ model Penugasan {
   km4                 KM4[]
   susunan_tim         SusunanTim[]
   id_status_penugasan Int?
-  alasan_penolakan    String?
+  alasan_penolakan    String?           @db.Text
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @default(now()) @updatedAt
 

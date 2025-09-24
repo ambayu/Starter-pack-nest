@@ -22,6 +22,7 @@ async function bootstrap() {
       'http://localhost:3001',
       'http://223.25.104.108:86',
     ],
+    exposedHeaders: ['Content-Disposition'], // biar bisa baca filename kalau mau
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // kalau kamu pakai cookie atau token
   });
