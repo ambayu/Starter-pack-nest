@@ -4,6 +4,8 @@ import { UpdateJenisPenugasanDto } from './dto/update-jenis-penugasan.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { successResponse } from 'src/utils/response.util';
 import PDFDocument = require('pdfkit');
+import path = require('path');
+import * as fs from 'fs';
 
 @Injectable()
 export class JenisPenugasanService {
@@ -129,6 +131,11 @@ export class JenisPenugasanService {
       where: { id },
       data: { nomor_penugasan: nomor_penugasan },
     });
+
+    const q2 = await this.prisma.jenisPenugasan.update({
+      where: { id: findId.id_jenis_penugasan },
+      data: { id_status: 8 },
+    })
     return successResponse('Penomoran berhasil ditambahkan', q);
   }
   // FIND ALL
@@ -877,37 +884,262 @@ export class JenisPenugasanService {
     return errors;
   }
 
-async generatePdf(id: number): Promise<Buffer> {
-  const penugasan = await this.prisma.penugasan.findUnique({
-    where: { id },
-    include: { jenis_penugasan: true, createdByUser: true },
-  });
 
-  if (!penugasan) {
-    throw new BadRequestException(`Penugasan ${id} tidak ditemukan`);
+  async generatePdf(id: number): Promise<Buffer> {
+    const penugasan = await this.prisma.penugasan.findUnique({
+      where: { id },
+      include: {
+        jenis_penugasan: true,
+        createdByUser: true,
+        susunan_tim: { include: { peran: true, user: true } },
+        km1: { include: { ttd_ppj_user: { include: { Biodata: true } } } },
+      },
+    });
+
+    if (!penugasan) {
+      throw new BadRequestException(`Penugasan ${id} tidak ditemukan`);
+    }
+
+    const cm = (val: number) => val * 28.35;
+    const pageWidth = 595; // A4 width
+    const pageHeight = 842; // A4 height
+
+    const doc = new PDFDocument({
+      size: 'A4',
+      margins: { top: cm(1), bottom: cm(0), left: cm(3), right: cm(2) },
+    });
+
+    const chunks: Buffer[] = [];
+    doc.on('data', (c) => chunks.push(c));
+
+    // === Register font ===
+    const fontRegular = path.join(process.cwd(), 'public', 'fonts', 'arial.ttf');
+    const fontBold = path.join(process.cwd(), 'public', 'fonts', 'arialbd.ttf');
+
+    if (fs.existsSync(fontRegular)) doc.registerFont('Arial', fontRegular);
+    if (fs.existsSync(fontBold)) doc.registerFont('Arial-Bold', fontBold);
+
+    const contentWidth = pageWidth - cm(3) - cm(2);
+    const contentLeft = cm(3);
+    const contentRight = pageWidth - cm(2);
+
+    // === Header ===
+    const logoPath = path.join(process.cwd(), 'public', 'assets', 'logo.png');
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, contentLeft, cm(0.5), {
+        width: cm(1.57),
+        height: cm(1.9),
+      });
+    }
+
+    doc.font('Arial-Bold').fontSize(12)
+      .text('PEMERINTAH KOTA MEDAN', contentLeft, cm(0.5), { width: contentWidth, align: 'center' });
+
+    doc.font('Arial-Bold').fontSize(16)
+      .text('INSPEKTORAT', contentLeft, doc.y, { width: contentWidth, align: 'center' });
+
+    doc.font('Arial').fontSize(9)
+      .text('Jalan Kapten Maulana Lubis Nomor 2, Medan Petisah, Medan, Sumatera Utara, 20112',
+        contentLeft, doc.y, { width: contentWidth, align: 'center' })
+      .text('Laman inspektorat.medan.go.id, Pos-el inspektorat@medan.go.id',
+        contentLeft, doc.y, { width: contentWidth, align: 'center' });
+
+    const lineY = doc.y + 5;
+    doc.moveTo(contentLeft, lineY).lineTo(contentRight, lineY).lineWidth(1).stroke();
+    doc.y = lineY + 15;
+
+    // === Judul Surat ===
+    doc.font('Arial-Bold').fontSize(14)
+      .text('SURAT TUGAS', contentLeft, doc.y, { width: contentWidth, align: 'center' });
+
+    doc.moveDown(0.2);
+
+    doc.font('Arial').fontSize(12)
+      .text(`NOMOR ${penugasan.nomor_penugasan || '....'} /INSP/2025`,
+        contentLeft, doc.y, { width: contentWidth, align: 'center' });
+
+    doc.moveDown(1);
+
+    // === Dasar === (Format List Rapi)
+    doc.font('Arial-Bold').fontSize(12).text('Dasar', contentLeft, doc.y, { continued: true });
+    doc.font('Arial').text(' :');
+    doc.moveDown(0.3);
+
+    const dasarList = [
+      'Peraturan Pemerintah Nomor 60 Tahun 2008 tentang Sistem Pengendalian Intern Pemerintah;',
+      'Peraturan Menteri Dalam Negeri Nomor 2 Tahun 2025 tentang Perencanaan Pembinaan dan Pengawasan Penyelenggaraan Pemerintahan Daerah Tahun 2025; dan',
+      'Peraturan Wali Kota Medan Nomor 29 Tahun 2023 tentang Rincian Tugas dan Fungsi Inspektorat Kota Medan;',
+    ];
+
+    const listLeft = contentLeft + cm(0.5);
+    const numberWidth = cm(0.8);
+    const textWidth = contentWidth - cm(0.5) - numberWidth;
+
+    dasarList.forEach((item, index) => {
+      const currentY = doc.y;
+
+      // Nomor (1., 2., 3.)
+      doc.font('Arial').fontSize(12)
+        .text(`${index + 1}.`, listLeft, currentY, {
+          width: numberWidth,
+          align: 'left'
+        });
+
+      // Teks setelah nomor
+      doc.font('Arial').fontSize(12)
+        .text(item, listLeft + numberWidth, currentY, {
+          width: textWidth,
+          align: 'justify'
+        });
+
+      doc.moveDown(0.3);
+    });
+
+    doc.moveDown(1);
+
+    // === MEMERINTAHKAN ===
+    doc.font('Arial-Bold').fontSize(12)
+      .text('MEMERINTAHKAN:', contentLeft, doc.y, { width: contentWidth, align: 'center' });
+
+    doc.moveDown(1);
+
+    // === Tabel Susunan Tim ===
+    const tableTop = doc.y;
+    const colWidths = [cm(1), cm(7), cm(6), cm(2)];
+
+    const headers = ['No.', 'Nama', 'Jabatan dalam Tim', 'Waktu'];
+    const rows = penugasan.susunan_tim.map((st, i) => [
+      `${i + 1}`,
+      st.user?.name || '-',
+      st.peran?.nama || '-',
+      `${penugasan.km1?.[0]?.jumlah_hari || '-'} Hari`,
+    ]);
+
+    const allRows = [headers, ...rows];
+    const rowHeight = 25;
+
+    allRows.forEach((row, rowIndex) => {
+      let x = contentLeft;
+      let maxHeight = rowHeight;
+
+      row.forEach((cell, i) => {
+        const opts = { width: colWidths[i], align: 'left' as const };
+        const h = doc.heightOfString(cell, { ...opts });
+        if (h + 10 > maxHeight) maxHeight = h + 10;
+      });
+
+      let y = tableTop + rowIndex * maxHeight;
+      row.forEach((cell, i) => {
+        doc.rect(x, y, colWidths[i], maxHeight).stroke();
+        doc.font(rowIndex === 0 ? 'Arial-Bold' : 'Arial')
+          .fontSize(11)
+          .text(cell, x + 5, y + 5, { width: colWidths[i] - 10, align: 'left' });
+        x += colWidths[i];
+      });
+      doc.y = y + maxHeight;
+    });
+
+    doc.moveDown(1);
+
+    // === Untuk === (Format List Rapi)
+    doc.font('Arial-Bold').fontSize(12).text('Untuk', contentLeft, doc.y, { continued: true });
+    doc.font('Arial').text(' :');
+    doc.moveDown(0.3);
+
+    const untukList = [
+      'melakukan Evaluasi Manajemen Resiko pada Dinas Sumber Daya Air, Bina Marga dan Bina Konstruksi, Dinas Ketahanan Pangan, Pertanian dan Perikanan, Dinas Lingkungan Hidup, dan Badan Kepegawaian dan Pengembangan Sumber Daya Manusia Kota Medan;',
+      `melaksanakan tugas selama ${penugasan.km1?.[0]?.jumlah_hari || '-'} hari mulai tanggal 20 Juni s.d. 2 Juli 2025; dan`,
+      'menyampaikan laporan hasil pelaksanaan penugasan setelah berakhirnya masa Surat Tugas.',
+    ];
+
+    untukList.forEach((item, index) => {
+      const currentY = doc.y;
+
+      // Nomor (1., 2., 3.)
+      doc.font('Arial').fontSize(12)
+        .text(`${index + 1}.`, listLeft, currentY, {
+          width: numberWidth,
+          align: 'left'
+        });
+
+      // Teks setelah nomor
+      doc.font('Arial').fontSize(12)
+        .text(item, listLeft + numberWidth, currentY, {
+          width: textWidth,
+          align: 'justify'
+        });
+
+      doc.moveDown(0.3);
+    });
+
+    doc.moveDown(2);
+
+    // === Tanda Tangan (Rata Tengah Tapi di Sebelah Kanan) ===
+    const pejabat = penugasan.km1?.[0]?.ttd_ppj_user;
+    const biodata = pejabat?.Biodata;
+
+    // Buat area tanda tangan di sebelah kanan dengan lebar tertentu
+    const signatureWidth = cm(8); // Lebar area tanda tangan
+    const signatureLeft = contentRight - signatureWidth; // Posisi mulai dari kanan
+
+    // Tanggal rata kanan dalam area tanda tangan
+    doc.font('Arial').fontSize(12)
+      .text(`Medan, Juni 2025`, signatureLeft, doc.y, {
+        width: signatureWidth,
+        align: 'right'
+      });
+
+    doc.moveDown(0.5);
+
+    // Jabatan rata tengah dalam area tanda tangan
+    doc.font('Arial').fontSize(12)
+      .text(`Plt. Inspektur,`, signatureLeft, doc.y, {
+        width: signatureWidth,
+        align: 'center'
+      });
+
+    doc.moveDown(3); // Jarak untuk tanda tangan
+
+    // Nama Pejabat rata tengah
+    doc.font('Arial-Bold').fontSize(12)
+      .text(pejabat?.name || '........................', signatureLeft, doc.y, {
+        width: signatureWidth,
+        align: 'center'
+      });
+
+    // Pangkat rata tengah
+    if (biodata?.pangkat) {
+      doc.font('Arial').fontSize(11)
+        .text(biodata.pangkat, signatureLeft, doc.y, {
+          width: signatureWidth,
+          align: 'center'
+        });
+    }
+
+    // === NIP rata tengah
+    doc.font('Arial').fontSize(11)
+      .text(`NIP ${pejabat?.nip || ''}`, signatureLeft, doc.y, {
+        width: signatureWidth,
+        align: 'center'
+      });
+
+    // === Footer (Tambahan) ===
+    doc.moveDown(4); // kasih jarak dari tanda tangan
+    doc.font('Arial').fontSize(10).text(
+      'Pegawai Inspektorat dalam bertugas wajib memedomani Undang-Undang Nomor 20 Tahun 2023 ' +
+      'tentang ASN, Pasal 24 ayat (1) huruf c yang menyatakan Pegawai ASN wajib:\n' +
+      '“melaksanakan nilai dasar ASN dan kode etik dan kode perilaku ASN”.',
+      contentLeft, doc.y,
+      { width: contentWidth, align: 'center' }
+    );
+
+    doc.end();
+
+    return new Promise<Buffer>((resolve, reject) => {
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+    });
   }
-
-  const PDFDocument = require('pdfkit');
-  const doc = new PDFDocument();
-  const chunks: Buffer[] = [];
-
-  return new Promise<Buffer>((resolve, reject) => {
-    doc.on('data', (chunk) => chunks.push(chunk));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
-
-    // isi PDF
-    doc.fontSize(18).text('Surat Penugasan', { align: 'center' });
-    doc.moveDown();
-    doc.fontSize(12).text(`Nomor Penugasan: ${penugasan.nomor_penugasan || '-'}`);
-    doc.text(`Jenis Penugasan: ${penugasan.jenis_penugasan?.jenis_penugasan || '-'}`);
-    doc.text(`Nama Penugasan: ${penugasan.nama_penugasan || '-'}`);
-    doc.text(`Dibuat Oleh: ${penugasan.createdByUser?.name || '-'}`);
-    doc.text(`Tanggal: ${new Date(penugasan.createdAt).toLocaleDateString('id-ID')}`);
-
-    doc.end(); // end stream
-  });
-}
 
   private validateKM4(km4: any) {
     const errors: string[] = [];
