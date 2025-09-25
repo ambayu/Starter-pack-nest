@@ -286,6 +286,51 @@ export class JenisPenugasanService {
     });
   }
 
+  async saveUploadST(id: number, filename: string) {
+    // simpan nama file di kolom baru, misal `file_st`
+    const findId = await this.prisma.penugasan.findUnique({ where: { id } })
+    if (!findId) {
+      throw new BadRequestException(`Penugasan dengan Id ${id} tidak ditemukan`);
+    }
+    const q = await this.prisma.penugasan.update({
+      where: { id },
+      data: {
+        file_st: filename
+      }
+    })
+    const q2 = await this.prisma.jenisPenugasan.update({
+      where: { id: findId.id_jenis_penugasan },
+      data: {
+        id_status: 9
+      }
+    })
+    return successResponse('File ST berhasil disimpan', "");
+  }
+
+
+  // jenis-penugasan.service.ts
+  async downloadST(id: number): Promise<{ filename: string; filePath: string }> {
+    const findId = await this.prisma.penugasan.findUnique({ where: { id } });
+    if (!findId) {
+      throw new BadRequestException(`Penugasan dengan Id ${id} tidak ditemukan`);
+    }
+
+    if (!findId.file_st) {
+      throw new BadRequestException(`File ST belum diupload untuk penugasan ${id}`);
+    }
+
+    const filePath = path.join(process.cwd(), 'uploads', 'st', findId.file_st);
+    if (!fs.existsSync(filePath)) {
+      throw new BadRequestException(`File ST tidak ditemukan di server`);
+    }
+
+    return {
+      filename: findId.file_st,
+      filePath,
+    };
+  }
+
+
   async findAllUserPenandatanganan(
     userId: number,
     page: number,
@@ -1160,6 +1205,8 @@ export class JenisPenugasanService {
 
     return errors;
   }
+
+
 
 
 

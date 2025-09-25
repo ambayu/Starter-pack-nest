@@ -10,13 +10,20 @@ import {
   UseGuards,
   Req,
   Res,
+  UseInterceptors,
+  BadRequestException,
+  UploadedFile,
+  NotFoundException,
 } from '@nestjs/common';
 import { JenisPenugasanService } from './jenis-penugasan.service';
+import { diskStorage } from 'multer';
+import path, { extname } from 'path';
 import { CreateJenisPenugasanDto } from './dto/create-jenis-penugasan.dto';
 import { UpdateJenisPenugasanDto } from './dto/update-jenis-penugasan.dto';
 import { PermissionGuard } from 'src/auth/guard/permission.guard';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 @UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
 @Controller('jenis-penugasan')
 export class JenisPenugasanController {
@@ -182,5 +189,50 @@ export class JenisPenugasanController {
 
     res.end(buffer);
   }
+
+
+  @Post('upload-st/:id')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/st', // folder penyimpanan
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          cb(null, `st-${req.params.id}-${uniqueSuffix}${ext}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.originalname.match(/\.(pdf|doc|docx)$/)) {
+          return cb(
+            new BadRequestException('Hanya file PDF atau Word yang diperbolehkan!'),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+      limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
+    }),
+  )
+  async uploadST(
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('File tidak ditemukan');
+    }
+
+    return this.jenisPenugasanService.saveUploadST(Number(id), file.filename);
+  }
+
+
+  @Get('download-st/:id')
+  async downloadST(@Param('id') id: number, @Res() res: Response) {
+    const file = await this.jenisPenugasanService.downloadST(Number(id));
+
+    res.download(file.filePath, file.filename); // download PDF langsung
+  }
+
+
 
 }

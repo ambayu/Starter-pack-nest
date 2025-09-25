@@ -239,21 +239,22 @@ model JenisPenugasan {
 }
 
 model Penugasan {
-  id                 Int            @id @default(autoincrement())
-  dasar_penugasan    String?
-  sifat_penugasan    String?
-  nama_penugasan     String?
-  alamat_penugasan   String?
-  catatan            String?
-  nomor_kartu        String?
-  id_jenis_penugasan Int
-  jenis_penugasan    JenisPenugasan @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
-  nomor_penugasan    String?
+  id                  Int               @id @default(autoincrement())
+  dasar_penugasan     String?
+  sifat_penugasan     String?
+  nama_penugasan      String?
+  alamat_penugasan    String?
+  catatan             String?
+  nomor_kartu         String?
+  id_jenis_penugasan  Int
+  jenis_penugasan     JenisPenugasan    @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
+  nomor_penugasan     String?
   rute_perencanaan    RutePerencanaan[]
   km1                 KM1[]
   km2                 KM2[]
   km3                 KM3[]
   km4                 KM4[]
+  file_st             String?
   susunan_tim         SusunanTim[]
   id_status_penugasan Int?
   alasan_penolakan    String?           @db.Text
@@ -284,6 +285,7 @@ model RutePerencanaan {
 
   @@map("rute_perencanaan")
 }
+
 //jumlah hari
 model KM1 {
   id           Int @id @default(autoincrement())
