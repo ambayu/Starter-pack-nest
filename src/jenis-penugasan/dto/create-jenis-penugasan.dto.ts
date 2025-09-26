@@ -2,6 +2,7 @@ import { IsNotEmpty, IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreatePenugasanDto } from './create-penugasan.dto';
 import { CreateSusunanTimDto } from './create-susunan-tim.dto';
+import { CreatePelaporanDto } from 'src/pelaporan/dto/create-pelaporan.dto';
 
 export class CreateJenisPenugasanDto {
   id?: number;
@@ -23,5 +24,7 @@ export class CreateJenisPenugasanDto {
   @Type(() => CreatePenugasanDto)
   Penugasan?: CreatePenugasanDto;
 
+  @IsOptional()
+  Pelaporan?: CreatePelaporanDto;
 
 }

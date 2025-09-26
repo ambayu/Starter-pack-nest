@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class StatusSeederService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private prisma: PrismaClient) { }
 
   async seed() {
     const statuses = [
@@ -15,6 +15,9 @@ export class StatusSeederService {
       { id: 6, name: 'Penandatanganan ditolak' },
       { id: 7, name: 'Penomoran oleh Kasubag Umum' },
       { id: 8, name: 'Upload ST oleh Katim' },
+      { id: 9, name: 'Pengecekan ST oleh Irban' },
+      { id: 10, name: 'ST ditolak' },
+      { id: 11, name: 'Pembuatkan Rute Pelaporan' },
     ];
 
     for (const s of statuses) {

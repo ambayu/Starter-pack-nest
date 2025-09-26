@@ -48,8 +48,10 @@ model User {
   ttd_ppj_km2      KM2[] @relation("ttd_ppj_km2")
   ttd_sekretaris   KM2[] @relation("ttd_sekretaris")
 
-  ttd_katim_km3 KM3[] @relation("ttd_katim_km3")
-  ttd_pt_km3    KM3[] @relation("ttd_pt_km3")
+  ttd_katim_km3              KM3[]                        @relation("ttd_katim_km3")
+  ttd_pt_km3                 KM3[]                        @relation("ttd_pt_km3")
+  Urutan_pekerjaan_pelaporan Urutan_pekerjaan_pelaporan[]
+  km6                        km6[]
 
   @@map("user")
 }
@@ -234,6 +236,7 @@ model JenisPenugasan {
   createdByUser User        @relation("JenisPenugasanCreatedBy", fields: [createdBy], references: [id])
   updatedBy     Int?
   updatedByUser User?       @relation("JenisPenugasanUpdatedBy", fields: [updatedBy], references: [id])
+  Pelaporan     Pelaporan[]
 
   @@map("jenis_penugasan")
 }
@@ -269,6 +272,105 @@ model Penugasan {
   userId        Int?
 
   @@map("penugasan")
+}
+
+model Pelaporan {
+  id                         Int                          @id @default(autoincrement())
+  id_jenis_penugasan         Int?
+  jenis_penugasan            JenisPenugasan?              @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
+  judul_pelaporan            String
+  alamat                     String?
+  periode                    String?
+  no_kp                      String?
+  tgl_kp                     DateTime?
+  Urutan_pekerjaan_pelaporan Urutan_pekerjaan_pelaporan[]
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @default(now()) @updatedAt
+  createdBy                  Int?
+  updatedBy                  Int?
+  km5                        km5[]
+  km6                        km6[]
+  km7                        km7[]
+  km8                        km8[]
+
+  @@map("pelaporan")
+}
+
+model Urutan_pekerjaan_pelaporan {
+  id                 Int    @id @default(autoincrement())
+  judul              String
+  id_user_penanggung Int?
+  user_penanggung    User?  @relation(fields: [id_user_penanggung], references: [id])
+
+  id_pelaporan Int?
+  pelaporan    Pelaporan? @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
+  tanggal_1    DateTime?
+  tanggal_2    DateTime?
+  tanggal_3    DateTime?
+  tanggal_4    DateTime?
+
+  @@map("urutan_pekerjaan_pelaporan")
+}
+
+model km5 {
+  id           Int       @id @default(autoincrement())
+  id_pelaporan Int
+  pelaporan    Pelaporan @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
+  komentar     String?
+  index_kka    String?
+  penyelesaian String?
+  persetujuan  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+
+  @@map("km5")
+}
+
+model km6 {
+  id                 Int       @id @default(autoincrement())
+  id_pelaporan       Int
+  pelaporan          Pelaporan @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
+  uraian             String?
+  id_user_penanggung Int?
+  user_penanggung    User?     @relation(fields: [id_user_penanggung], references: [id])
+  tanggal_1          String?
+  tanggal_2          String?
+  tanggal_3          String?
+  tanggal_4          String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+
+  @@map("km6")
+}
+
+model km7 {
+  id           Int       @id @default(autoincrement())
+  id_pelaporan Int
+  pelaporan    Pelaporan @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
+  halaman_lhr  String?
+  masalah      String?
+  nomor_kkr    String?
+
+  @@map("km7")
+}
+
+model km8 {
+  id                    Int       @id @default(autoincrement())
+  id_pelaporan          Int
+  pelaporan             Pelaporan @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
+  kondisi               String?
+  kriteria              String?
+  sebab                 String?
+  akibat                String?
+  rekomendasi           String?
+  rencana_tindak_lanjut String?
+  komentar_auditi       String?
+  komentar_auditor      String?
+  ket                   String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+
+  @@map("km8")
 }
 
 model RutePerencanaan {

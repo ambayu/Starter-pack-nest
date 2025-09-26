@@ -136,8 +136,15 @@ export class JenisPenugasanController {
   }
   @Post('reject-penugasan/:id')
   rejectPenugasan(@Param('id') id: number,
-    @Body('alasan') alasan: string) {
+    @Body('alasan') alasan: string,) {
     return this.jenisPenugasanService.reject_penugasan(id, alasan);
+
+  }
+
+  @Post('reject-penugasan-st/:id')
+  rejectPenugasanSt(@Param('id') id: number,
+    @Body('alasan') alasan: string,) {
+    return this.jenisPenugasanService.reject_penugasanst(id, alasan);
 
   }
 

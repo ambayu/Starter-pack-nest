@@ -757,6 +757,7 @@ export class JenisPenugasanService {
     const findId = await this.prisma.jenisPenugasan.findUnique({
       where: { id },
       include: {
+
         Penugasan: {
           include: {
             rute_perencanaan: true,
@@ -821,6 +822,21 @@ export class JenisPenugasanService {
             },
           },
         },
+        Pelaporan: {
+          include: {
+            Urutan_pekerjaan_pelaporan: true,
+            km5: true,
+            km6: {
+              include: {
+                user_penanggung: true
+              },
+            },
+            km7: true,
+            km8: true,
+
+
+          }
+        }
       },
     });
 
@@ -847,7 +863,7 @@ export class JenisPenugasanService {
     return successResponse('Penugasan berhasil dihapus', q);
   }
 
-  async reject_penugasan(id: number, alasan) {
+  async reject_penugasan(id: number, alasan,) {
     const findId = await this.prisma.penugasan.findUnique({ where: { id } });
     if (!findId) {
       throw new BadRequestException(`Penugasan dengan Id ${id} tidak ditemukan`);
@@ -860,6 +876,26 @@ export class JenisPenugasanService {
     await this.prisma.jenisPenugasan.update({
       where: { id: findId.id_jenis_penugasan },
       data: { id_status: 6 },
+    })
+
+
+    return successResponse('Penugasan berhasil diubah', q);
+
+  }
+
+  async reject_penugasanst(id: number, alasan,) {
+    const findId = await this.prisma.penugasan.findUnique({ where: { id } });
+    if (!findId) {
+      throw new BadRequestException(`Penugasan dengan Id ${id} tidak ditemukan`);
+    }
+    const q = await this.prisma.penugasan.update({
+      where: { id },
+      data: { id_status_penugasan: 1, alasan_penolakan: alasan },
+    });
+
+    await this.prisma.jenisPenugasan.update({
+      where: { id: findId.id_jenis_penugasan },
+      data: { id_status: 10 },
     })
 
 
