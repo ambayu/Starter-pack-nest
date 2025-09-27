@@ -20,4 +20,6 @@ export class CreateUserDto {
     @Optional()
     nip: string
 
+    biodata: any
+
 }

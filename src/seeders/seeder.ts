@@ -2,9 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { RoleSeederService } from './role/role.service';
 import { PermissionSeederService } from './permission/permission.service';
 import { UserSeederService } from './user/user.service';
-import { PelaksanaSeederService } from './pelaksana';
 import { PeranSeederService } from './peran';
-import { StatusSeederService } from './status';
 
 export class SeedService {
   private prisma = new PrismaClient();
@@ -15,15 +13,11 @@ export class SeedService {
     const roleSeeder = new RoleSeederService(this.prisma);
     const permissionSeeder = new PermissionSeederService(this.prisma);
     const userSeeder = new UserSeederService(this.prisma);
-    const pelaksanaSeederService = new PelaksanaSeederService(this.prisma);
     const peranSeederService = new PeranSeederService(this.prisma);
-    const statusSeederService = new StatusSeederService(this.prisma);
     await roleSeeder.seed();
     await permissionSeeder.seed();
     await userSeeder.seed();
-    await pelaksanaSeederService.seed();
     await peranSeederService.seed();
-    await statusSeederService.seed();
 
     console.log('✅ Selesai menjalankan semua seeder.');
     await this.prisma.$disconnect();

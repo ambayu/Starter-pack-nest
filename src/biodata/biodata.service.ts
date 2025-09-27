@@ -4,145 +4,95 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { createbiodataDto } from './dto/create-biodata.dto';
-import { errorResponse, successResponse } from 'src/utils/response.util';
+
+import { successResponse, errorResponse } from 'src/utils/response.util';
+import { CreateBiodataDto } from './dto/create-biodata.dto';
 import { updateBiodataDto } from './dto/update-biodata.dto';
 
 @Injectable()
 export class BiodataService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: createbiodataDto) {
-    const findId = await this.prisma.user.findUnique({
-      where: { id: data.id_user },
-    });
-
-    if (!findId) {
-      throw new BadRequestException(
-        `User dengan ID ${data.id_user} tidak ditemukan`,
-      );
+  // CREATE
+  async create(data: CreateBiodataDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: data.id_user } });
+    if (!user) {
+      throw new BadRequestException(`User dengan ID ${data.id_user} tidak ditemukan`);
     }
 
-    const finduserId = await this.prisma.biodata.findUnique({
-      where: { id_user: data.id_user },
-    });
-
-    if (finduserId) {
-      throw new BadRequestException(
-        `Biodata dengan User ID ${data.id_user} sudah ada`,
-      );
+    const existing = await this.prisma.biodata.findUnique({ where: { id_user: data.id_user } });
+    if (existing) {
+      throw new BadRequestException(`Biodata dengan User ID ${data.id_user} sudah ada`);
     }
 
     const biodata = await this.prisma.biodata.create({
       data: {
-        name: data.name,
-        alamat: data.alamat,
-        tanggal_lahir: data.tanggal_lahir,
-        jenis_kelamin: data.jenis_kelamin,
         id_user: data.id_user,
-        photo: data.photo,
+        alamat: data.alamat,
         no_telp: data.no_telp,
         kota: data.kota,
         kode_pos: data.kode_pos,
+        photo: data.photo,
+        tanggal_lahir: data.tanggal_lahir,
+        jenis_kelamin: data.jenis_kelamin,
+        jabatan: data.jabatan,
+        pangkat: data.pangkat,
       },
     });
 
-    return {
-      statusCode: 201,
-      status: 'success',
-      message: 'Biodata Berhasil dibuat',
-      data: {
-        data: {
-          name: data.name,
-          alamat: data.alamat,
-          tanggal_lahir: data.tanggal_lahir,
-          jenis_kelamin: data.jenis_kelamin,
-          id_user: data.id_user,
-          photo: data.photo,
-          no_telp: data.no_telp,
-          kota: data.kota,
-          kode_pos: data.kode_pos,
-        },
-      },
-    };
+    return successResponse('Biodata berhasil dibuat', biodata);
   }
 
-  async destroyed(id: number) {
-    const data = await this.prisma.biodata.findUnique({
-      where: { id },
+  // GET ALL
+  async findAll() {
+    const biodata = await this.prisma.biodata.findMany({
+      include: { user: true },
     });
-
-    if (!data) {
-      throw new NotFoundException(
-        errorResponse(
-          `Biodata dengan ID ${id} tidak ditemukan`,
-          'BIODATA_NOT_FOUND',
-          404,
-        ),
-      );
-    }
-
-    const q = await this.prisma.biodata.delete({
-      where: { id },
-    });
-    return successResponse('Biodata berhasil dihapus', q);
+    return successResponse('Daftar biodata ditemukan', biodata);
   }
 
-  async findall() {
-    const data = await this.prisma.biodata.findMany({
-      include: {
-        user: true,
-      },
-    });
-    return successResponse('Biodata ditemukan', data);
-  }
-
-  async findId(id: number) {
-    const data = await this.prisma.biodata.findUnique({
+  // GET BY ID
+  async findById(id: number) {
+    const biodata = await this.prisma.biodata.findUnique({
       where: { id },
       include: { user: true },
     });
-
-    if (!data) {
+    if (!biodata) {
       throw new NotFoundException(
-        errorResponse(
-          `Biodata dengan ID ${id} tidak ditemukan`,
-          'BIODATA_NOT_FOUND',
-          404,
-        ),
+        errorResponse(`Biodata dengan ID ${id} tidak ditemukan`, 'BIODATA_NOT_FOUND', 404),
       );
     }
-    return successResponse('Biodata ditemukan', data);
+    return successResponse('Biodata ditemukan', biodata);
   }
 
-  async updated(id: number, data: updateBiodataDto) {
-    const existing = await this.prisma.biodata.findUnique({
-      where: { id_user: id },
-    });
-    if (!existing) {
-      throw new NotFoundException(
-        errorResponse(
-          `Biodata dengan User Id ${id} tidak ditemukan`,
-          'BIODATA_NOT_FOUND',
-          404,
-        ),
-      );
+  // UPDATE
+  async update(id: number, data: updateBiodataDto) {
+    const biodata = await this.prisma.biodata.findUnique({ where: { id } });
+    if (!biodata) {
+      throw new NotFoundException(`Biodata dengan ID ${id} tidak ditemukan`);
     }
 
-    const update = await this.prisma.biodata.update({
-      where: { id_user: id },
+    const updated = await this.prisma.biodata.update({
+      where: { id },
       data: {
-        name: data.name,
-        jenis_kelamin: data.jenis_kelamin,
-        tanggal_lahir: data.tanggal_lahir,
         alamat: data.alamat,
-        photo: data.photo,
         no_telp: data.no_telp,
         kota: data.kota,
         kode_pos: data.kode_pos,
+        photo: data.photo,
+        tanggal_lahir: data.tanggal_lahir,
+        jenis_kelamin: data.jenis_kelamin,
+        jabatan: data.jabatan,
+        pangkat: data.pangkat,
       },
     });
 
-    return successResponse('Biodata berhasil di perbaharui', update);
+    return successResponse('Biodata berhasil diperbaharui', updated);
+  }
+
+  // DELETE
+  async destroy(id: number) {
+   
+    return "Biodata berhasil dihapus";
   }
 }

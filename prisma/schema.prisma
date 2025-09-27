@@ -2,89 +2,33 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// npx ts-node  src/seeders/seeder.ts 
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  // npx ts-node  src/seeders/seeder.ts 
+
 }
 
 model User {
   id        Int       @id @default(autoincrement())
   name      String
   email     String    @unique
-  nip       String?   @unique
   username  String    @unique
   password  String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  Biodata    Biodata?
-  UserRole   UserRole[]
-  SusunanTim SusunanTim[]
-  Penugasan  Penugasan[]
-
-  OpdCreatedBy                Opd[]                 @relation("OpdCreatedBy")
-  OpdUpdatedBy                Opd[]                 @relation("OpdUpdatedBy")
-  JenisPengawasanCreatedBy    Jenis_pengawasan[]    @relation("JenisPengawasanCreatedBy")
-  JenisPengawasanUpdatedBy    Jenis_pengawasan[]    @relation("JenisPengawasanUpdatedBy")
-  KelompokPengawasanCreatedBy Kelompok_pengawasan[] @relation("KelompokPengawasanCreatedBy")
-  KelompokPengawasanUpdatedBy Kelompok_pengawasan[] @relation("KelompokPengawasanUpdatedBy")
-  ItemPengawasanCreatedBy     Item_pengawasan[]     @relation("ItemPengawasanCreatedBy")
-  ItemPengawasanUpdatedBy     Item_pengawasan[]     @relation("ItemPengawasanUpdatedBy")
-  PKPTCreatedBy               PKPT[]                @relation("PKPTCreatedBy")
-  PKPTUpdatedBy               PKPT[]                @relation("PKPTUpdatedBy")
-  JenisPenugasanCreatedBy     JenisPenugasan[]      @relation("JenisPenugasanCreatedBy")
-  JenisPenugasanUpdatedBy     JenisPenugasan[]      @relation("JenisPenugasanUpdatedBy")
-  PenugasanCreatedBy          Penugasan[]           @relation("PenugasanCreatedBy")
-  PenugasanUpdatedBy          Penugasan[]           @relation("PenugasanUpdatedBy")
-
-  ttd_katim KM1[] @relation("ttd_katim")
-  ttd_ppj   KM1[] @relation("ttd_ppj")
-  ttd_pt    KM1[] @relation("ttd_pt")
-
-  ttd_kasubag_umum KM2[] @relation("ttd_kasubag_umum")
-  ttd_ppj_km2      KM2[] @relation("ttd_ppj_km2")
-  ttd_sekretaris   KM2[] @relation("ttd_sekretaris")
-
-  ttd_katim_km3              KM3[]                        @relation("ttd_katim_km3")
-  ttd_pt_km3                 KM3[]                        @relation("ttd_pt_km3")
-  Urutan_pekerjaan_pelaporan Urutan_pekerjaan_pelaporan[]
-  km6                        km6[]
+  // Relasi
+  Biodata   Biodata?
+  UserRole  UserRole[]
 
   @@map("user")
 }
 
-model Status {
-  id             Int              @id @default(autoincrement())
-  name           String?
-  JenisPenugasan JenisPenugasan[]
-
-  @@map("status")
-}
-
-model Opd {
-  id             Int      @id @default(autoincrement())
-  kode           String
-  id_skpd        Int
-  id_skpd_parent Int?
-  skpd_parent    String?
-  nama           String
-  alamat         String?
-  created_at     DateTime @default(now())
-
-  createdBy     Int?
-  createdByUser User? @relation("OpdCreatedBy", fields: [createdBy], references: [id])
-  updatedBy     Int?
-  updatedByUser User? @relation("OpdUpdatedBy", fields: [updatedBy], references: [id])
-
-  @@map("opd")
-}
-
 model Biodata {
   id            Int       @id @default(autoincrement())
-  name          String
+  id_user       Int       @unique
   alamat        String?
   no_telp       String?
   kota          String?
@@ -97,8 +41,8 @@ model Biodata {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
   deletedAt     DateTime?
-  id_user       Int       @unique
-  user          User      @relation(fields: [id_user], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [id_user], references: [id], onDelete: Cascade)
 
   @@map("biodata")
 }
@@ -106,11 +50,12 @@ model Biodata {
 model UserRole {
   id        Int      @id @default(autoincrement())
   id_user   Int
-  user      User     @relation(fields: [id_user], references: [id], onDelete: Cascade)
   id_role   Int
-  role      Role     @relation(fields: [id_role], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [id_user], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [id_role], references: [id], onDelete: Cascade)
 
   @@map("user_role")
 }
@@ -120,6 +65,7 @@ model Role {
   name           String           @unique
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @default(now()) @updatedAt
+
   users          UserRole[]
   RolePermission RolePermission[]
 
@@ -131,6 +77,7 @@ model Permission {
   name      String           @unique
   createdAt DateTime         @default(now())
   updatedAt DateTime         @default(now()) @updatedAt
+
   roles     RolePermission[]
 
   @@map("permission")
@@ -142,470 +89,9 @@ model RolePermission {
   id_permission Int
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @default(now()) @updatedAt
-  role          Role       @relation(fields: [id_role], references: [id], onDelete: Cascade)
-  permission    Permission @relation(fields: [id_permission], references: [id], onDelete: Cascade)
+
+  role       Role       @relation(fields: [id_role], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [id_permission], references: [id], onDelete: Cascade)
 
   @@map("role_permission")
-}
-
-model Jenis_pengawasan {
-  id                  Int                   @id @default(autoincrement())
-  name                String?
-  createdBy           Int
-  createdByUser       User                  @relation("JenisPengawasanCreatedBy", fields: [createdBy], references: [id])
-  deletedAt           DateTime?
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @default(now()) @updatedAt
-  updatedBy           Int?
-  updatedByUser       User?                 @relation("JenisPengawasanUpdatedBy", fields: [updatedBy], references: [id])
-  PKPT                PKPT[]
-  Kelompok_pengawasan Kelompok_pengawasan[]
-
-  @@map("jenis_pengawasan")
-}
-
-model Kelompok_pengawasan {
-  id                  Int                   @id @default(autoincrement())
-  name                String
-  createdBy           Int
-  createdByUser       User                  @relation("KelompokPengawasanCreatedBy", fields: [createdBy], references: [id])
-  createdAt           DateTime              @default(now())
-  deletedAt           DateTime?
-  updatedAt           DateTime              @default(now()) @updatedAt
-  updatedBy           Int?
-  updatedByUser       User?                 @relation("KelompokPengawasanUpdatedBy", fields: [updatedBy], references: [id])
-  id_jenis_pengawasan Int
-  jenis_pengawasan    Jenis_pengawasan      @relation(fields: [id_jenis_pengawasan], references: [id], onDelete: Cascade)
-  Item_pengawasan     Item_pengawasan[]
-  KM2RincianPekerjaan KM2RincianPekerjaan[]
-  KM3RincianPekerjaan KM3RincianPekerjaan[]
-
-  @@map("kelompok_pengawasan")
-}
-
-model Item_pengawasan {
-  id                     Int                   @id @default(autoincrement())
-  id_kelompok_pengawasan Int
-  kelompok_pengawasan    Kelompok_pengawasan   @relation(fields: [id_kelompok_pengawasan], references: [id], onDelete: Cascade)
-  name                   String
-  deletedAt              DateTime?
-  createdBy              Int
-  createdByUser          User                  @relation("ItemPengawasanCreatedBy", fields: [createdBy], references: [id])
-  createdAt              DateTime              @default(now())
-  updatedAt              DateTime              @default(now()) @updatedAt
-  updatedBy              Int?
-  updatedByUser          User?                 @relation("ItemPengawasanUpdatedBy", fields: [updatedBy], references: [id])
-  KM2RincianPekerjaan    KM2RincianPekerjaan[]
-  KM3RincianPekerjaan    KM3RincianPekerjaan[]
-
-  @@map("item_pengawasan")
-}
-
-model PKPT {
-  id                  Int              @id @default(autoincrement())
-  area_pengawasan     String
-  tujuan              String
-  tingkat_resiko      String           @default("Rendah")
-  id_jenis_pengawasan Int
-  jenis_pengawasan    Jenis_pengawasan @relation(fields: [id_jenis_pengawasan], references: [id], onDelete: Cascade)
-  ruang_lingkup       String
-  createdBy           Int
-  createdByUser       User             @relation("PKPTCreatedBy", fields: [createdBy], references: [id])
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @default(now()) @updatedAt
-  updatedBy           Int?
-  updatedByUser       User?            @relation("PKPTUpdatedBy", fields: [updatedBy], references: [id])
-  JenisPenugasan      JenisPenugasan[]
-
-  @@map("pkpt")
-}
-
-model JenisPenugasan {
-  id              Int    @id @default(autoincrement())
-  id_pkpt         Int?
-  pkpt            PKPT?  @relation(fields: [id_pkpt], references: [id], onDelete: Cascade)
-  jenis_penugasan String
-  non_pkpt        Json?
-
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @default(now()) @updatedAt
-  Penugasan     Penugasan[]
-  id_status     Int         @default(1)
-  status        Status?     @relation(fields: [id_status], references: [id])
-  createdBy     Int
-  createdByUser User        @relation("JenisPenugasanCreatedBy", fields: [createdBy], references: [id])
-  updatedBy     Int?
-  updatedByUser User?       @relation("JenisPenugasanUpdatedBy", fields: [updatedBy], references: [id])
-  Pelaporan     Pelaporan[]
-
-  @@map("jenis_penugasan")
-}
-
-model Penugasan {
-  id                  Int               @id @default(autoincrement())
-  dasar_penugasan     String?
-  sifat_penugasan     String?
-  nama_penugasan      String?
-  alamat_penugasan    String?
-  catatan             String?
-  nomor_kartu         String?
-  id_jenis_penugasan  Int
-  jenis_penugasan     JenisPenugasan    @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
-  nomor_penugasan     String?
-  rute_perencanaan    RutePerencanaan[]
-  km1                 KM1[]
-  km2                 KM2[]
-  km3                 KM3[]
-  km4                 KM4[]
-  file_st             String?
-  susunan_tim         SusunanTim[]
-  id_status_penugasan Int?
-  alasan_penolakan    String?           @db.Text
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @default(now()) @updatedAt
-
-  createdBy     Int?
-  createdByUser User? @relation("PenugasanCreatedBy", fields: [createdBy], references: [id])
-  updatedBy     Int?
-  updatedByUser User? @relation("PenugasanUpdatedBy", fields: [updatedBy], references: [id])
-  User          User? @relation(fields: [userId], references: [id])
-  userId        Int?
-
-  @@map("penugasan")
-}
-
-model Pelaporan {
-  id                         Int                          @id @default(autoincrement())
-  id_jenis_penugasan         Int?
-  jenis_penugasan            JenisPenugasan?              @relation(fields: [id_jenis_penugasan], references: [id], onDelete: Cascade)
-  judul_pelaporan            String
-  alamat                     String?
-  periode                    String?
-  no_kp                      String?
-  tgl_kp                     DateTime?
-  Urutan_pekerjaan_pelaporan Urutan_pekerjaan_pelaporan[]
-  createdAt                  DateTime                     @default(now())
-  updatedAt                  DateTime                     @default(now()) @updatedAt
-  createdBy                  Int?
-  updatedBy                  Int?
-  km5                        km5[]
-  km6                        km6[]
-  km7                        km7[]
-  km8                        km8[]
-
-  @@map("pelaporan")
-}
-
-model Urutan_pekerjaan_pelaporan {
-  id                 Int    @id @default(autoincrement())
-  judul              String
-  id_user_penanggung Int?
-  user_penanggung    User?  @relation(fields: [id_user_penanggung], references: [id])
-
-  id_pelaporan Int?
-  pelaporan    Pelaporan? @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
-  tanggal_1    DateTime?
-  tanggal_2    DateTime?
-  tanggal_3    DateTime?
-  tanggal_4    DateTime?
-
-  @@map("urutan_pekerjaan_pelaporan")
-}
-
-model km5 {
-  id           Int       @id @default(autoincrement())
-  id_pelaporan Int
-  pelaporan    Pelaporan @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
-  komentar     String?
-  index_kka    String?
-  penyelesaian String?
-  persetujuan  String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now()) @updatedAt
-
-  @@map("km5")
-}
-
-model km6 {
-  id                 Int       @id @default(autoincrement())
-  id_pelaporan       Int
-  pelaporan          Pelaporan @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
-  uraian             String?
-  id_user_penanggung Int?
-  user_penanggung    User?     @relation(fields: [id_user_penanggung], references: [id])
-  tanggal_1          String?
-  tanggal_2          String?
-  tanggal_3          String?
-  tanggal_4          String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @default(now()) @updatedAt
-
-  @@map("km6")
-}
-
-model km7 {
-  id           Int       @id @default(autoincrement())
-  id_pelaporan Int
-  pelaporan    Pelaporan @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
-  halaman_lhr  String?
-  masalah      String?
-  nomor_kkr    String?
-
-  @@map("km7")
-}
-
-model km8 {
-  id                    Int       @id @default(autoincrement())
-  id_pelaporan          Int
-  pelaporan             Pelaporan @relation(fields: [id_pelaporan], references: [id], onDelete: Cascade)
-  kondisi               String?
-  kriteria              String?
-  sebab                 String?
-  akibat                String?
-  rekomendasi           String?
-  rencana_tindak_lanjut String?
-  komentar_auditi       String?
-  komentar_auditor      String?
-  ket                   String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @default(now()) @updatedAt
-
-  @@map("km8")
-}
-
-model RutePerencanaan {
-  id           Int       @id @default(autoincrement())
-  id_penugasan Int
-  penugasan    Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-
-  uraian_pekerjaan String
-  nama_penanggung  String
-  nip              String
-  tanggal_paraf    DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now()) @updatedAt
-
-  @@map("rute_perencanaan")
-}
-
-//jumlah hari
-model KM1 {
-  id           Int @id @default(autoincrement())
-  id_penugasan Int
-
-  penugasan                Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-  rencana_penugasan        String?
-  tahun_penugasan_terakhir Int?
-  alamat                   String?
-  tingkat_risiko           String?
-  tujuan_penugasan         String?
-  rencana_mulai            DateTime?
-  rencana_selesai          DateTime?
-  jumlah_hari              Int?
-  anggaran_diajukan        Float?
-  anggaran_disetujui       Float?
-  catatan_penting          String?
-
-  ttd_katim      Int?
-  ttd_katim_user User?     @relation("ttd_katim", fields: [ttd_katim], references: [id])
-  tgl_ttd_katim  DateTime?
-
-  ttd_ppj      Int?
-  ttd_ppj_user User?     @relation("ttd_ppj", fields: [ttd_ppj], references: [id])
-  tgl_ttd_ppj  DateTime?
-
-  ttd_pt      Int?      @map("ttd_pt")
-  ttd_pt_user User?     @relation("ttd_pt", fields: [ttd_pt], references: [id])
-  tgl_ttd_pt  DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  @@map("km1")
-}
-
-model SusunanTim {
-  id               Int       @id @default(autoincrement())
-  id_penugasan     Int
-  penugasan        Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-  nip              String
-  user             User      @relation(fields: [nip], references: [nip], onDelete: Cascade)
-  peran            Peran?    @relation(fields: [id_peran], references: [id])
-  id_peran         Int?
-  satuan           String?
-  honorarium       Int?
-  alokasi_anggaran Int?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now()) @updatedAt
-
-  @@map("susunan_tim")
-}
-
-model Peran {
-  id           Int            @id @default(autoincrement())
-  nama         String         @unique
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
-  deletedAt    DateTime?
-  susunan_tim  SusunanTim[]
-  km3_peran    KM3Peran[]
-  KM2Pelaksana KM2Pelaksana[]
-
-  @@map("peran")
-}
-
-model KM2 {
-  id                     Int                   @id @default(autoincrement())
-  id_penugasan           Int
-  penugasan              Penugasan             @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-  sasaran_penugasan_type String                @default("lainnya")
-  sasaran_penugasan      String
-  km2_rincian_pekerjaan  KM2RincianPekerjaan[]
-
-  // === Tambahan TTD ===
-  ttd_kasubag_umum      Int?
-  ttd_kasubag_umum_user User?     @relation("ttd_kasubag_umum", fields: [ttd_kasubag_umum], references: [id])
-  tgl_ttd_kasubag_umum  DateTime?
-
-  ttd_ppj      Int?
-  ttd_ppj_user User?     @relation("ttd_ppj_km2", fields: [ttd_ppj], references: [id])
-  tgl_ttd_ppj  DateTime?
-
-  ttd_sekretaris      Int?
-  ttd_sekretaris_user User?     @relation("ttd_sekretaris", fields: [ttd_sekretaris], references: [id])
-  tgl_ttd_sekretaris  DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  @@map("km2")
-}
-
-model KM2RincianPekerjaan {
-  id                     Int                 @id @default(autoincrement())
-  id_km2                 Int
-  km2                    KM2                 @relation(fields: [id_km2], references: [id], onDelete: Cascade)
-  id_kelompok_pengawasan Int
-  kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id], onDelete: Cascade)
-  id_item_pengawasan     Int
-  item_pengawasan        Item_pengawasan     @relation(fields: [id_item_pengawasan], references: [id], onDelete: Cascade)
-  tanggal_awal           DateTime?
-  tanggal_akhir          DateTime?
-  anggaran_waktu         Int
-
-  km2Pelaksanaan KM2Pelaksana[]
-
-  @@map("km2_rincian_pekerjaan")
-}
-
-model KM2Pelaksana {
-  id                       Int                 @id @default(autoincrement())
-  id_peran                 Int
-  peran                    Peran               @relation(fields: [id_peran], references: [id])
-  id_km2_rincian_pekerjaan Int
-  km2_rincian_pekerjaan    KM2RincianPekerjaan @relation(fields: [id_km2_rincian_pekerjaan], references: [id], onDelete: Cascade)
-
-  @@map("km2_pelaksana")
-}
-
-model Pelaksana {
-  id   Int     @id @default(autoincrement())
-  kode String  @unique
-  name String?
-
-  @@map("pelaksana")
-}
-
-model KM3 {
-  id           Int       @id @default(autoincrement())
-  id_penugasan Int
-  penugasan    Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-
-  km3_rincian_pekerjaan KM3RincianPekerjaan[]
-  km3_peran             KM3Peran[]
-
-  // === Tambahan TTD ===
-  ttd_katim      Int?
-  ttd_katim_user User?     @relation("ttd_katim_km3", fields: [ttd_katim], references: [id])
-  tgl_ttd_katim  DateTime?
-
-  ttd_pt      Int?
-  ttd_pt_user User?     @relation("ttd_pt_km3", fields: [ttd_pt], references: [id])
-  tgl_ttd_pt  DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  @@map("km3")
-}
-
-model KM3Peran {
-  id            Int    @id @default(autoincrement())
-  id_km3        Int
-  km3           KM3    @relation(fields: [id_km3], references: [id], onDelete: Cascade)
-  id_peran      Int
-  peran         Peran  @relation(fields: [id_peran], references: [id], onDelete: Cascade)
-  rencana_jam   Float?
-  realisasi_jam Float?
-
-  @@map("km3_peran")
-}
-
-model KM3RincianPekerjaan {
-  id     Int @id @default(autoincrement())
-  id_km3 Int
-  km3    KM3 @relation(fields: [id_km3], references: [id], onDelete: Cascade)
-
-  id_kelompok_pengawasan Int
-  kelompok_pengawasan    Kelompok_pengawasan @relation(fields: [id_kelompok_pengawasan], references: [id])
-
-  id_item_pengawasan Int
-  item_pengawasan    Item_pengawasan @relation(fields: [id_item_pengawasan], references: [id])
-  rencana_jam        Float?
-  anggaran_jam       Float?
-  realisasi_biaya    Float?
-  anggaran_biaya     Float?
-
-  @@map("km3_rincian_pekerjaan")
-}
-
-model KM4 {
-  id           Int       @id @default(autoincrement())
-  id_penugasan Int
-  penugasan    Penugasan @relation(fields: [id_penugasan], references: [id], onDelete: Cascade)
-
-  tujuan String?
-
-  KM4ProgramKerja KM4ProgramKerja[]
-
-  @@map("km4")
-}
-
-model KM4ProgramKerja {
-  id              Int     @id @default(autoincrement())
-  prosedur        String
-  anggaran_waktu  Int
-  realisasi_waktu Int
-  no_kka          String?
-
-  id_km4 Int
-  km4    KM4 @relation(fields: [id_km4], references: [id], onDelete: Cascade)
-
-  auditors KM4Auditors[]
-
-  @@map("km4_program_kerja")
-}
-
-model KM4Auditors {
-  id   Int     @id @default(autoincrement())
-  nama String
-  nip  String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  id_km4_program_kerja Int
-  km4_program_kerja    KM4ProgramKerja @relation(fields: [id_km4_program_kerja], references: [id], onDelete: Cascade)
-
-  @@map("km4_auditors")
 }

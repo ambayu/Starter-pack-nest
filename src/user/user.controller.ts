@@ -1,31 +1,25 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
   Post,
-  Put,
-  Param,
-  Delete,
-  Query,
   Patch,
+  Delete,
+  Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { updateBiodataDto } from 'src/biodata/dto/update-biodata.dto';
-import { PermissionGuard } from 'src/auth/guard/permission.guard';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { PermissionGuard } from 'src/auth/guard/permission.guard';
 import { Permissions } from 'src/common/decorators/permission.decorator';
+import { updateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
-@UseGuards(JwtAuthGuard, PermissionGuard) // default semua endpoint cek JWT + permission
+@UseGuards(JwtAuthGuard, PermissionGuard)
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly prisma: PrismaService,
-  ) { }
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   @Permissions('user:view')
@@ -34,48 +28,36 @@ export class UserController {
     @Query('perPage') perPage: number,
     @Query('search') search?: string,
   ) {
-    return this.userService.findAll(
-      Number(page) || 1,
-      Number(perPage) || 10,
-      search,
-    );
+    return this.userService.findAll(Number(page) || 1, Number(perPage) || 10, search);
   }
-
-
-  @Get('generate-user')
-  GenerateUser() {
-    return this.userService.generateUser();
-  }
-
-
-  @Get('find-pns')
-  findAllPns() {
-    return this.userService.findAllPns();
-  }
-
 
   @Get(':id')
-  find(@Param('id') id: number) {
-    return this.userService.findById(id);
+  @Permissions('user:view')
+  findById(@Param('id') id: number) {
+    return this.userService.findById(Number(id));
   }
-  
+
   @Get('username/:username')
+  @Permissions('user:view')
   findByUsername(@Param('username') username: string) {
     return this.userService.findByUsername(username);
   }
 
-  @Patch(':id')
-  updated(@Param('id') id: number, @Body() data: updateBiodataDto) {
-    return this.userService.update(Number(id), data);
+  @Post()
+  @Permissions('user:create')
+  create(@Body() dto: CreateUserDto) {
+    return this.userService.createUser(dto);
   }
 
-  @Post()
-  async create(@Body() CreateUserDto: CreateUserDto) {
-    return this.userService.createUser(CreateUserDto);
+  @Patch(':id')
+  @Permissions('user:update')
+  update(@Param('id') id: number, @Body() dto: updateUserDto) {
+    return this.userService.update(Number(id), dto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: number) {
+  @Permissions('user:delete')
+  remove(@Param('id') id: number) {
     return this.userService.destroy(Number(id));
   }
 }

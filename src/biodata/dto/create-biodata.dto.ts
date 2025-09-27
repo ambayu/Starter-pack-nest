@@ -1,29 +1,33 @@
-import { Type } from 'class-transformer';
-import { IsEmail, IsNotEmpty, MinLength, IsDate } from 'class-validator';
-export class createbiodataDto {
+import { IsInt, IsOptional, IsString, IsDateString } from 'class-validator';
 
-    photo: string;
-    kota: string;
-    kode_pos: string;
-    no_telp: string;
+export class CreateBiodataDto {
+  @IsInt()
+  id_user: number;
 
-    @IsNotEmpty({ message: "name tidak boleh kosong" })
-    name: string;
+  @IsOptional() @IsString()
+  alamat?: string;
 
-    @IsNotEmpty({ message: 'alamat tidak boleh kosong' })
-    alamat: string;
+  @IsOptional() @IsString()
+  no_telp?: string;
 
-    @IsNotEmpty({ message: 'tanggal lahir tidak boleh kosong' })
-    @IsDate({ message: 'tanggal lahir harus berupa tanggal valid' })
-    @Type(() => Date)
-    tanggal_lahir: Date;
+  @IsOptional() @IsString()
+  kota?: string;
 
-    @IsNotEmpty({ message: 'jenis kelamin tidak boleh kosong' })
-    jenis_kelamin: string;
+  @IsOptional() @IsString()
+  kode_pos?: string;
 
-    @IsNotEmpty({ message: 'id_user tidak boleh kosong' })
-    @Type(() => Number)
-    id_user: number;
+  @IsOptional() @IsString()
+  photo?: string;
 
+  @IsOptional() @IsDateString()
+  tanggal_lahir?: Date;
 
+  @IsOptional() @IsString()
+  jenis_kelamin?: string;
+
+  @IsOptional() @IsString()
+  jabatan?: string;
+
+  @IsOptional() @IsString()
+  pangkat?: string;
 }
