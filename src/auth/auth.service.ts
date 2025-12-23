@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async login(username: string, password: string) {
     if (!username) {
@@ -61,6 +61,7 @@ export class AuthService {
       username: user.username,
       roles,
       permissions,
+      biodata: user.Biodata || null,
     };
 
     const token = this.jwtService.sign(payload);

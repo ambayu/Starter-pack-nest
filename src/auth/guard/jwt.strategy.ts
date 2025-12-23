@@ -17,10 +17,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // return ini otomatis disimpan ke req.user
     return {
       id: payload.sub,
-      username: payload.username, 
+      username: payload.username,
       roles: payload.roles,
       permissions: payload.permissions,
-      nip: payload.nip
+      biodata: payload.biodata,
     };
   }
 }

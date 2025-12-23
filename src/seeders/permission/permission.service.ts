@@ -8,25 +8,9 @@ export class PermissionSeederService {
   async seed() {
     try {
       const rolePermissionsMap = {
-        irban: [
-          'penugasan-irban:view',
-          'penugasan-irban:manage',
 
-        ],
-        asn: [
-          'kasubag-umum:view',
-          'kasubag-umum-penomoran:view',
-          'kasubag-umum-penomoran:manage',
-          'penandatanganan:view',
-          'penandatanganan:manage', 
-
-          'penugasan-katim:view',
-          'penugasan-katim:manage',
-        ],
         admin: [
 
-          'penugasan-irban:view',
-          'penugasan-irban:manage',
 
 
           // User
@@ -34,6 +18,12 @@ export class PermissionSeederService {
           'user:create',
           'user:edit',
           'user:delete',
+
+          // Biodata
+          'biodata:view',
+          'biodata:create',
+          'biodata:edit',
+          'biodata:delete',
 
           // Laporan
           'laporan:view',
@@ -51,6 +41,18 @@ export class PermissionSeederService {
           'permission:create',
           'permission:edit',
           'permission:delete',
+
+          // User Role
+          'user-role:view',
+          'user-role:create',
+          'user-role:edit',
+          'user-role:delete',
+
+          // Role Permission
+          'role-permission:view',
+          'role-permission:create',
+          'role-permission:edit',
+          'role-permission:delete',
         ],
 
         admin_laporan: [
@@ -61,10 +63,12 @@ export class PermissionSeederService {
 
         user: [
           'user:view',
+          'biodata:view',
           'laporan:view',
         ],
 
         guest: [
+          'biodata:view',
           'laporan:view',
         ],
       };

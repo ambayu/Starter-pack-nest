@@ -50,7 +50,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @Permissions('user:update')
+  @Permissions('user:edit')
   update(@Param('id') id: number, @Body() dto: updateUserDto) {
     return this.userService.update(Number(id), dto);
   }

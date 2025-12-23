@@ -24,10 +24,4 @@ export class CreateBiodataDto {
 
   @IsOptional() @IsString()
   jenis_kelamin?: string;
-
-  @IsOptional() @IsString()
-  jabatan?: string;
-
-  @IsOptional() @IsString()
-  pangkat?: string;
 }

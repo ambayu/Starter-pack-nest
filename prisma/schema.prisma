@@ -6,7 +6,6 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
   // npx ts-node  src/seeders/seeder.ts 
-
 }
 
 model User {
@@ -20,8 +19,8 @@ model User {
   deletedAt DateTime?
 
   // Relasi
-  Biodata   Biodata?
-  UserRole  UserRole[]
+  Biodata  Biodata?
+  UserRole UserRole[]
 
   @@map("user")
 }
@@ -61,10 +60,10 @@ model UserRole {
 }
 
 model Role {
-  id             Int              @id @default(autoincrement())
-  name           String           @unique
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now()) @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   users          UserRole[]
   RolePermission RolePermission[]
@@ -73,22 +72,22 @@ model Role {
 }
 
 model Permission {
-  id        Int              @id @default(autoincrement())
-  name      String           @unique
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @default(now()) @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  roles     RolePermission[]
+  roles RolePermission[]
 
   @@map("permission")
 }
 
 model RolePermission {
-  id            Int        @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   id_role       Int
   id_permission Int
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @default(now()) @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
   role       Role       @relation(fields: [id_role], references: [id], onDelete: Cascade)
   permission Permission @relation(fields: [id_permission], references: [id], onDelete: Cascade)

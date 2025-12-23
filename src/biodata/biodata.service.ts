@@ -11,7 +11,7 @@ import { updateBiodataDto } from './dto/update-biodata.dto';
 
 @Injectable()
 export class BiodataService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // CREATE
   async create(data: CreateBiodataDto) {
@@ -35,8 +35,6 @@ export class BiodataService {
         photo: data.photo,
         tanggal_lahir: data.tanggal_lahir,
         jenis_kelamin: data.jenis_kelamin,
-        jabatan: data.jabatan,
-        pangkat: data.pangkat,
       },
     });
 
@@ -82,8 +80,6 @@ export class BiodataService {
         photo: data.photo,
         tanggal_lahir: data.tanggal_lahir,
         jenis_kelamin: data.jenis_kelamin,
-        jabatan: data.jabatan,
-        pangkat: data.pangkat,
       },
     });
 
@@ -92,7 +88,7 @@ export class BiodataService {
 
   // DELETE
   async destroy(id: number) {
-   
+
     return "Biodata berhasil dihapus";
   }
 }

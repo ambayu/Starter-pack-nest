@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import {  PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class RoleSeederService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private prisma: PrismaClient) { }
 
   async seed() {
     const roles = [
       { name: 'admin' },
-      { name: 'irban' },
+
       { name: 'admin_laporan' },
       { name: 'user' },
       { name: 'guest' },
-      { name: 'asn' },
+
     ];
 
     for (const role of roles) {
